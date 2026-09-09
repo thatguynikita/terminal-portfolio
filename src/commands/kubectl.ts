@@ -26,8 +26,13 @@ export default defineCommand({
     return ["get pods", `${DESCRIBE} `];
   },
 
+  // Trims the "describe pod " prefix off pod-name candidates so the chips
+  // read as bare names. The bare prefix candidate matches too and trims to
+  // nothing, so fall back to it rather than emitting an empty label.
   completeLabel: (candidate) =>
-    candidate.startsWith(`${DESCRIBE} `) ? candidate.slice(DESCRIBE.length + 1) : candidate,
+    candidate.startsWith(`${DESCRIBE} `)
+      ? candidate.slice(DESCRIBE.length + 1) || candidate
+      : candidate,
 
   run(ctx, args) {
     const sub = args.normalized;

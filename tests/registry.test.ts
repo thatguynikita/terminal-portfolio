@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest";
 import { loadCommands } from "../src/core/registry";
 import { LOCALES } from "../src/i18n/locales";
-import { lookup } from "../src/i18n";
+import { commandDescription } from "../src/core/describe";
 import profile from "../profile.config";
 
 const commands = loadCommands();
@@ -29,17 +29,25 @@ describe("registry", () => {
   });
 
   // This is what keeps `help` from drifting away from what actually runs.
+  // Either source counts: the message catalogue, or a profile.commands
+  // override.
   it("has help text for every visible command in every enabled locale", () => {
     const missing: string[] = [];
     for (const command of commands.filter((c) => !c.hidden)) {
       for (const locale of LOCALES) {
-        const text = lookup(locale, `commands.${command.name}`);
-        if (typeof text !== "string" || text.length === 0) {
+        if (commandDescription(profile, locale, command.name).trim() === "") {
           missing.push(`${locale}/${command.name}`);
         }
       }
     }
     expect(missing).toEqual([]);
+  });
+
+  it("only overrides descriptions for commands that exist", () => {
+    const names = new Set(commands.map((c) => c.name));
+    for (const name of Object.keys(profile.commands?.descriptions ?? {})) {
+      expect(names, `profile.commands describes unknown command "${name}"`).toContain(name);
+    }
   });
 
   it("only references commands that exist in the config's enable/disable lists", () => {

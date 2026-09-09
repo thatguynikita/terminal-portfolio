@@ -14,7 +14,10 @@ export default defineProfile({
       ru: "Никита Чернозипунников",
     },
     handle: "guest",
-    domain: "nikita.sh",
+    // Where this site is published: the CNAME the build emits and the
+    // canonical URL in OG tags / JSON-LD. Distinct from terminal.hostname
+    // below, which is only the hostname shown in the prompt.
+    domain: "terminal.nikita.sh",
     role: {
       en: "DevOps / SRE — Systems Engineer",
       ru: "DevOps / SRE — Системный инженер",
@@ -113,6 +116,11 @@ and SRE practices into reality.`,
     ],
   },
 
+  // The live "Playing" row in the neofetch card. Delete this whole block
+  // (or blank the endpoint) to turn the widget off: the row isn't rendered
+  // at all and no request is ever made — neofetch just ends at Status.
+  // An endpoint that's set but unreachable keeps the row and shows
+  // "spotify offline" instead.
   nowPlaying: {
     endpoint: "https://functions.yandexcloud.net/d4e5vur1qk4p911pcu58",
     pollMs: 20000,
@@ -183,6 +191,24 @@ and SRE practices into reality.`,
     locales: ["en", "ru"],
     defaultLocale: "en",
     defaultTheme: "random",
+  },
+
+  commands: {
+    // Overrides a command's one-line description in `help`. Anything not
+    // listed here falls back to `commands.<name>` in src/i18n/<locale>.ts.
+    // Use it for lines that carry your name or your voice.
+    descriptions: {
+      about: {
+        en: "who is that guy nikita anyway",
+        ru: "кто такой вообще этот никита",
+      },
+    },
+
+    // The fake-system commands (ps, who, w, env) show two accounts: the
+    // visitor, who is identity.handle, and the machine's owner — you.
+    system: {
+      owner: "nikita",
+    },
   },
 
   links: {

@@ -1,5 +1,6 @@
 import { defineCommand } from "../core/types";
 import { nowDateTime, uptimeLine } from "./uptime";
+import { systemOwner } from "../core/describe";
 
 export default defineCommand({
   name: "w",
@@ -18,7 +19,14 @@ export default defineCommand({
           "0.00s",
           "-ssh recruiter",
         ],
-        ["nikita", "pts/1", ctx.escape(ctx.t("who.stillFixing")), "2019-03-11", "6y", "vim"],
+        [
+          ctx.escape(systemOwner(ctx.profile)),
+          "pts/1",
+          ctx.escape(ctx.t("who.stillFixing")),
+          "2019-03-11",
+          "6y",
+          "vim",
+        ],
       ]
     );
   },

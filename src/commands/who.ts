@@ -1,5 +1,6 @@
 import { defineCommand } from "../core/types";
 import { nowDateTime } from "./uptime";
+import { systemOwner } from "../core/describe";
 
 export default defineCommand({
   name: "who",
@@ -7,6 +8,7 @@ export default defineCommand({
   run(ctx) {
     const guest = ctx.profile.identity.handle.padEnd(8);
     ctx.printText(`${guest} pts/0        ${nowDateTime()} (${ctx.t("who.yourBrowser")})`);
-    ctx.printText(`nikita   pts/1        2019-03-11 03:14 (${ctx.t("who.stillFixing")})`);
+    const owner = systemOwner(ctx.profile).padEnd(8);
+    ctx.printText(`${owner} pts/1        2019-03-11 03:14 (${ctx.t("who.stillFixing")})`);
   },
 });

@@ -19,3 +19,12 @@ export type Localized<T = string> = Record<Locale, T>;
 export function isLocale(value: unknown): value is Locale {
   return typeof value === "string" && (LOCALES as readonly string[]).includes(value);
 }
+
+/**
+ * The next locale in the configured rotation, wrapping at the end — so a
+ * site with three or more languages cycles through all of them one step
+ * at a time. An unknown `current` starts the rotation from the beginning.
+ */
+export function nextLocale(locales: readonly Locale[], current: Locale): Locale {
+  return locales[(locales.indexOf(current) + 1) % locales.length] as Locale;
+}

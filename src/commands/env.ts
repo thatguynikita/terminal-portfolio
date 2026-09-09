@@ -1,4 +1,5 @@
 import { defineCommand } from "../core/types";
+import { systemOwner } from "../core/describe";
 
 export default defineCommand({
   name: "env",
@@ -6,6 +7,7 @@ export default defineCommand({
   hidden: true,
   run(ctx) {
     const user = ctx.profile.identity.handle;
+    const owner = systemOwner(ctx.profile);
     ctx.printLines(
       [
         "SHELL=/bin/bash",
@@ -18,7 +20,7 @@ export default defineCommand({
         "ON_CALL=true",
         "SLEEP_DEBT=considerable",
         "IMPOSTOR_SYNDROME=1",
-        "PATH=/usr/local/bin:/usr/bin:/bin:/home/nikita/regrets",
+        `PATH=/usr/local/bin:/usr/bin:/bin:/home/${owner}/regrets`,
       ].map(ctx.escape)
     );
   },

@@ -1,7 +1,8 @@
 import type { Terminal } from "./terminal";
 import type { ProfileConfig } from "./profile";
-import type { Locale } from "../i18n/locales";
+import { nextLocale as rotateLocale, type Locale } from "../i18n/locales";
 import { commonPrefix } from "./args";
+import { isCompleteArgument, splitInput } from "./complete";
 import { el, escapeAttr, escapeHtml } from "./html";
 
 interface Chip {
@@ -39,16 +40,6 @@ export function createInput(terminal: Terminal, profile: ProfileConfig): InputCo
 
   /* ---------------- completion ---------------- */
 
-  function splitInput(raw: string): { base: string | null; head: string; prefix: string } {
-    const spaceIndex = raw.indexOf(" ");
-    if (spaceIndex === -1) return { base: null, head: "", prefix: raw.toLowerCase() };
-    return {
-      base: raw.slice(0, spaceIndex).toLowerCase(),
-      head: raw.slice(0, spaceIndex + 1),
-      prefix: raw.slice(spaceIndex + 1).toLowerCase(),
-    };
-  }
-
   function candidatesFor(raw: string): string[] {
     const { base, prefix } = splitInput(raw);
     if (ctx.mode) {
@@ -61,15 +52,16 @@ export function createInput(terminal: Terminal, profile: ProfileConfig): InputCo
 
   function labelFor(base: string | null, candidate: string): string {
     if (!base) return candidate;
-    return registry.get(base)?.completeLabel?.(candidate) ?? candidate;
+    // `|| candidate`, not `??`: a trimming label helper can legitimately
+    // return "" for the bare prefix candidate it also matches, and an
+    // empty label renders as an invisible chip.
+    return registry.get(base)?.completeLabel?.(candidate) || candidate;
   }
 
   /* ---------------- chips ---------------- */
 
   function nextLocale(): Locale {
-    const locales = profile.terminal.locales;
-    const index = locales.indexOf(ctx.lang);
-    return locales[(index + 1) % locales.length] as Locale;
+    return rotateLocale(profile.terminal.locales, ctx.lang);
   }
 
   function defaultChips(): Chip[] {
@@ -119,15 +111,17 @@ export function createInput(terminal: Terminal, profile: ProfileConfig): InputCo
       submit();
       return;
     }
-    // If the chip only narrows things down, keep the input open.
+    // A chip carries a complete intended command, so it should run unless
+    // it only narrows the options — `theme ` opens the theme list, while
+    // `theme green` runs.
     const withSpace = value.includes(" ") ? value : `${value} `;
-    const more = candidatesFor(withSpace);
-    if (more.length > 0) {
+    const { prefix } = splitInput(withSpace);
+    if (isCompleteArgument(candidatesFor(withSpace), prefix)) {
+      submit();
+    } else {
       cmdInput.value = withSpace;
       cmdInput.focus();
       renderChips();
-    } else {
-      submit();
     }
   }
 

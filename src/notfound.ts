@@ -5,7 +5,7 @@ import profile from "../profile.config";
 import { createMatrixRain } from "./core/matrix";
 import { createThemeController } from "./core/theme";
 import { translate } from "./i18n";
-import type { Locale } from "./i18n/locales";
+import { nextLocale, type Locale } from "./i18n/locales";
 import { StorageKey, readStored, writeStored } from "./core/storage";
 import { escapeHtml } from "./core/html";
 
@@ -84,13 +84,13 @@ const announce = document.getElementById("langAnnounce");
 if (chip && locales.length > 1) {
   chip.hidden = false;
   const updateChip = (): void => {
-    const next = locales[(locales.indexOf(lang) + 1) % locales.length] as Locale;
+    const next = nextLocale(locales, lang);
     chip.textContent = next.toUpperCase();
     chip.setAttribute("aria-label", translate(lang, "notFound.switchTo"));
   };
 
   chip.addEventListener("click", () => {
-    lang = locales[(locales.indexOf(lang) + 1) % locales.length] as Locale;
+    lang = nextLocale(locales, lang);
     writeStored(StorageKey.lang, lang);
     updateChip();
     render();

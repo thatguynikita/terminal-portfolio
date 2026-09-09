@@ -33,6 +33,11 @@ export interface ProfileConfig {
     name: Localized;
     /** Shell user, also used in the prompt and `whoami`. */
     handle: string;
+    /**
+     * The domain this site is deployed to — emitted as `CNAME` and used as
+     * the canonical URL. Not the same as `terminal.hostname`, which is the
+     * cosmetic hostname in the prompt and `uname`.
+     */
     domain: string;
     role: Localized;
     email: string;
@@ -80,6 +85,29 @@ export interface ProfileConfig {
     enabledCommands?: string[];
     /** Blacklist, applied after the whitelist. */
     disabledCommands?: string[];
+  };
+
+  /** Per-command configuration. */
+  commands?: {
+    /**
+     * Overrides the help-line description for a command, keyed by command
+     * name. Anything not listed falls back to `commands.<name>` in
+     * `src/i18n/<locale>.ts`.
+     *
+     * Use it for descriptions carrying your name or voice — a fork should
+     * be able to reword them without editing the message catalogues.
+     */
+    descriptions?: Record<string, Localized>;
+
+    /** Shared by the fake-system commands: `ps`, `who`, `w`, `env`. */
+    system?: {
+      /**
+       * The machine's owner — the account those commands show running
+       * things, as opposed to `identity.handle`, which is the visitor.
+       * Defaults to "root".
+       */
+      owner?: string;
+    };
   };
 
   links?: {

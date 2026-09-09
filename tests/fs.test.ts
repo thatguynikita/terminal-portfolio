@@ -31,6 +31,66 @@ describe("filesystem", () => {
     }
   });
 
+  /**
+   * `ls` used to count the <span>/<a> wrappers a rendered file adds,
+   * reporting contact.txt as 950 bytes for 184 bytes of visible text.
+   * Size must track what `cat` shows, not how it is marked up.
+   */
+  describe("size", () => {
+    const bytes = (s: string): number => new TextEncoder().encode(s).length;
+    const stripped = (s: string): string =>
+      s
+        .replace(/<[^>]*>/g, "")
+        .replace(/&lt;/g, "<")
+        .replace(/&gt;/g, ">")
+        .replace(/&quot;/g, '"')
+        .replace(/&#39;/g, "'")
+        .replace(/&nbsp;/g, " ")
+        .replace(/&amp;/g, "&");
+
+    it("never counts presentation markup", () => {
+      for (const node of nodes) {
+        const lines = node.read?.(ctx);
+        if (!lines) continue;
+        const rendered = lines.join("\n");
+        if (!rendered.includes("<")) continue;
+        expect(node.size, `${node.name} counts its markup`).toBeLessThan(bytes(rendered));
+      }
+    });
+
+    it("tracks the visible text of every node", () => {
+      for (const node of nodes) {
+        const lines = node.read?.(ctx);
+        if (!lines) continue;
+        const visible = bytes(stripped(lines.join("\n")));
+        // Plain files measure the bytes on disk, which carry a trailing
+        // newline that `cat` trims — hence the one-byte tolerance.
+        expect(
+          Math.abs(node.size - visible),
+          `${node.name}: size ${node.size} vs ${visible} bytes of visible text`
+        ).toBeLessThanOrEqual(1);
+      }
+    });
+
+    it("reports a plain file's real size on disk", () => {
+      // .bashrc is a real file; its size is the file's, not the rendered
+      // form's (which adds dim spans around the comment lines).
+      const bashrc = nodes.find((n) => n.name === ".bashrc")!;
+      const rendered = bashrc.read!(ctx)!.join("\n");
+      expect(bashrc.size).toBeGreaterThan(0);
+      expect(bashrc.size).not.toBe(bytes(rendered));
+    });
+
+    it("matches the byte count a reader could verify by hand", () => {
+      // contact.txt renders one "Label: display" line per social link.
+      const contact = nodes.find((n) => n.name === "contact.txt")!;
+      const expected = ctx.profile.socials
+        .map((s) => `${s.label}: ${s.display}`)
+        .join("\n");
+      expect(contact.size).toBe(bytes(expected));
+    });
+  });
+
   it("hides dotfiles from a plain listing", () => {
     expect(fs.list().map((n) => n.name)).not.toContain(".bashrc");
     expect(fs.list({ all: true }).map((n) => n.name)).toContain(".bashrc");

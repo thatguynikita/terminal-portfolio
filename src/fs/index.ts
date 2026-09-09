@@ -41,6 +41,26 @@ function byteLength(text: string): number {
   return new TextEncoder().encode(text).length;
 }
 
+/**
+ * The text a reader actually sees, with our presentation markup removed.
+ *
+ * Rendered files wrap their content in `<span class="accent">`, `<a href=…>`
+ * and the like. Measuring the raw HTML made `ls` report contact.txt as 950
+ * bytes for 184 bytes of visible text — a number that is precise about the
+ * wrong thing.
+ */
+function visibleText(html: string): string {
+  return html
+    .replace(/<[^>]*>/g, "")
+    .replace(/&lt;/g, "<")
+    .replace(/&gt;/g, ">")
+    .replace(/&quot;/g, '"')
+    .replace(/&#39;/g, "'")
+    .replace(/&nbsp;/g, " ")
+    // Ampersand last, so "&amp;lt;" does not decode twice.
+    .replace(/&amp;/g, "&");
+}
+
 interface Entry {
   name: string;
   raw?: string;
@@ -79,15 +99,15 @@ function toNode(entry: Entry, ctx: CommandContext): FsNode {
     return d?.html ? lines : lines.map(escapeHtml);
   };
 
-  // A real byte count: the source file's, or the length of what `cat`
-  // would actually print for a rendered file.
+  // A real byte count. A plain file reports its size on disk; a rendered
+  // one reports the text `cat` displays, not the markup wrapped around it.
   let size = d?.size;
   if (size === undefined) {
     if (entry.raw !== undefined) {
       size = byteLength(entry.raw);
     } else {
       const lines = read(ctx);
-      size = lines ? byteLength(lines.join("\n")) : 0;
+      size = lines ? byteLength(visibleText(lines.join("\n"))) : 0;
     }
   }
 

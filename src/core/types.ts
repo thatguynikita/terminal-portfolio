@@ -186,7 +186,11 @@ export interface Command {
    * commands without one sort after, alphabetically.
    */
   order?: number;
-  /** Argument hint used by `help`, e.g. "<file>". */
+  /**
+   * Marks a command as taking an argument, e.g. "<file>". Not rendered —
+   * `help` lists bare names and leaves the hinting to completion — but it
+   * makes clicking the `help` row fill in `name ` with a trailing space.
+   */
   usage?: string;
   /**
    * What `help` puts in the input when the row is clicked.

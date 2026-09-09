@@ -2,6 +2,9 @@ import { describe, expect, it } from "vitest";
 import { loadCommands } from "../src/core/registry";
 import { LOCALES } from "../src/i18n/locales";
 import { createFakeContext, withNodes, args } from "./helpers";
+import profile from "../profile.config";
+
+const profileHandle = profile.identity.handle;
 import type { FsNode } from "../src/core/types";
 
 const commands = loadCommands();
@@ -79,6 +82,29 @@ describe("commands", () => {
     }
   });
 
+  it("help lists bare command names, with click-to-fill still argument-aware", async () => {
+    const help = commands.find((c) => c.name === "help")!;
+    const ctx = createFakeContext("en");
+    ctx.commands = () => commands;
+    await help.run(ctx, args("", "help"));
+
+    const cells = [...ctx.root.querySelectorAll<HTMLElement>(".help-cmd")];
+    expect(cells.length).toBeGreaterThan(0);
+
+    for (const cell of cells) {
+      const name = cell.textContent ?? "";
+      // No "<file>" / "<subcommand>" hints in the visible label.
+      expect(name, `"${name}" should be a bare command name`).not.toContain("<");
+      expect(name.trim()).toBe(name);
+
+      const command = commands.find((c) => c.name === name)!;
+      expect(command, `help listed an unknown command "${name}"`).toBeDefined();
+      // A command taking an argument still fills with a trailing space.
+      const fill = cell.dataset["value"] ?? "";
+      expect(fill).toBe(command.usage ? `${name} ` : name);
+    }
+  });
+
   it("cat reports a missing file rather than throwing", async () => {
     const cat = commands.find((c) => c.name === "cat")!;
     const ctx = createFakeContext("en");
@@ -95,5 +121,50 @@ describe("commands", () => {
     await ls.run(ctx, args("", "ll"));
     // The long format prints a "total" header; the short one does not.
     expect(ctx.lines[0]).toMatch(/total/i);
+  });
+});
+
+/**
+ * `ps`, `who`, `w` and `env` all show a second account — the machine's
+ * owner — which used to be hardcoded as one person's name.
+ */
+describe("system owner", () => {
+  const OWNERED = ["ps", "who", "w", "env"];
+
+  const render = async (name: string, overrides = {}): Promise<string> => {
+    const command = commands.find((c) => c.name === name)!;
+    const ctx = createFakeContext("en", overrides);
+    withNodes(ctx, fixtureNodes());
+    await command.run(ctx, args("", name));
+    return ctx.lines.join("\n");
+  };
+
+  it("uses the configured owner, and never a hardcoded name", async () => {
+    const config = { commands: { system: { owner: "ada" } } };
+    for (const name of OWNERED) {
+      const out = await render(name, config);
+      expect(out, `${name} does not show the configured owner`).toContain("ada");
+      expect(out.toLowerCase(), `${name} still hardcodes a name`).not.toContain("nikita");
+    }
+  });
+
+  it("still shows the visitor alongside the owner", async () => {
+    const config = { commands: { system: { owner: "ada" } } };
+    for (const name of ["ps", "who", "w"]) {
+      const out = await render(name, config);
+      expect(out, `${name} lost the visitor account`).toContain(profileHandle);
+    }
+  });
+
+  it("falls back to root when no owner is configured", async () => {
+    for (const name of OWNERED) {
+      const out = await render(name, { commands: {} });
+      expect(out, `${name} has no owner fallback`).toContain("root");
+    }
+  });
+
+  it("puts the owner in env's PATH rather than a fixed home directory", async () => {
+    const out = await render("env", { commands: { system: { owner: "ada" } } });
+    expect(out).toContain("/home/ada/regrets");
   });
 });
