@@ -1,0 +1,17 @@
+# ~/.bashrc
+
+alias ll='ls -l'
+alias pwd='pwd'
+alias hostname='hostname'
+alias uname='uname -a'
+alias id='id'
+alias df='df -h'
+alias free='free -h'
+alias uptime='uptime'
+alias dmesg='dmesg'
+alias who='who'
+alias w='w'
+alias ps='ps aux'
+alias env='env'
+alias rm='rm -i'
+alias game='sudo ./milk-quest.sh'

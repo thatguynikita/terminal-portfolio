@@ -1,0 +1,63 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <meta name="robots" content="noindex" />
+  <!-- Root-absolute paths: this page is served at arbitrary URL depths,
+       so relative ones would resolve against the wrong directory. -->
+  <link rel="icon" href="/favicon.ico" sizes="any" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link
+    href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;700&display=swap"
+    rel="stylesheet"
+  />
+  <!--NOSCRIPT-->
+</head>
+<body>
+
+<canvas id="matrix" aria-hidden="true"></canvas>
+<div class="vignette" aria-hidden="true"></div>
+<div class="crt" aria-hidden="true"></div>
+
+<div class="wrap">
+  <div class="topbar">
+    <a href="/" id="brandLink">&larr;</a>
+    <div class="right">
+      <button id="langChip" hidden></button>
+    </div>
+  </div>
+  <div id="langAnnounce" class="sr-only" aria-live="polite"></div>
+
+  <main class="term" role="main">
+    <div class="term-head">
+      <span class="dot r"></span><span class="dot y"></span><span class="dot g"></span>
+      <span class="term-title" id="termTitle"></span>
+    </div>
+    <div class="term-body">
+      <div class="line">
+        <span class="ps" id="psLabel"></span>ls <span id="reqPath"></span>
+      </div>
+      <div class="line err">
+        ls: <span id="reqPathEcho"></span>: <span id="notFoundText"></span>
+      </div>
+
+      <div class="scene">
+        <div class="cat">
+          <div class="cat-frame">
+            <img class="cat-photo" id="catPhoto" src="/assets/img/404-cat.png" alt="" />
+          </div>
+        </div>
+      </div>
+
+      <div class="message" id="message"></div>
+    </div>
+  </main>
+
+  <footer id="pageFooter"></footer>
+</div>
+
+<script type="module" src="/src/notfound.ts"></script>
+</body>
+</html>

@@ -1,0 +1,48 @@
+/* ---------- solarized (Solarized Dark, 2010) ----------
+   Ethan Schoonover's canonical palette (https://ethanschoonover.com/solarized/),
+   used as-is. Deliberately muted/low-contrast by design — unlike the neon
+   themes above, this one gets a minimal glow and no CRT flicker, same
+   treatment as sabbatical, since Solarized's whole identity is precision
+   and readability, not a retro CRT look. */
+:root[data-theme="solarized"]{
+  --bg:#002b36;
+  --bg-rgb:0,43,54;
+  --fg:#839496;
+  /* Schoonover's own base01 (#586e75, this site's secondary text color)
+     is only 2.79:1 against base03 — real but fails WCAG AA for the
+     body-adjacent text --fg-dim covers here (footer, term-title).
+     Lightened to clear 4.5:1 while staying in the same base0/base01
+     family. */
+  --fg-dim:#78929a;
+  --fg-dim2:#3a4d53;
+  --accent:#268bd2;
+  --amber:#b58900;
+  --amber-glow:0 0 6px #b5890099;
+  --red:#dc322f;
+  --border:rgba(131,148,150,.28);
+  --glow:0 0 1px rgba(131,148,150,.35);
+  --ambient:rgba(131,148,150,.05);
+  --ambient-inset:rgba(131,148,150,.03);
+  --tint-rgb:131,148,150;
+  --term-g1:rgba(7,54,66,.92);
+  --term-g2:rgba(0,43,54,.96);
+  --term-head-bg:rgba(7,54,66,.4);
+  --chips-bg:rgba(7,54,66,.3);
+  --boot-bg:#00212a;
+  --vignette-bg:none;
+  --game-frame-g1:rgba(7,54,66,.96);
+  --game-frame-g2:rgba(0,43,54,.98);
+  --game-hint-bg:rgba(7,54,66,.3);
+  --game-filter:grayscale(.55) sepia(.5) hue-rotate(138deg) saturate(1.8) brightness(1.08) contrast(1.02);
+  /* matrix-rain canvas can't read CSS vars directly — theme.ts reads
+     these two via getComputedStyle and hands them to the canvas. */
+  --matrix-color:#839496;
+  --matrix-fade:rgba(2,4,3,0.08);
+}
+
+/* The .crt flicker is calibrated against near-black backgrounds; on
+   this one the periodic opacity dip reads as a visible flash. */
+:root[data-theme="solarized"] .crt{
+  animation:none;
+  opacity:.9;
+}

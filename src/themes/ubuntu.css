@@ -1,0 +1,46 @@
+/* ---------- ubuntu (Ubuntu Human, 2004) ----------
+   Palette from https://github.com/TOQIR-AHMAD/Unix-Epoch's Ubuntu Human
+   terminal theme — the Warty-era aubergine background with Human-theme
+   orange accents. --fg is near-white with no real hue (low saturation),
+   so unlike the other themes here --accent (the actual orange) carries
+   the identity, not --fg — --game-filter's hue-rotate is calibrated
+   against --accent for the same reason. Deliberately muted like
+   sabbatical/solarized (minimal glow, no CRT flicker) — 2004 GNOME
+   Terminal is a flat desktop look, not a CRT-phosphor one. */
+:root[data-theme="ubuntu"]{
+  --bg:#300a24;
+  --bg-rgb:48,10,36;
+  --fg:#eeeeec;
+  --fg-dim:#afafa6;
+  --fg-dim2:#7d7d70;
+  --accent:#f57900;
+  --amber:#fce94f;
+  --amber-glow:0 0 6px #fce94f99;
+  --red:#cc0000;
+  --border:rgba(238,238,236,.28);
+  --glow:0 0 1px rgba(238,238,236,.35);
+  --ambient:rgba(238,238,236,.05);
+  --ambient-inset:rgba(238,238,236,.03);
+  --tint-rgb:238,238,236;
+  --term-g1:rgba(60,15,45,.92);
+  --term-g2:rgba(35,8,26,.96);
+  --term-head-bg:rgba(20,5,15,.4);
+  --chips-bg:rgba(20,5,15,.3);
+  --boot-bg:#230719;
+  --vignette-bg:none;
+  --game-frame-g1:rgba(60,15,45,.96);
+  --game-frame-g2:rgba(35,8,26,.98);
+  --game-hint-bg:rgba(20,5,15,.3);
+  --game-filter:grayscale(.55) sepia(.5) hue-rotate(-11deg) saturate(1.8) brightness(1.08) contrast(1.02);
+  /* matrix-rain canvas can't read CSS vars directly — theme.ts reads
+     these two via getComputedStyle and hands them to the canvas. */
+  --matrix-color:#eeeeec;
+  --matrix-fade:rgba(2,4,3,0.08);
+}
+
+/* The .crt flicker is calibrated against near-black backgrounds; on
+   this one the periodic opacity dip reads as a visible flash. */
+:root[data-theme="ubuntu"] .crt{
+  animation:none;
+  opacity:.9;
+}

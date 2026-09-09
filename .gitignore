@@ -1,0 +1,25 @@
+# Build output
+dist/
+
+# Dependencies
+node_modules/
+npm-debug.log*
+
+# Local env — never commit real credentials
+.env
+.env.local
+*.env
+
+# OS cruft
+.DS_Store
+Thumbs.db
+
+# Editors
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# Claude Code local session state
+.claude/settings.local.json

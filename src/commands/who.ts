@@ -1,0 +1,12 @@
+import { defineCommand } from "../core/types";
+import { nowDateTime } from "./uptime";
+
+export default defineCommand({
+  name: "who",
+  hidden: true,
+  run(ctx) {
+    const guest = ctx.profile.identity.handle.padEnd(8);
+    ctx.printText(`${guest} pts/0        ${nowDateTime()} (${ctx.t("who.yourBrowser")})`);
+    ctx.printText(`nikita   pts/1        2019-03-11 03:14 (${ctx.t("who.stillFixing")})`);
+  },
+});

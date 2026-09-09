@@ -1,0 +1,199 @@
+import type { CommandContext, Mode, Output } from "./types";
+import type { ProfileConfig } from "./profile";
+import type { Locale } from "../i18n/locales";
+import { translate, translateList } from "../i18n";
+import { createRegistry, type Registry } from "./registry";
+import { createFileSystem } from "../fs";
+import { createThemeController } from "./theme";
+import { createMatrixRain } from "./matrix";
+import { createOutput } from "./output";
+import { parseArgs } from "./args";
+import { escapeAttr, escapeHtml, pace } from "./html";
+import { StorageKey, readStored, writeStored } from "./storage";
+
+export interface Terminal {
+  ctx: CommandContext;
+  registry: Registry;
+  /** Echo the input, then dispatch it to the active mode or a command. */
+  run(raw: string): Promise<void>;
+  /** Prompt HTML for the current mode. */
+  prompt(): string;
+  /** Window-chrome title for the current mode. */
+  title(): string;
+  pushHistory(raw: string): void;
+  historyIndex: number;
+  onModeChange?: () => void;
+  /** Set by the page entry: replays the greeting after `exit`. */
+  onRestart?: () => Promise<void>;
+}
+
+export interface TerminalOptions {
+  profile: ProfileConfig;
+  body: HTMLElement;
+  canvas: HTMLCanvasElement;
+}
+
+export function createTerminal(options: TerminalOptions): Terminal {
+  const { profile, body, canvas } = options;
+  const locales = profile.terminal.locales;
+
+  let lang: Locale = resolveInitialLang();
+  let mode: Mode | null = null;
+  const history: string[] = [];
+  const state: Record<string, unknown> = {};
+
+  function resolveInitialLang(): Locale {
+    const stored = readStored(StorageKey.lang);
+    if (stored && locales.includes(stored as Locale)) return stored as Locale;
+    return profile.terminal.defaultLocale;
+  }
+
+  const matrix = createMatrixRain(canvas);
+  matrix.setEnabled(readStored(StorageKey.matrix) !== "off");
+
+  const theme = createThemeController(matrix, {
+    defaultTheme: profile.terminal.defaultTheme,
+  });
+
+  const registry = createRegistry(profile);
+
+  const output: Output = createOutput(body, { prompt: () => terminal.prompt() });
+
+  // The filesystem needs a context, and the context exposes the
+  // filesystem — resolved lazily rather than with a construction dance.
+  const fs = createFileSystem(() => ctx);
+
+  const ctx: CommandContext = {
+    ...output,
+
+    get lang() {
+      return lang;
+    },
+    profile,
+
+    t: (key, vars) => translate(lang, key, vars),
+    tList: (key, vars) => translateList(lang, key, vars),
+    escape: escapeHtml,
+    escapeAttr,
+    sleep: pace,
+
+    fs,
+    theme,
+    get history() {
+      return history;
+    },
+    commands: () => registry.all(),
+    lookup: (name) => registry.get(name),
+
+    get mode() {
+      return mode;
+    },
+
+    async enterMode(next) {
+      mode = next;
+      await next.enter(ctx);
+      terminal.onModeChange?.();
+    },
+
+    async exitMode() {
+      const current = mode;
+      mode = null;
+      if (current?.exit) await current.exit(ctx);
+      terminal.onModeChange?.();
+    },
+
+    setLang(next) {
+      lang = next;
+      document.documentElement.lang = next;
+      writeStored(StorageKey.lang, next);
+      terminal.onModeChange?.();
+    },
+
+    navigate(url) {
+      window.location.href = url;
+    },
+
+    restart: async () => {
+      await terminal.onRestart?.();
+    },
+
+    runFile: (name, opts = {}) => runFile(name, opts.sudo ?? false),
+
+    state,
+  };
+
+  function pushHistory(raw: string): void {
+    if (!raw.trim()) return;
+    history.push(raw);
+    terminal.historyIndex = history.length;
+  }
+
+  const terminal: Terminal = {
+    ctx,
+    registry,
+    historyIndex: 0,
+
+    prompt() {
+      if (mode) return mode.prompt(ctx);
+      const { handle } = profile.identity;
+      const { hostname } = profile.terminal;
+      return `${escapeHtml(handle)}@${escapeHtml(hostname)} <span class="path">~</span> $`;
+    },
+
+    title() {
+      if (mode?.title) return mode.title(ctx);
+      const fallback = `${profile.identity.handle}@${profile.terminal.hostname} — bash — 80×24`;
+      return profile.terminal.title?.[lang] ?? fallback;
+    },
+
+    pushHistory,
+
+    async run(raw) {
+      output.promptEcho(raw);
+
+      if (mode) {
+        pushHistory(raw);
+        await mode.handle(ctx, raw);
+        return;
+      }
+
+      pushHistory(raw);
+      const trimmed = raw.trim();
+      if (!trimmed) return;
+
+      const spaceIndex = trimmed.search(/\s/);
+      const name = (spaceIndex === -1 ? trimmed : trimmed.slice(0, spaceIndex)).toLowerCase();
+      const rest = spaceIndex === -1 ? "" : trimmed.slice(spaceIndex + 1);
+
+      // `./something` runs a filesystem node rather than a command.
+      if (name.startsWith("./")) {
+        await runFile(name.slice(2), false);
+        return;
+      }
+
+      const command = registry.get(name);
+      if (!command) {
+        output.print(ctx.t("ui.notFound", { cmd: escapeHtml(name) }));
+        output.print(ctx.t("ui.notFoundHint"));
+        return;
+      }
+
+      await command.run(ctx, parseArgs(rest, name));
+    },
+  };
+
+  /** Shared by `./name`, `sudo ./name` and the `game` shortcut. */
+  async function runFile(name: string, sudo: boolean): Promise<void> {
+    const result = await fs.run(name, { sudo });
+    if (result === "ok") return;
+    const key =
+      result === "not-found"
+        ? "exec.notFound"
+        : result === "denied"
+          ? "exec.denied"
+          : "exec.notExecutable";
+    output.print(ctx.t(key, { file: escapeHtml(name) }));
+  }
+
+  return terminal;
+}

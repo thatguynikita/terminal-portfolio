@@ -1,0 +1,64 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <link rel="icon" href="/favicon.ico" sizes="any" />
+  <link rel="apple-touch-icon" href="/assets/icons/apple-touch-icon.png" />
+  <link rel="manifest" href="/site.webmanifest" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link
+    href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;700&display=swap"
+    rel="stylesheet"
+  />
+  <!-- title, description, OG tags and JSON-LD are injected at build time
+       from profile.config.ts — see vite.config.ts -->
+</head>
+<body>
+
+<canvas id="matrix" aria-hidden="true"></canvas>
+<div class="vignette" aria-hidden="true"></div>
+<div class="crt" aria-hidden="true"></div>
+
+<div id="boot" aria-hidden="true">&gt; booting ...</div>
+
+<div class="wrap">
+  <div class="topbar">
+    <span class="glow" style="display:inline-block; padding:6px 8px;" id="topbarBrand"></span>
+    <span id="topbarLinks"></span>
+  </div>
+
+  <main class="term" role="main">
+    <h1 class="sr-only" id="pageHeading"></h1>
+    <div class="term-head">
+      <span class="dot r"></span><span class="dot y"></span><span class="dot g"></span>
+      <span class="term-title"></span>
+    </div>
+    <div class="term-body" id="termBody" role="log" aria-live="polite"></div>
+    <div class="chips" id="chips"></div>
+    <!--NOSCRIPT-->
+  </main>
+
+  <footer id="siteFooter"></footer>
+</div>
+
+<div id="gameOverlay" class="game-overlay hidden">
+  <div class="game-frame">
+    <div class="term-head">
+      <span class="dot r"></span><span class="dot y"></span><span class="dot g"></span>
+      <span class="term-title" id="gameTitle"></span>
+      <button class="game-close" id="gameClose" aria-label="close">&times;</button>
+    </div>
+    <div class="game-view">
+      <iframe id="gameFrame" src="" title="game" loading="lazy" allow="autoplay"></iframe>
+      <div class="game-scan"></div>
+      <div class="game-vignette"></div>
+    </div>
+    <div class="game-hint dim" id="gameHint"></div>
+  </div>
+</div>
+
+<script type="module" src="/src/main.ts"></script>
+</body>
+</html>
