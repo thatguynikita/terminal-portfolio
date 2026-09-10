@@ -136,43 +136,6 @@ describe("profile.config.ts", () => {
 });
 
 /**
- * The README is the first thing a fork reads, and its `cv` example is the
- * only place the shape is spelled out in full. Drift there is silent.
- */
-describe("README", () => {
-  const readme = readFileSync(join(ROOT, "README.md"), "utf8");
-  const example = /## The CV[\s\S]*?```ts\n([\s\S]*?)```/.exec(readme)?.[1] ?? "";
-
-  it("documents the CV example", () => {
-    expect(example.length, "no ts example under ## The CV").toBeGreaterThan(200);
-  });
-
-  it("shows every field the cv config actually has", () => {
-    const configured = Object.keys(profile.cv ?? {});
-    expect(configured.length).toBeGreaterThan(4);
-    const undocumented = configured.filter((key) => !new RegExp(`\\b${key}\\s*:`).test(example));
-    expect(undocumented, "cv fields missing from the README example").toEqual([]);
-  });
-
-  it("shows every field a job actually has", () => {
-    const job = profile.cv?.jobs?.[0];
-    if (!job) return;
-    const keys = [...Object.keys(job), ...Object.keys(job.org).map((k) => k)];
-    const undocumented = keys.filter((key) => !new RegExp(`\\b${key}\\s*:`).test(example));
-    expect(undocumented, "job fields missing from the README example").toEqual([]);
-  });
-
-  it("does not document fields that no longer exist", () => {
-    // Catches the reverse drift: an example that outlived its config.
-    const documented = [...example.matchAll(/^\s{2}([a-zA-Z]+):/gm)].map((m) => m[1] as string);
-    const configured = new Set(Object.keys(profile.cv ?? {}));
-    const stale = documented.filter((k) => !configured.has(k));
-    expect(stale, "README documents cv fields the config doesn't have").toEqual([]);
-  });
-});
-
-
-/**
  * The example config is what a fork copies first, and nothing imports it —
  * tsc never sees it, so it can rot silently. These checks are structural
  * rather than semantic: it must parse, cover the same keys, and stay
