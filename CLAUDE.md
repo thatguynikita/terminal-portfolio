@@ -5,8 +5,9 @@ Guidance for Claude Code when working in this repository.
 ## What this is
 
 A forkable interactive terminal portfolio: Vite + TypeScript, no UI framework.
-Two pages — `index.html` (the terminal) and `404.html`. Everything a fork
-author changes lives in `profile.config.ts`.
+`index.html` (the terminal), `404.html`, and an optional **statically
+prerendered CV, one page per configured locale**. Everything a fork author
+changes lives in `profile.config.ts`.
 
 It was rebuilt from `nikita.sh`, where the whole terminal was a single
 1,890-line inline `<script>` in `public/index.html` whose `runCommand()` was a
@@ -61,6 +62,68 @@ input row, keybindings, completion and chips.
   this the terminal strands itself mid-line. This also means an automated
   browser check in a hidden pane will see instant output, not animation.
 
+## The CV
+
+Prerendered at build time, one page per `terminal.locales` entry: `/cv.html`
+for the default locale, `/<locale>/cv.html` for the rest.
+
+**Why static, and why the mirrors are gone.** The predecessor rendered the CV
+with client-side JS, so crawlers saw an empty div — which is why `nikita.sh`
+grew parallel `llm/` mirror pages plus a `<noscript>` block, three renderings of
+one résumé kept in sync by a template script. As of 2026 no major AI crawler
+executes JavaScript (GPTBot, ClaudeBot, PerplexityBot read raw HTML; only
+Googlebot renders), so prerendering makes the live page *be* the
+crawler-readable page. The mirrors, the duplicate-content risk and the cloaking
+concern went away together. **Do not reintroduce a mirror.**
+
+- `src/cv/render.ts` is a **pure, DOM-free** function returning the body markup.
+  It runs inside the Vite plugin at build time and is directly testable, which
+  is how "the résumé is in the raw HTML" is asserted rather than assumed.
+- **All CV content lives in `profile.config.ts` → `cv`**, bullets included. An
+  earlier revision split prose into `content/cv.<locale>.md`; that was reverted
+  deliberately. Keeping it in TypeScript means a missing translation is a
+  compile error rather than a runtime test, and there is one file to edit.
+  Don't reintroduce the markdown layer.
+- **The CV is optional.** Without a `cv` key: no Vite entry, so no page; the
+  `cv` command and the `cv.html` filesystem node opt out via their `enabled`
+  flag; the topbar link, sitemap rows and llms.txt links all vanish. The CV test
+  suites skip so a fork without a résumé still has a green run.
+- **Every section of it is optional too** — every field on `CvConfig` is `?`,
+  and the renderer guards each one, so an omitted or empty section produces no
+  heading and no rule. Keep them optional: making one required would compile
+  fine here and break a fork that hasn't filled it in. The "partial configs"
+  suite in `tests/cv.test.ts` omits each section in turn.
+- Note **skills come from `profile.skills`, not from `cv`** (filtered by
+  `contexts`), so they still render under `cv: {}`.
+
+### Page assembly, and its one subtlety
+
+Vite requires HTML inputs to exist on disk, so the locale list can't drive
+`rollupOptions.input`. One real `cv.html` entry is processed normally, then
+cloned per additional locale in **`writeBundle`** — not `generateBundle`, where
+Vite's own HTML plugin is still populating the template and plugin order would
+decide whether it exists yet. Cloning works only because `base` is `/`, making
+Vite's asset URLs root-absolute and valid from `/ru/` too.
+
+The dev server needs `configureServer` middleware to serve the non-default
+locales; without it `npm run dev` 404s on `/ru/cv.html` and silently falls
+through to the terminal — which is exactly what the language chip links to.
+
+### Other things that bite
+
+- **Headings carry real text**; the shell prompt is `aria-hidden` decoration.
+  The predecessor's `<h2>` was entirely shell-speak (`guest@nikita.sh:~$ cat
+  about.txt`), leaving no section names for crawlers or the document outline.
+- **The language chip is an `<a>`, not a button** — the other language is a
+  different document. It also writes the locale to `localStorage` so the choice
+  flows back to the terminal.
+- **`@media print` redefines the palette tokens**, so every theme prints
+  grayscale. The predecessor greyed out individual classes and would miss any
+  token a newer theme introduced. A test asserts every token `green.css` defines
+  is overridden.
+- **`identity.role` already contains an em dash**, so the page title is
+  `name — CV — hostname`, not `name — role`.
+
 ## Theming
 
 Every theme is one complete CSS file in `src/themes/`, auto-registered. There is
@@ -94,6 +157,10 @@ fallback from `profile.config.ts`. The noscript block matters: the terminal
 renders nothing without JavaScript.
 
 `public/` is copied verbatim into `dist/`. `dist/` is gitignored.
+
+`sitemap.xml`, `robots.txt` and `llms.txt` are generated from the same page list
+that produces the pages, so they cannot reference a page that was not built —
+a test asserts exactly that.
 
 ## Conventions
 

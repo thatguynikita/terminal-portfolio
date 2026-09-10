@@ -6,6 +6,7 @@ import { createTerminal } from "./core/terminal";
 import { createInput } from "./core/input";
 import { boot, intro } from "./core/boot";
 import { initGameOverlay } from "./core/game";
+import { CV_LINK_LABEL, cvUrl } from "./cv/url";
 
 const body = document.getElementById("termBody");
 const canvas = document.getElementById("matrix") as HTMLCanvasElement | null;
@@ -20,6 +21,14 @@ const input = createInput(terminal, profile);
 initGameOverlay(profile);
 renderChrome();
 terminal.onRestart = () => intro(terminal, input);
+
+// The chrome carries language-dependent text and the CV link, so it has to
+// re-render when `lang` changes — not just the terminal body.
+const onModeChange = terminal.onModeChange;
+terminal.onModeChange = () => {
+  onModeChange?.();
+  renderChrome();
+};
 
 void boot(terminal, input);
 
@@ -37,11 +46,13 @@ function renderChrome(): void {
 
   const links = document.getElementById("topbarLinks");
   if (links) {
-    links.innerHTML = (profile.links?.topbar ?? [])
-      .map(
-        (l) =>
-          `<a href="${ctx.escapeAttr(l.href)}">${ctx.escape(l.label)}</a>`
-      )
+    // The CV link follows the session's language, so a Russian session
+    // lands on /ru/cv.html rather than the English page.
+    const cvLink = profile.cv
+      ? [{ label: CV_LINK_LABEL, href: cvUrl(profile, lang) }]
+      : [];
+    links.innerHTML = [...cvLink, ...(profile.links?.topbar ?? [])]
+      .map((l) => `<a href="${ctx.escapeAttr(l.href)}">${ctx.escape(l.label)} &rarr;</a>`)
       .join("");
   }
 

@@ -1,0 +1,223 @@
+/* CV page styles. Colour tokens come from src/themes/*.css.
+   The @media print block at the bottom overrides those tokens so the
+   CV prints identically grayscale under every theme. */
+.topbar .right{display:flex; gap:2px; align-items:center;}
+.topbar button, .topbar .chip{
+  color:var(--fg-dim); cursor:pointer; background:none; border:none; font:inherit;
+  letter-spacing:.03em; padding:6px 8px; border-radius:4px; text-decoration:none;
+  display:inline-block; text-align:center;
+}
+.topbar button:hover, .topbar .chip:hover{
+  color:var(--fg); text-shadow:var(--glow); background:rgba(var(--tint-rgb),.08);
+}
+/* Matches index.html's topbar brand: dim text carrying the full glow, not
+   bright text. Colour is inherited from .topbar — don't set it here. */
+.topbar .current{padding:6px 8px; cursor:default;}
+#printBtn{width:calc(7ch + 16px);}
+#langChip{width:calc(2.5ch + 16px);}
+
+.topbar{
+  display:flex; justify-content:space-between; align-items:center;
+  font-size:12px; color:var(--fg-dim); margin-bottom:10px; padding:0;
+  letter-spacing:.03em;
+}
+.topbar .right{display:flex; gap:2px; align-items:center;}
+
+.term-body{padding:20px 22px 8px; font-size:14px; line-height:1.6;}
+
+.ps{color:var(--fg-dim); margin-right:6px; white-space:nowrap;}
+
+.profile{display:flex; align-items:center; justify-content:space-between; gap:24px; flex-wrap:wrap;}
+.profile-text{flex:1 1 320px; min-width:0;}
+.avatar-frame{
+  position:relative;
+  flex:0 0 auto;
+  width:168px; height:168px;
+  border-radius:12px;
+  overflow:hidden;
+  border:1px solid var(--border);
+  box-shadow:var(--glow), 0 10px 28px rgba(0,0,0,.55);
+}
+.avatar-frame::after{
+  content:"";
+  position:absolute; inset:0;
+  background:var(--fg);
+  mix-blend-mode:color;
+  opacity:.85;
+  pointer-events:none;
+}
+.avatar{
+  display:block;
+  width:100%; height:100%;
+  object-fit:cover;
+  background:transparent;
+  filter:grayscale(1) contrast(1.05) brightness(1.05);
+}
+
+.profile h1{font-size:26px; margin:4px 0 4px; font-weight:400;}
+.tagline{font-size:13px; margin-bottom:10px; color:var(--accent);}
+.contact-row{display:flex; flex-wrap:wrap; gap:6px 16px; font-size:12.5px; margin-bottom:4px;}
+.contact-row a{white-space:nowrap;}
+.sep{color:var(--fg-dim2);}
+.meta{font-size:12px; margin-bottom:16px;}
+
+.rule{height:1px; border:none; margin:8px 0 18px; background:var(--accent);
+  box-shadow:0 0 6px var(--accent), 0 0 14px rgba(95,241,255,.35); opacity:.55;}
+.rule.strong{background:var(--fg); box-shadow:0 0 6px var(--fg), 0 0 16px rgba(var(--tint-rgb),.4); opacity:.75;}
+
+.section{margin-top:26px;}
+.section:first-of-type{margin-top:0;}
+.section-head{font-size:15.5px; margin-bottom:8px; font-weight:400;}
+.section-head .cmd{color:var(--amber);}
+.section-head .section-name{color:var(--fg); text-shadow:var(--glow); font-weight:700;}
+
+
+.job{margin-bottom:20px; padding-left:14px; border-left:2px solid var(--border);}
+.job-meta{font-size:12.6px; color:var(--accent); margin-bottom:2px;}
+.job-meta .dates{color:var(--accent); font-weight:700;}
+.job-meta .span{color:var(--fg-dim);}
+.job-meta .co{color:var(--fg); font-weight:700; text-shadow:var(--glow);}
+/* The employer links to its site, but shouldn't look any different from one
+   with no site configured — no underline, no accent colour, same glow.
+   text-shadow inherits on its own; colour and decoration don't. */
+.job-meta .co a,
+.job-meta .co a:hover{color:inherit; text-decoration:none; text-shadow:inherit;}
+.job-meta .loc{color:var(--fg-dim);}
+.job-title{font-weight:700; color:var(--fg); margin-bottom:6px; font-size:14.5px;}
+ul.bullets{margin:0 0 6px; padding-left:18px;}
+ul.bullets li{margin-bottom:3px; font-size:13.3px; line-height:1.55;}
+ul.bullets li::marker{color:var(--fg-dim); content:"› ";}
+.tech{font-size:12px; font-style:italic; color:var(--amber); opacity:.9; line-height:1.55;}
+
+table.skills{border-collapse:collapse; width:100%;}
+table.skills td, table.skills th{padding:3px 14px 3px 0; vertical-align:top; font-size:13.3px;}
+table.skills th{color:var(--fg); font-weight:700; white-space:nowrap; text-align:left;}
+
+ul.certs{list-style:none; margin:0; padding:0;}
+.cert-row{font-size:13.3px; margin-bottom:4px;}
+.cert-row .marker{color:var(--fg); text-shadow:var(--glow); margin-right:6px;}
+.cert-row .yr{color:var(--fg-dim); margin-right:8px;}
+
+ul.langs{list-style:none; margin:0; padding:0;}
+.lang-row{display:flex; align-items:center; gap:10px; margin:6px 0; flex-wrap:wrap;}
+.lang-name{width:11ch; flex:0 0 auto; white-space:nowrap; font-weight:700; color:var(--fg); font-size:13.3px;}
+.lang-bar{display:inline-flex; gap:2px;}
+.lang-bar i{width:9px; height:13px; display:inline-block; background:rgba(var(--tint-rgb),.16); border-radius:1px;}
+.lang-bar i.on{background:var(--fg); box-shadow:0 0 4px rgba(var(--tint-rgb),.7);}
+.lang-sub{font-size:12.5px; color:var(--fg-dim);}
+
+ul.traits{font-size:12.6px; line-height:1.7; color:var(--fg-dim); font-style:italic;
+  margin:0; padding-left:18px;}
+ul.traits li::marker{color:var(--fg-dim2); content:"# ";}
+
+.sign-off{margin:22px 0 4px; font-size:13px;}
+.fake-cursor{display:inline-block; width:8px; height:14px; background:var(--fg); box-shadow:var(--glow);
+  vertical-align:middle; margin-left:2px; animation:blink 1s steps(1) infinite;}
+@keyframes blink{0%,49%{opacity:1;} 50%,100%{opacity:0;}}
+
+footer{padding-bottom:24px;}
+
+
+@media (max-width:560px){
+  body{padding:14px 8px 10px;}
+  .term-body{padding:16px 14px 6px; font-size:13px;}
+  .profile h1{font-size:21px;}
+  .profile{gap:10px; flex-direction:column; align-items:center; text-align:center;}
+  .profile-text{order:2; flex:0 0 auto; width:100%;}
+  .contact-row{justify-content:center;}
+  .avatar-frame{order:1; width:120px; height:120px;}
+}
+
+/* ---------- print ----------
+   Two layers, because tokens alone aren't enough.
+
+   1. Redefine every palette token, so themes print identically grayscale —
+      including themes added later, which a class-by-class approach can't
+      cover.
+   2. Neutralise the effects that carry colour independently of the tokens.
+      Several are hardcoded rather than tokenised: base.css puts a cyan glow
+      on `.accent`, and the portrait frame has its own drop shadow. Killing
+      them wholesale beats chasing each one and missing the next. */
+@media print {
+  /* !important, and deliberately: theme CSS is injected in import order, so
+     in dev these land *before* the theme blocks and would otherwise lose the
+     cascade at equal specificity — the CV then printed its accent and amber
+     text in colour. Order-independence is the whole point here. */
+  :root, :root[data-theme] {
+    --bg: #fff !important;
+    --bg-rgb: 255,255,255 !important;
+    --fg: #141414 !important;
+    --fg-dim: #555 !important;
+    --fg-dim2: #777 !important;
+    --accent: #333 !important;
+    --amber: #333 !important;
+    --amber-glow: none !important;
+    --red: #333 !important;
+    --border: #ccc !important;
+    --glow: none !important;
+    --ambient: transparent !important;
+    --ambient-inset: transparent !important;
+    --tint-rgb: 20,20,20 !important;
+    --term-g1: #fff !important;
+    --term-g2: #fff !important;
+    --term-head-bg: transparent !important;
+    --chips-bg: transparent !important;
+    --boot-bg: #fff !important;
+    --vignette-bg: none !important;
+    --game-frame-g1: #fff !important;
+    --game-frame-g2: #fff !important;
+    --game-hint-bg: transparent !important;
+    --game-filter: none !important;
+    --matrix-color: transparent !important;
+    --matrix-fade: transparent !important;
+  }
+
+  *, *::before, *::after {
+    text-shadow: none !important;
+    box-shadow: none !important;
+    background-image: none !important;
+    mix-blend-mode: normal !important;
+  }
+
+  @page { margin:1.6cm; }
+
+  /* Screen-only chrome, plus the portrait's theme-colour overlay. */
+  #matrix, .crt, .vignette, .topbar, footer, .term-head,
+  .fake-cursor, .section-head .ps, .avatar-frame::after { display:none !important; }
+
+  html, body { background:#fff !important; color:#141414 !important; }
+  body { padding:0; display:block; }
+  .wrap { max-width:none; }
+  .term { border:none !important; background:none !important; backdrop-filter:none !important; }
+  .term-body { max-height:none; overflow:visible; padding:0; font-size:11pt; }
+
+  a { color:#141414; text-decoration:none; }
+  /* A printed CV is read on paper, so links need their target spelled out. */
+  .contact-row a[href^="http"]::after,
+  .contact-row a[href^="mailto"]::after,
+  .job-meta a[href^="http"]::after {
+    content:" (" attr(href) ")"; font-size:9pt; color:#555; font-weight:400;
+  }
+
+  .rule, .rule.strong { background:#ccc; opacity:1; }
+  .job { border-left-color:#ccc; }
+
+  /* Pagination. A long job must be allowed to flow across a page break:
+     forbidding it pushed the whole entry to the next page and left most of a
+     page blank. Instead keep each entry's header with its first bullets and
+     stop single lines stranding on their own. */
+  .section, .job { break-inside:auto; page-break-inside:auto; }
+  .section-head, .job-meta, .job-title { break-after:avoid; page-break-after:avoid; }
+  ul.bullets li, .cert-row, .lang-row, table.skills tr { break-inside:avoid; page-break-inside:avoid; }
+  p, li { orphans:2; widows:2; }
+
+  /* The proficiency meter is the one fill that still carries meaning, so it
+     has to survive the browser's "don't print backgrounds" default. */
+  .lang-bar i { border:1px solid #777; background:#fff;
+    -webkit-print-color-adjust:exact; print-color-adjust:exact; }
+  .lang-bar i.on { background:#333; }
+
+  /* Portrait: grayscale like everything else, in a plain frame. */
+  .avatar { filter:grayscale(1) contrast(1.05) brightness(1.05); }
+  .avatar-frame { border:1px solid #ccc; }
+}

@@ -3,7 +3,7 @@
   "version": "0.1.0",
   "private": true,
   "type": "module",
-  "description": "Interactive terminal portfolio \u2014 a forkable template. Add a command by dropping a file in src/commands/.",
+  "description": "Interactive terminal portfolio — a forkable template. Add a command by dropping a file in src/commands/.",
   "license": "MIT",
   "engines": {
     "node": ">=20"

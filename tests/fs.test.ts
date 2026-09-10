@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest";
 import { createFileSystem } from "../src/fs";
 import { createFakeContext } from "./helpers";
+import { skillsFor, socialsFor } from "../src/core/profile";
 
 const ctx = createFakeContext("en");
 const fs = createFileSystem(() => ctx);
@@ -84,7 +85,7 @@ describe("filesystem", () => {
     it("matches the byte count a reader could verify by hand", () => {
       // contact.txt renders one "Label: display" line per social link.
       const contact = nodes.find((n) => n.name === "contact.txt")!;
-      const expected = ctx.profile.socials
+      const expected = socialsFor(ctx.profile, "terminal")
         .map((s) => `${s.label}: ${s.display}`)
         .join("\n");
       expect(contact.size).toBe(bytes(expected));
@@ -108,7 +109,7 @@ describe("filesystem", () => {
   });
 
   it("reads text files as lines", () => {
-    expect(fs.read("skills.txt")?.length).toBe(ctx.profile.skills.length);
+    expect(fs.read("skills.txt")?.length).toBe(skillsFor(ctx.profile, "terminal").length);
     expect(fs.read(".bashrc")?.[0]).toContain("~/.bashrc");
   });
 

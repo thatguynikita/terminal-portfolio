@@ -113,6 +113,36 @@ describe("commands", () => {
     expect(ctx.lines.join(" ")).toContain("ghost.txt");
   });
 
+  it("cat tells you how to open a file it cannot print", async () => {
+    const cat = commands.find((c) => c.name === "cat")!;
+    const ctx = createFakeContext("en");
+    withNodes(ctx, [
+      {
+        name: "thing.bin",
+        perms: "-rwxr--r--",
+        hidden: false,
+        accent: true,
+        size: 10,
+        read: () => null,
+        hint: () => "— use <b>open</b> instead",
+      },
+    ]);
+    await cat.run(ctx, args("thing.bin", "cat"));
+    const out = ctx.lines.join(" ");
+    expect(out).toContain("thing.bin");
+    expect(out, "the hint was not shown").toContain("use open instead");
+  });
+
+  it("says nothing extra for a non-text file with no hint", async () => {
+    const cat = commands.find((c) => c.name === "cat")!;
+    const ctx = createFakeContext("en");
+    withNodes(ctx, [
+      { name: "x.bin", perms: "-rw-r--r--", hidden: false, accent: false, size: 1, read: () => null },
+    ]);
+    await cat.run(ctx, args("x.bin", "cat"));
+    expect(ctx.lines.join(" ").trim()).toBe("cat: x.bin: not a text file");
+  });
+
   it("ll behaves as ls -l", async () => {
     const ls = commands.find((c) => c.name === "ls")!;
     expect(ls.aliases).toContain("ll");

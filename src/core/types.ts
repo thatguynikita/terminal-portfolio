@@ -78,6 +78,11 @@ export interface FsNode {
   size: number;
   /** Lines for `cat`. `null` means "not a text file". */
   read?: (ctx: CommandContext) => string[] | null;
+  /**
+   * Shown by `cat` after the "not a text file" line — a file that can't be
+   * printed should say how to open it instead.
+   */
+  hint?: (ctx: CommandContext) => string;
   /** Makes the node runnable via `./name`, `sudo ./name`, or a command. */
   exec?: (ctx: CommandContext) => void | Promise<void>;
   /** `./name` alone is denied; `sudo ./name` works. */
@@ -181,6 +186,12 @@ export interface Command {
   aliases?: string[];
   /** Runnable, but absent from `help`, chips and completion. */
   hidden?: boolean;
+  /**
+   * Set false to leave the command unregistered entirely — for a command
+   * that depends on optional config, like `cv`. Unlike `hidden`, it isn't
+   * runnable at all.
+   */
+  enabled?: boolean;
   /**
    * Sort weight for `help` and the chips bar. Lower comes first;
    * commands without one sort after, alphabetically.

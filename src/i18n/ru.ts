@@ -36,6 +36,7 @@ const ru: Messages = {
     about: "кто такой вообще этот парень",
     skills: "технологический стек",
     contact: "как со мной связаться",
+    cv: "открыть полное резюме",
     neofetch: "карточка с информацией о системе",
     whoami: "узнать о себе немного больше",
     ls: "список файлов",
@@ -348,6 +349,16 @@ const ru: Messages = {
     unknownPage: "неизвестная-страница",
     switchTo: "Переключить язык",
     announce: "Язык переключён на русский",
+  },
+
+  cv: {
+    catHint: `— используйте <span class="glow">cv</span>, чтобы открыть его`,
+    opening: `открываю <span class="glow">cv.html</span> ...`,
+    techPrefix: "// стек:",
+    photoAlt: "{name}, {role} — портретное фото",
+    print: "печать",
+    backToTerminal: "назад в терминал",
+    switchLanguage: "Переключить язык",
   },
 
 };

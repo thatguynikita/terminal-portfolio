@@ -38,11 +38,18 @@ describe("profile.config.ts", () => {
   });
 
   it("translates every user-visible field into every enabled locale", () => {
+    // A Localized value is normally a string, but `Localized<string[]>` is
+    // used for list content (CV bullets, traits) — both must be present and
+    // non-empty in every enabled locale.
+    const filled = (value: unknown): boolean =>
+      Array.isArray(value)
+        ? value.length > 0 && value.every((v) => typeof v === "string" && v.trim() !== "")
+        : typeof value === "string" && value.trim() !== "";
+
     const gaps: string[] = [];
     for (const [path, field] of localizedFields(profile)) {
       for (const locale of enabled) {
-        const value = field[locale as Locale];
-        if (typeof value !== "string" || value.trim() === "") gaps.push(`${path}.${locale}`);
+        if (!filled(field[locale as Locale])) gaps.push(`${path}.${locale}`);
       }
     }
     expect(gaps).toEqual([]);
@@ -113,5 +120,41 @@ describe("profile.config.ts", () => {
       // These would collide with the mode's own exit words.
       for (const cmd of cmds) expect(["exit", "logout", "quit", "help"]).not.toContain(cmd);
     }
+  });
+});
+
+/**
+ * The README is the first thing a fork reads, and its `cv` example is the
+ * only place the shape is spelled out in full. Drift there is silent.
+ */
+describe("README", () => {
+  const readme = readFileSync(join(ROOT, "README.md"), "utf8");
+  const example = /## The CV[\s\S]*?```ts\n([\s\S]*?)```/.exec(readme)?.[1] ?? "";
+
+  it("documents the CV example", () => {
+    expect(example.length, "no ts example under ## The CV").toBeGreaterThan(200);
+  });
+
+  it("shows every field the cv config actually has", () => {
+    const configured = Object.keys(profile.cv ?? {});
+    expect(configured.length).toBeGreaterThan(4);
+    const undocumented = configured.filter((key) => !new RegExp(`\\b${key}\\s*:`).test(example));
+    expect(undocumented, "cv fields missing from the README example").toEqual([]);
+  });
+
+  it("shows every field a job actually has", () => {
+    const job = profile.cv?.jobs?.[0];
+    if (!job) return;
+    const keys = [...Object.keys(job), ...Object.keys(job.org).map((k) => k)];
+    const undocumented = keys.filter((key) => !new RegExp(`\\b${key}\\s*:`).test(example));
+    expect(undocumented, "job fields missing from the README example").toEqual([]);
+  });
+
+  it("does not document fields that no longer exist", () => {
+    // Catches the reverse drift: an example that outlived its config.
+    const documented = [...example.matchAll(/^\s{2}([a-zA-Z]+):/gm)].map((m) => m[1] as string);
+    const configured = new Set(Object.keys(profile.cv ?? {}));
+    const stale = documented.filter((k) => !configured.has(k));
+    expect(stale, "README documents cv fields the config doesn't have").toEqual([]);
   });
 });

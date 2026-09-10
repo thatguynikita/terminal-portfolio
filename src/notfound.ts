@@ -8,6 +8,7 @@ import { translate } from "./i18n";
 import { nextLocale, type Locale } from "./i18n/locales";
 import { StorageKey, readStored, writeStored } from "./core/storage";
 import { escapeHtml } from "./core/html";
+import { CV_LINK_LABEL, cvUrl } from "./cv/url";
 
 const canvas = document.getElementById("matrix") as HTMLCanvasElement | null;
 if (canvas) {
@@ -66,6 +67,14 @@ function render(): void {
 
   const cat = document.getElementById("catPhoto") as HTMLImageElement | null;
   if (cat) cat.alt = t("notFound.catAlt");
+
+  // Only when a CV is configured — otherwise the link leads nowhere.
+  const cvLink = document.getElementById("cvLink");
+  if (cvLink) {
+    cvLink.innerHTML = profile.cv
+      ? `<a href="${cvUrl(profile, lang)}">${escapeHtml(CV_LINK_LABEL)} &rarr;</a>`
+      : "";
+  }
 
   const footer = document.getElementById("pageFooter");
   if (footer) {

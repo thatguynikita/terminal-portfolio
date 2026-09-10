@@ -40,6 +40,7 @@ const en = {
     about: "who is that guy anyway",
     skills: "tech stack",
     contact: "ways to reach me",
+    cv: "open the full CV",
     neofetch: "system info card",
     whoami: "a little too much about you",
     ls: "list files",
@@ -353,6 +354,16 @@ const en = {
     unknownPage: "unknown-page",
     switchTo: "Switch language",
     announce: "Language switched to English",
+  },
+
+  cv: {
+    catHint: `— use <span class="glow">cv</span> to open it instead`,
+    opening: `opening <span class="glow">cv.html</span> ...`,
+    techPrefix: "// tech:",
+    photoAlt: "{name}, {role} — portrait photo",
+    print: "print",
+    backToTerminal: "back to terminal",
+    switchLanguage: "Switch language",
   },
 
 };

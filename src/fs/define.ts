@@ -9,6 +9,8 @@ import type { CommandContext, FsNode } from "../core/types";
 export interface FsDescriptor {
   /** Defaults to the descriptor's own filename minus `.ts`. */
   name?: string;
+  /** Set false to leave the file out entirely — for optional features. */
+  enabled?: boolean;
   /** Defaults to "-rwxr--r--" when executable, "-rw-r--r--" otherwise. */
   perms?: string;
   /** Defaults to true for dotfiles. */
@@ -19,6 +21,8 @@ export interface FsDescriptor {
   size?: number;
   /** Lines for `cat`. Return null for "not a text file". */
   read?: (ctx: CommandContext) => string[] | null;
+  /** Shown by `cat` when the file isn't text — how to open it instead. */
+  hint?: (ctx: CommandContext) => string;
   /** Treat this file's lines as HTML rather than escaping them. */
   html?: boolean;
   /** Makes the file runnable: `./name`, `sudo ./name`, or a command. */

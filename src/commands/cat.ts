@@ -20,14 +20,18 @@ export default defineCommand({
 
     // `cat ./thing` and `cat thing` are the same file.
     const name = target.replace(/^\.\//, "");
-    const lines = ctx.fs.read(name);
+    const node = ctx.fs.get(name);
 
-    if (lines === undefined) {
+    if (!node) {
       ctx.print(ctx.t("cat.noFile", { file: ctx.escape(target) }));
       return;
     }
+
+    const lines = node.read ? node.read(ctx) : null;
     if (lines === null) {
-      ctx.print(ctx.t("cat.notText", { file: ctx.escape(target) }));
+      // A file that can't be printed says how to open it instead.
+      const hint = node.hint?.(ctx);
+      ctx.print(ctx.t("cat.notText", { file: ctx.escape(target) }) + (hint ? ` ${hint}` : ""));
       return;
     }
     ctx.printLines(lines);

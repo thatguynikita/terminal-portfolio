@@ -77,6 +77,8 @@ function collectEntries(): Map<string, Entry> {
   }
 
   for (const [path, descriptor] of Object.entries(descriptorModules)) {
+    // A descriptor can opt out when the feature behind it is unconfigured.
+    if (descriptor?.enabled === false) continue;
     const name = descriptor?.name ?? basename(path).replace(/\.ts$/, "");
     const existing = entries.get(name);
     entries.set(name, { name, raw: existing?.raw, descriptor });
@@ -119,6 +121,7 @@ function toNode(entry: Entry, ctx: CommandContext): FsNode {
     size,
     read,
   };
+  if (d?.hint) node.hint = d.hint;
   if (d?.exec) node.exec = d.exec;
   if (d?.requiresSudo) node.requiresSudo = true;
   return node;

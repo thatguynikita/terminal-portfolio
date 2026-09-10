@@ -42,7 +42,7 @@ export function createRegistry(profile: ProfileConfig): Registry {
   const deny = new Set(disabledCommands ?? []);
 
   const commands = loadCommands().filter(
-    (c) => (!allow || allow.has(c.name)) && !deny.has(c.name)
+    (c) => c.enabled !== false && (!allow || allow.has(c.name)) && !deny.has(c.name)
   );
 
   const byName = new Map<string, Command>();

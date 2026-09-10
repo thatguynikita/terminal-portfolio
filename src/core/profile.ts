@@ -1,10 +1,15 @@
 import type { Localized, Locale } from "../i18n/locales";
 
+/** Where an entry is shown. Omitted means everywhere. */
+export type Context = "terminal" | "cv";
+
 /** A contact link. `display` is the visible text; `href` the target. */
 export interface Social {
   label: string;
   href: string;
   display: string;
+  /** e.g. a personal site belongs on the CV but not in the terminal. */
+  contexts?: Context[];
 }
 
 /** One row of the `skills` table and of `cat skills.txt`. */
@@ -12,6 +17,48 @@ export interface Skill {
   key: Localized;
   /** Tech/product names — not translated. */
   value: string;
+  /** The CV shows the full list; the terminal shows a readable subset. */
+  contexts?: Context[];
+}
+
+/** One position in the CV's experience section. */
+export interface Job {
+  /** Stable identifier, useful for anchors and diffs. */
+  id: string;
+  dates: Localized;
+  /** Duration, e.g. "2y 11m". */
+  span: Localized;
+  org: {
+    name: string;
+    /** Employer's site. Empty or omitted renders the name unlinked. */
+    url?: string;
+    location: Localized;
+  };
+  title: Localized;
+  /** Comma-separated stack. Not translated. */
+  tech: string;
+  bullets: Localized<string[]>;
+}
+
+/**
+ * Every section is optional. Omit one and it simply isn't rendered — no
+ * empty heading, no stray rule. `cv: {}` is a valid CV: you get the header
+ * (name, tagline, contacts, portrait) and nothing else.
+ */
+export interface CvConfig {
+  /** The line under the contact row: location, availability, and so on. */
+  metaLine?: Localized;
+  /** Opening paragraph, shown under the contact row. */
+  about?: Localized;
+  jobs?: Job[];
+  /** The playful "notes.txt" list at the foot of the page. */
+  traits?: Localized<string[]>;
+  /** Closing line. Rendered as HTML, so it can carry markup. */
+  signOff?: Localized;
+  education?: { university: Localized; place: Localized; year: number; field: Localized };
+  certs?: Array<{ year: string; name: string }>;
+  /** `filled` drives the 0–10 proficiency meter. */
+  languages?: Array<{ name: Localized; filled: number; sub: Localized }>;
 }
 
 /** One question the `ssh <persona>` mini-shell can answer. */
@@ -44,6 +91,8 @@ export interface ProfileConfig {
     location: Localized;
     /** One-line summary under the role, used by the noscript/SEO fallback. */
     tagline: Localized;
+    /** Portrait, root-absolute. Shown on the CV and used as JSON-LD `image`. */
+    photo?: string;
   };
 
   /** `about` and `cat about.txt`. Line breaks are load-bearing — the
@@ -115,6 +164,13 @@ export interface ProfileConfig {
     topbar?: Array<{ label: string; href: string }>;
   };
 
+  /**
+   * The CV. Omit to drop the pages, the `cv` command and the filesystem
+   * node entirely — a fork with no résumé to publish deletes this key.
+   * One page is generated per locale in `terminal.locales`.
+   */
+  cv?: CvConfig;
+
   /** The `game` command and `milk-quest.sh`. Omit to disable both. */
   game?: {
     url: string;
@@ -126,12 +182,29 @@ export interface ProfileConfig {
     description: Localized;
     /** Path under the site root, e.g. "/assets/img/og-terminal.png". */
     ogImage?: string;
+    /** Adds <meta name="robots" content="noindex"> to every page. */
+    noindex?: boolean;
   };
 
   footer: {
     /** Rendered as-is; `{year}` is substituted. */
     copyright: Localized;
   };
+}
+
+/** Entries with no `contexts` are shown everywhere. */
+function shownIn<T extends { contexts?: Context[] }>(items: T[], context: Context): T[] {
+  return items.filter((item) => !item.contexts || item.contexts.includes(context));
+}
+
+/** The skills table for a given page. */
+export function skillsFor(profile: ProfileConfig, context: Context): Skill[] {
+  return shownIn(profile.skills, context);
+}
+
+/** The contact links for a given page. */
+export function socialsFor(profile: ProfileConfig, context: Context): Social[] {
+  return shownIn(profile.socials, context);
 }
 
 /** Identity helper — exists purely so editors typecheck profile.config.ts. */
