@@ -12,10 +12,7 @@ Vite + TypeScript, no UI framework, no runtime dependencies.
 [![Vite](https://img.shields.io/badge/Vite-6-646cff?logo=vite&logoColor=white)](vite.config.ts)
 [![Live Demo](https://img.shields.io/badge/demo-terminal.nikita.sh-0a7)](https://terminal.nikita.sh)
 
-<!-- Swap this for docs/demo.gif once the screen capture is recorded.
-     Shot list: neofetch -> skills -> theme amber -> matrix on ->
-     ssh recruiter@... -> one question -> exit. ~20-25s, <5 MB. -->
-<img src="docs/img/terminal.png" width="900" alt="The terminal portfolio showing a neofetch card, matrix rain and the command chip bar">
+<img src="docs/demo.gif" width="800" alt="A recorded session: the boot sequence and neofetch card, help, a fake top, switching to the ubuntu theme, then ls -lah revealing milk-quest.sh and running it with sudo">
 
 **[Try it live →](https://terminal.nikita.sh)**
 
