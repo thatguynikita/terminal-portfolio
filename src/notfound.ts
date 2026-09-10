@@ -9,6 +9,7 @@ import { nextLocale, type Locale } from "./i18n/locales";
 import { StorageKey, readStored, writeStored } from "./core/storage";
 import { escapeHtml } from "./core/html";
 import { CV_LINK_LABEL, cvUrl } from "./cv/url";
+import { renderCopyright } from "./core/profile";
 
 const canvas = document.getElementById("matrix") as HTMLCanvasElement | null;
 if (canvas) {
@@ -79,8 +80,7 @@ function render(): void {
   const footer = document.getElementById("pageFooter");
   if (footer) {
     footer.innerHTML =
-      profile.footer.copyright[lang].replace("{year}", String(new Date().getFullYear())) +
-      ` · <a href="/">${escapeHtml(t("notFound.back"))}</a>`;
+      renderCopyright(profile, lang) + ` · <a href="/">${escapeHtml(t("notFound.back"))}</a>`;
   }
 }
 

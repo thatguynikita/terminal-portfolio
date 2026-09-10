@@ -207,6 +207,17 @@ export function socialsFor(profile: ProfileConfig, context: Context): Social[] {
   return shownIn(profile.socials, context);
 }
 
+/**
+ * The © line, with `{year}` filled in. Returned as HTML, since the
+ * configured string carries a link to the author's site.
+ *
+ * Shared so the three pages can't disagree — the CV used to build its own
+ * and lost the link on the name.
+ */
+export function renderCopyright(profile: ProfileConfig, locale: Locale): string {
+  return profile.footer.copyright[locale].replace("{year}", String(new Date().getFullYear()));
+}
+
 /** Identity helper — exists purely so editors typecheck profile.config.ts. */
 export function defineProfile(config: ProfileConfig): ProfileConfig {
   return config;

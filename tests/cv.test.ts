@@ -6,7 +6,7 @@ import { LOCALES } from "../src/i18n/locales";
 import { renderCv, renderCvTopbar } from "../src/cv/render";
 import { buildCvJsonLd } from "../src/cv/jsonld";
 import { CV_LINK_LABEL, cvLocales, cvUrl } from "../src/cv/url";
-import { skillsFor, socialsFor } from "../src/core/profile";
+import { renderCopyright, skillsFor, socialsFor } from "../src/core/profile";
 
 /**
  * The CV is optional, so these suites skip when it isn't configured — a
@@ -69,6 +69,18 @@ withCv("cv locales", () => {
     expect(first.length).toBeGreaterThan(4);
     for (const locale of locales) {
       expect(namesFor(locale), `${locale} translated its headings`).toEqual(first);
+    }
+  });
+
+  // The CV used to build its own footer and lost the link on the name.
+  it("uses the configured copyright line, link and all", () => {
+    for (const locale of locales) {
+      const expected = profile.footer.copyright[locale].replace("{year}", String(new Date().getFullYear()));
+      expect(expected, "the copyright line carries no link to check").toContain("<a ");
+      expect(
+        renderCopyright(profile, locale),
+        `${locale} copyright does not match the config`
+      ).toBe(expected);
     }
   });
 

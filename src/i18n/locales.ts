@@ -25,6 +25,6 @@ export function isLocale(value: unknown): value is Locale {
  * site with three or more languages cycles through all of them one step
  * at a time. An unknown `current` starts the rotation from the beginning.
  */
-export function nextLocale(locales: readonly Locale[], current: Locale): Locale {
-  return locales[(locales.indexOf(current) + 1) % locales.length] as Locale;
+export function nextLocale<T extends string>(locales: readonly T[], current: T): T {
+  return locales[(locales.indexOf(current) + 1) % locales.length] as T;
 }

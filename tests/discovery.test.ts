@@ -192,6 +192,32 @@ suite("built output", () => {
     });
   });
 
+  /**
+   * The manifest used to be a static file in public/ with one person's name
+   * and host baked in. Nothing renders it visibly, so a fork would have
+   * inherited them without noticing.
+   */
+  describe("site.webmanifest", () => {
+    const manifest = built ? JSON.parse(read("site.webmanifest")) : {};
+
+    it("takes its identity from the config", () => {
+      expect(manifest.name).toBe(profile.identity.name[profile.terminal.defaultLocale]);
+      expect(manifest.short_name).toBe(profile.terminal.hostname);
+    });
+
+    it("points at icons that were built", () => {
+      expect(manifest.icons.length).toBeGreaterThan(0);
+      for (const icon of manifest.icons) {
+        const path = String(icon.src).replace(/^\//, "");
+        expect(existsSync(join(DIST, path)), `manifest lists ${path}, which is not built`).toBe(true);
+      }
+    });
+
+    it("is referenced by the page that links it", () => {
+      expect(read("index.html")).toContain('rel="manifest"');
+    });
+  });
+
   describe("robots.txt", () => {
     const robots = built ? read("robots.txt") : "";
 

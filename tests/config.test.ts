@@ -96,9 +96,18 @@ describe("profile.config.ts", () => {
     // Anything the two pages reference by root-absolute path.
     for (const page of ["index.html", "404.html"]) {
       const html = readFileSync(join(ROOT, page), "utf8");
+      // Emitted by the build rather than shipped in public/, so they are
+      // only on disk after `vite build`.
+      const generated = new Set([
+        "/site.webmanifest",
+        "/sitemap.xml",
+        "/robots.txt",
+        "/llms.txt",
+      ]);
       for (const match of html.matchAll(/(?:href|src)="(\/[^"]+)"/g)) {
         // /src/* are Vite module entries, not files served from public/.
         if (match[1]?.startsWith("/src/")) continue;
+        if (generated.has(match[1] ?? "")) continue;
         check(match[1]);
       }
     }
@@ -156,5 +165,48 @@ describe("README", () => {
     const configured = new Set(Object.keys(profile.cv ?? {}));
     const stale = documented.filter((k) => !configured.has(k));
     expect(stale, "README documents cv fields the config doesn't have").toEqual([]);
+  });
+});
+
+
+/**
+ * The example config is what a fork copies first, and nothing imports it —
+ * tsc never sees it, so it can rot silently. These checks are structural
+ * rather than semantic: it must parse, cover the same keys, and stay
+ * single-language.
+ */
+describe("profile.config.example.ts", () => {
+  const example = readFileSync(join(ROOT, "profile.config.example.ts"), "utf8");
+
+  it("covers every top-level key the real config has", () => {
+    const keys = Object.keys(profile);
+    const missing = keys.filter((k) => !new RegExp(`^  ${k}:`, "m").test(example));
+    expect(missing, "keys missing from the example").toEqual([]);
+  });
+
+  it("covers every cv section the real config has", () => {
+    const keys = Object.keys(profile.cv ?? {});
+    const missing = keys.filter((k) => !new RegExp(`^    ${k}:`, "m").test(example));
+    expect(missing, "cv sections missing from the example").toEqual([]);
+  });
+
+  it("is single-language, and says so", () => {
+    expect(example).toContain('locales: ["en"]');
+    expect(example, "a second locale leaked in").not.toMatch(/^\s*ru:/m);
+    expect(example, "the header should explain trimming LOCALES").toContain("LOCALES");
+  });
+
+  it("publishes to a reserved domain, so it can't be deployed by accident", () => {
+    // identity.domain drives the CNAME the build emits.
+    const domain = /^\s*domain:\s*"([^"]+)"/m.exec(example)?.[1] ?? "";
+    expect(domain, `example domain "${domain}" is not reserved`).toMatch(/\.example$/);
+  });
+
+  it("keeps its own hosts non-resolving, apart from real social platforms", () => {
+    const hosts = [...example.matchAll(/https?:\/\/([^/"')\s]+)/g)].map((m) => m[1] as string);
+    expect(hosts.length).toBeGreaterThan(3);
+    const platforms = /(github\.com|linkedin\.com|t\.me|fosstodon\.org|twitter\.com|x\.com)$/;
+    const live = hosts.filter((h) => !h.endsWith(".example") && !platforms.test(h));
+    expect(live, "example points at a live host").toEqual([]);
   });
 });

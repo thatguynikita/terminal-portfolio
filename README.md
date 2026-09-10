@@ -26,6 +26,12 @@ Then:
 npm run check        # fails if the config is inconsistent or incomplete
 ```
 
+`profile.config.example.ts` is a filled-in example — a fictional data engineer,
+English only, using `.example` domains. Copy it over `profile.config.ts` to start
+from something complete rather than editing real data. Its header lists the two
+extra steps a single-language site needs (trim `LOCALES`, drop the other
+catalogue).
+
 `npm run check` is the preflight for a fork. It verifies every user-visible
 field is translated into every enabled locale, that referenced assets exist,
 that `SITE_URL` agrees with `identity.domain`, and that social links are real

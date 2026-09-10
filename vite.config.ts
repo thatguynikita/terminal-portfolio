@@ -3,7 +3,7 @@ import { mkdirSync, readFileSync, writeFileSync } from "node:fs";
 import { execFileSync } from "node:child_process";
 import { dirname, join } from "node:path";
 import profile from "./profile.config";
-import { skillsFor, socialsFor } from "./src/core/profile";
+import { renderCopyright, skillsFor, socialsFor } from "./src/core/profile";
 import type { Locale } from "./src/i18n/locales";
 import { StorageKey } from "./src/core/storage";
 import { cvByteSize, renderCv, renderCvTopbar } from "./src/cv/render";
@@ -164,7 +164,7 @@ function assertLocaleReady(locale: Locale): void {
 function fillCv(html: string, locale: Locale): string {
   assertLocaleReady(locale);
   const footer =
-    `© ${new Date().getFullYear()} ${escapeHtml(profile.identity.name[locale])} · ` +
+    `${renderCopyright(profile, locale)} · ` +
     `<a href="/">${escapeHtml(translate(locale, "cv.backToTerminal"))}</a>`;
 
   return html
@@ -274,6 +274,31 @@ const NAMED_CRAWLERS = [
  * whether it may be fetched. Ignored by crawlers that don't support it.
  */
 const CONTENT_SIGNAL = "search=yes, ai-train=yes, ai-input=yes";
+
+/**
+ * Generated rather than shipped in public/, which had the author's name
+ * and host baked in — a fork would have inherited them silently, since
+ * nothing renders the manifest where you'd notice.
+ */
+function siteWebmanifest(): string {
+  return JSON.stringify(
+    {
+      name: profile.identity.name[DEFAULT_LOCALE],
+      short_name: profile.terminal.hostname,
+      description: profile.seo.description[DEFAULT_LOCALE],
+      start_url: "/",
+      display: "standalone",
+      icons: [
+        { src: "/assets/icons/android-chrome-192x192.png", sizes: "192x192", type: "image/png" },
+        { src: "/assets/icons/android-chrome-512x512.png", sizes: "512x512", type: "image/png" },
+      ],
+      theme_color: "#ffffff",
+      background_color: "#ffffff",
+    },
+    null,
+    2
+  );
+}
 
 function robotsTxt(): string {
   const named = NAMED_CRAWLERS.map((bot) => `User-agent: ${bot}`).join("\n");
@@ -416,6 +441,7 @@ function profileHtmlPlugin(): Plugin {
       this.emitFile({ type: "asset", fileName: "sitemap.xml", source: sitemapXml() });
       this.emitFile({ type: "asset", fileName: "robots.txt", source: robotsTxt() });
       this.emitFile({ type: "asset", fileName: "llms.txt", source: llmsTxt() });
+      this.emitFile({ type: "asset", fileName: "site.webmanifest", source: siteWebmanifest() });
     },
 
     /**
