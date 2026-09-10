@@ -36,7 +36,7 @@ Vite + TypeScript, no UI framework, no runtime dependencies.
 - **Built to be read by machines.** The résumé is in the raw HTML; the build emits `sitemap.xml`, `robots.txt` (with per-crawler rules and `Content-Signal`) and `llms.txt` from the same page list, plus a self-canonical hreflang cluster and JSON-LD. Scan it yourself with [Lighthouse](https://pagespeed.web.dev/) or [isitagentready.com](https://isitagentready.com/).
 - **Four languages ship, and adding one is a single file.** You pick which ones build; the rest never reach the bundle. → [guide](docs/i18n.md)
 - **Everything about you lives in one file** — `profile.config.ts`. Name, bio, skills, socials, CV, personas, SEO.
-- **247 tests**, and a preflight that refuses to deploy a fork still carrying someone else's name.
+- **248 tests**, and a preflight that refuses to deploy a fork still carrying someone else's name.
 - **Deploys anywhere static** — GitHub Pages and S3-compatible hosts are one command each. → [guide](docs/deploy.md)
 
 ---
@@ -91,6 +91,19 @@ The only structural difference between them is how many catalogues `MESSAGES`
 imports. The trilingual one builds `/cv.html`, `/es/cv.html` and `/de/cv.html`
 with a matching hreflang cluster, and its language chip cycles all three.
 
+### Replace the images
+
+Three of the four images that ship are personal to the original author. Nothing
+warns you at build time, so it's worth doing early:
+
+| File | What it is | Size |
+|---|---|---|
+| `public/assets/img/nikita-photo.png` | the CV portrait — or drop `identity.photo` for no photo | 480×480 |
+| `public/assets/img/og-terminal.png` | the link-preview card, itself just a screenshot of the terminal | 1200×630 |
+| `public/favicon.ico` + `public/assets/icons/*` | tab and home-screen icons | various |
+
+**[Full guide → sizes, a script for the preview card, favicons](docs/assets.md)**
+
 ### The preflight
 
 ```bash
@@ -100,6 +113,9 @@ npm run check
 It verifies every user-visible field is translated into every enabled language,
 that referenced assets exist, that `SITE_URL` agrees with `identity.domain`, and
 that social links are real URLs.
+
+It checks that images *exist*, not that they're *yours* — swapping the portrait
+and the preview card is on you.
 
 **This repo ships with the original author's real data**, so run it after
 rebranding — `npm run deploy` runs it for you and refuses to publish if it fails.

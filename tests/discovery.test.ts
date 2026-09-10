@@ -246,6 +246,21 @@ suite("built output", () => {
       expect(manifest.short_name).toBe(profile.terminal.hostname);
     });
 
+    /**
+     * These were hardcoded #ffffff, which flashed a white splash screen and
+     * tinted the status bar white on a site that is near-black in every theme
+     * but the secret one. They now come from the default theme's --bg.
+     */
+    it("takes its colours from the default theme, not white", () => {
+      const configured = profile.terminal.defaultTheme;
+      const name = configured === "random" ? "green" : configured;
+      const css = readFileSync(join(process.cwd(), "src/themes", `${name}.css`), "utf8");
+      const bg = /--bg:\s*([^;]+);/.exec(css)?.[1]?.trim();
+      expect(bg, `${name}.css defines no --bg`).toBeTruthy();
+      expect(manifest.theme_color).toBe(bg);
+      expect(manifest.background_color).toBe(bg);
+    });
+
     it("points at icons that were built", () => {
       expect(manifest.icons.length).toBeGreaterThan(0);
       for (const icon of manifest.icons) {

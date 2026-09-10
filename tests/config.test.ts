@@ -95,6 +95,10 @@ describe("profile.config.ts", () => {
       if (!existsSync(join(ROOT, "public", path.slice(1)))) missing.push(path);
     };
     check(profile.seo.ogImage);
+    // The CV portrait. It isn't referenced from either shell — cv.html is
+    // generated — so without this line a broken path ships a broken image
+    // on the CV and a dead <image:loc> in sitemap.xml, and check stays green.
+    check(profile.identity.photo);
 
     // Anything the two pages reference by root-absolute path.
     for (const page of ["index.html", "404.html"]) {

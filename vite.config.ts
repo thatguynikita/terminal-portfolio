@@ -1,5 +1,5 @@
 import { defineConfig, type Plugin } from "vite";
-import { mkdirSync, readFileSync, writeFileSync } from "node:fs";
+import { existsSync, mkdirSync, readFileSync, writeFileSync } from "node:fs";
 import { execFileSync } from "node:child_process";
 import { dirname, join, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
@@ -291,7 +291,30 @@ const CONTENT_SIGNAL = "search=yes, ai-train=yes, ai-input=yes";
  * and host baked in — a fork would have inherited them silently, since
  * nothing renders the manifest where you'd notice.
  */
+/**
+ * The manifest's colours, taken from the palette a first-time visitor sees.
+ *
+ * These were hardcoded `#ffffff`, which put a white splash screen and a white
+ * status bar in front of a site that is near-black in every theme but the
+ * secret one. Reading `--bg` keeps them right for a fork that ships a
+ * different default.
+ *
+ * `defaultTheme: "random"` has no single answer, so it falls back to green —
+ * the reference palette every other theme is validated against.
+ *
+ * Read with node:fs rather than a glob: this file is loaded by Node outside
+ * Vite's transform pipeline, where `import.meta.glob` is not a function.
+ */
+function defaultThemeBackground(): string {
+  const configured = profile.terminal.defaultTheme;
+  const name = configured === "random" ? "green" : configured;
+  const file = resolve(HERE, "src/themes", `${name}.css`);
+  const css = existsSync(file) ? readFileSync(file, "utf8") : "";
+  return /--bg:\s*([^;]+);/.exec(css)?.[1]?.trim() ?? "#050806";
+}
+
 function siteWebmanifest(): string {
+  const background = defaultThemeBackground();
   return JSON.stringify(
     {
       name: profile.identity.name[DEFAULT_LOCALE],
@@ -303,8 +326,8 @@ function siteWebmanifest(): string {
         { src: "/assets/icons/android-chrome-192x192.png", sizes: "192x192", type: "image/png" },
         { src: "/assets/icons/android-chrome-512x512.png", sizes: "512x512", type: "image/png" },
       ],
-      theme_color: "#ffffff",
-      background_color: "#ffffff",
+      theme_color: background,
+      background_color: background,
     },
     null,
     2

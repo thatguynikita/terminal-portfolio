@@ -13,6 +13,7 @@ everything past that.
 | [Theming](theming.md) | The token list, contrast, the CRT flicker, print, secret themes |
 | [Languages](i18n.md) | `MESSAGES`, adding and dropping a language, why unselected catalogues don't ship |
 | [The CV](cv.md) | Config shape, optional sections, hreflang, printing, why there are no mirrors |
+| [Images to replace](assets.md) | The CV portrait, the link-preview card, favicons, and how to generate them |
 | [Deployment](deploy.md) | GitHub Pages, S3-compatible hosts, DNS, what the build emits |
 
 ## The short version
@@ -22,5 +23,6 @@ everything past that.
 - **Adding a theme** is one CSS file in `src/themes/`.
 - **Adding a language** is one catalogue in `src/i18n/messages/` plus a line in
   `MESSAGES`.
+- **Replacing the images** is dropping files into `public/assets/`.
 
 Nothing needs registering. `npm test` catches what's missing.

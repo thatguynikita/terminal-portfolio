@@ -90,4 +90,4 @@ sitemap URLs became three. **Don't reintroduce a mirror.**
 
 ---
 
-**See also:** [languages](i18n.md) · [deployment](deploy.md)
+**See also:** [languages](i18n.md) · [images to replace](assets.md) · [deployment](deploy.md)
