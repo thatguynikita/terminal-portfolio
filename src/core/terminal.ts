@@ -1,6 +1,6 @@
 import type { CommandContext, Mode, Output } from "./types";
 import type { ProfileConfig } from "./profile";
-import type { Locale } from "../i18n/locales";
+import { LOCALES, type Locale } from "../i18n/locales";
 import { translate, translateList } from "../i18n";
 import { createRegistry, type Registry } from "./registry";
 import { createFileSystem } from "../fs";
@@ -35,7 +35,7 @@ export interface TerminalOptions {
 
 export function createTerminal(options: TerminalOptions): Terminal {
   const { profile, body, canvas } = options;
-  const locales = profile.terminal.locales;
+  const locales = LOCALES;
 
   let lang: Locale = resolveInitialLang();
   let mode: Mode | null = null;

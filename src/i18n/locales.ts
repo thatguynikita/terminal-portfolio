@@ -1,17 +1,21 @@
-/**
- * The canonical locale list.
- *
- * Adding a language is two steps:
- *   1. add its code here
- *   2. create `src/i18n/<code>.ts` and register it in `src/i18n/index.ts`
- *
- * Because `Localized<T>` is `Record<Locale, T>`, step 1 alone makes
- * TypeScript point at every profile.config.ts field that still needs a
- * translation — you can't half-add a language and ship it.
- */
-export const LOCALES = ["en", "ru"] as const;
+import { MESSAGES } from "../../profile.config";
 
-export type Locale = (typeof LOCALES)[number];
+/**
+ * The locale set, derived from the catalogues profile.config.ts imports.
+ *
+ * There is no list to keep in sync here: choosing languages is editing
+ * `MESSAGES` in profile.config.ts, and nothing else. A catalogue this repo
+ * ships but that config doesn't import is never referenced, so it never
+ * reaches the bundle.
+ *
+ * Because `Localized<T>` is `Record<Locale, T>`, adding a language to
+ * `MESSAGES` makes TypeScript point at every profile.config.ts field that
+ * still needs a translation — you can't half-add a language and ship it.
+ */
+export type Locale = keyof typeof MESSAGES;
+
+/** Selected locales in rotation order — object keys keep insertion order. */
+export const LOCALES = Object.keys(MESSAGES) as Locale[];
 
 /** Any user-visible string that has to exist in every locale. */
 export type Localized<T = string> = Record<Locale, T>;

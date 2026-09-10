@@ -1,6 +1,5 @@
 import type { Terminal } from "./terminal";
-import type { ProfileConfig } from "./profile";
-import { nextLocale as rotateLocale, type Locale } from "../i18n/locales";
+import { LOCALES, nextLocale as rotateLocale, type Locale } from "../i18n/locales";
 import { commonPrefix } from "./args";
 import { isCompleteArgument, splitInput } from "./complete";
 import { el, escapeAttr, escapeHtml } from "./html";
@@ -23,7 +22,7 @@ export interface InputController {
  * they can't drift from what actually runs — the original kept a separate
  * `COMMANDS` array and a second `getArgCandidates` switch for this.
  */
-export function createInput(terminal: Terminal, profile: ProfileConfig): InputController {
+export function createInput(terminal: Terminal): InputController {
   const { ctx, registry } = terminal;
   const body = ctx.root;
   const chipsEl = document.getElementById("chips");
@@ -61,13 +60,13 @@ export function createInput(terminal: Terminal, profile: ProfileConfig): InputCo
   /* ---------------- chips ---------------- */
 
   function nextLocale(): Locale {
-    return rotateLocale(profile.terminal.locales, ctx.lang);
+    return rotateLocale(LOCALES, ctx.lang);
   }
 
   function defaultChips(): Chip[] {
     const chips: Chip[] = [];
     if (registry.get("help")) chips.push({ label: "help", value: "help" });
-    if (profile.terminal.locales.length > 1 && registry.get("lang")) {
+    if (LOCALES.length > 1 && registry.get("lang")) {
       const next = nextLocale();
       chips.push({ label: next, value: `lang ${next}` });
     }

@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { isCompleteArgument, splitInput } from "../src/core/complete";
-import { nextLocale } from "../src/i18n/locales";
+import { LOCALES, nextLocale } from "../src/i18n/locales";
 import { loadCommands } from "../src/core/registry";
 import { createFakeContext } from "./helpers";
 import { commandDescription } from "../src/core/describe";
@@ -134,7 +134,7 @@ describe("command descriptions", () => {
 
   // Driven by the configured locales rather than by hardcoded Russian, so
   // the suite still passes for a fork that ships a single language.
-  const configured = profile.terminal.locales;
+  const configured = LOCALES;
   const catalogue = (locale: (typeof configured)[number]): string =>
     commandDescription(base, locale, "skills");
 
@@ -174,7 +174,7 @@ describe("command descriptions", () => {
   });
 
   it("ships the about override, since its wording carries a name", () => {
-    for (const locale of profile.terminal.locales) {
+    for (const locale of LOCALES) {
       const text = commandDescription(profile, locale, "about");
       expect(text.trim()).not.toBe("");
       expect(text).not.toBe(commandDescription(base, locale, "about"));

@@ -1,18 +1,20 @@
-import en from "./en";
-import ru from "./ru";
-import type { Messages } from "./en";
+import profile, { MESSAGES } from "../../profile.config";
+import type { Messages } from "./messages/en";
 import { LOCALES, type Locale } from "./locales";
 
 /**
- * Registered message catalogues. To add a language: create the file,
- * add its code to LOCALES, and register it here.
+ * The message catalogues this site ships. The map lives in
+ * profile.config.ts so that selecting languages is a config edit — see
+ * `MESSAGES` there. `en.ts` stays the schema every catalogue is typed
+ * against, via a type-only import that costs the bundle nothing even in
+ * a fork that doesn't ship English.
  */
-export const messages: Record<Locale, Messages> = { en, ru };
+export const messages = MESSAGES;
 
 export type { Messages, Locale };
 export { LOCALES };
 
-const DEFAULT_LOCALE: Locale = "en";
+const DEFAULT_LOCALE = profile.terminal.defaultLocale;
 
 /** Walks a dotted path like "ssh.failFirst" through a nested object. */
 function resolve(source: unknown, key: string): unknown {

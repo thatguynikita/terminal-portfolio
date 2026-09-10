@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest";
-import { existsSync, readFileSync } from "node:fs";
+import { existsSync, readdirSync, readFileSync } from "node:fs";
 import { join } from "node:path";
-import profile from "../profile.config";
+import profile, { MESSAGES } from "../profile.config";
 import { cvLocales, cvUrl } from "../src/cv/url";
 
 const SITE_URL = (process.env["SITE_URL"] ?? `https://${profile.identity.domain}`).replace(/\/$/, "");
@@ -34,10 +34,51 @@ suite("built output", () => {
     expect(existsSync(join(DIST, "llm"))).toBe(false);
   });
 
+  /**
+   * The point of selecting locales in profile.config.ts: a catalogue this
+   * repo ships but that MESSAGES doesn't import must not reach a visitor.
+   * Each locale is roughly a fifth of the JS bundle, so this is bytes, not
+   * tidiness. Asserted against the built assets rather than the module
+   * graph, because what ships is the only thing that settles it.
+   */
+  it("ships no catalogue that MESSAGES did not select", () => {
+    const shipped = new Set(Object.keys(MESSAGES));
+    const onDisk = readdirSync(join(process.cwd(), "src/i18n/messages"))
+      .filter((f) => f.endsWith(".ts"))
+      .map((f) => f.replace(/\.ts$/, ""));
+    const unselected = onDisk.filter((code) => !shipped.has(code));
+    if (unselected.length === 0) return; // a fork may ship every locale it has
+
+    const bundle = readdirSync(join(DIST, "assets"))
+      .filter((f) => f.endsWith(".js"))
+      .map((f) => readFileSync(join(DIST, "assets", f), "utf8"))
+      .join("\n");
+
+    for (const code of unselected) {
+      // A phrase unique to that catalogue and absent from every other one,
+      // so this can't pass by accident on a near-empty file.
+      const source = readFileSync(join(process.cwd(), `src/i18n/messages/${code}.ts`), "utf8");
+      const marker = source.match(/availableCommands: "([^"]+)"/)?.[1];
+      expect(marker, `${code}.ts has no availableCommands string to look for`).toBeTruthy();
+      expect(bundle, `${code} was not selected but its text is in the bundle`).not.toContain(
+        marker as string
+      );
+    }
+  });
+
   it("ships the résumé in the raw HTML of every locale", () => {
     for (const locale of locales) {
       const html = read(cvUrl(profile, locale).replace(/^\//, ""));
-      const text = html.replace(/<script[\s\S]*?<\/script>/g, "").replace(/<[^>]+>/g, " ");
+      // Entities decoded, not dropped — a job title containing "&" reaches
+      // the page as "&amp;" and is still the same text a crawler reads.
+      const text = html
+        .replace(/<script[\s\S]*?<\/script>/g, "")
+        .replace(/<[^>]+>/g, " ")
+        .replace(/&lt;/g, "<")
+        .replace(/&gt;/g, ">")
+        .replace(/&quot;/g, '"')
+        .replace(/&#0?39;/g, "'")
+        .replace(/&amp;/g, "&");
       for (const job of profile.cv?.jobs ?? []) {
         expect(text, `${locale}: missing ${job.title[locale]}`).toContain(job.title[locale]);
       }
