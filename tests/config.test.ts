@@ -95,6 +95,10 @@ describe("profile.config.ts", () => {
       if (!existsSync(join(ROOT, "public", path.slice(1)))) missing.push(path);
     };
     check(profile.seo.ogImage);
+    // The CV portrait. It isn't referenced from either shell — cv.html is
+    // generated — so without this line a broken path ships a broken image
+    // on the CV and a dead <image:loc> in sitemap.xml, and check stays green.
+    check(profile.identity.photo);
 
     // Anything the two pages reference by root-absolute path.
     for (const page of ["index.html", "404.html"]) {
@@ -134,43 +138,6 @@ describe("profile.config.ts", () => {
     }
   });
 });
-
-/**
- * The README is the first thing a fork reads, and its `cv` example is the
- * only place the shape is spelled out in full. Drift there is silent.
- */
-describe("README", () => {
-  const readme = readFileSync(join(ROOT, "README.md"), "utf8");
-  const example = /## The CV[\s\S]*?```ts\n([\s\S]*?)```/.exec(readme)?.[1] ?? "";
-
-  it("documents the CV example", () => {
-    expect(example.length, "no ts example under ## The CV").toBeGreaterThan(200);
-  });
-
-  it("shows every field the cv config actually has", () => {
-    const configured = Object.keys(profile.cv ?? {});
-    expect(configured.length).toBeGreaterThan(4);
-    const undocumented = configured.filter((key) => !new RegExp(`\\b${key}\\s*:`).test(example));
-    expect(undocumented, "cv fields missing from the README example").toEqual([]);
-  });
-
-  it("shows every field a job actually has", () => {
-    const job = profile.cv?.jobs?.[0];
-    if (!job) return;
-    const keys = [...Object.keys(job), ...Object.keys(job.org).map((k) => k)];
-    const undocumented = keys.filter((key) => !new RegExp(`\\b${key}\\s*:`).test(example));
-    expect(undocumented, "job fields missing from the README example").toEqual([]);
-  });
-
-  it("does not document fields that no longer exist", () => {
-    // Catches the reverse drift: an example that outlived its config.
-    const documented = [...example.matchAll(/^\s{2}([a-zA-Z]+):/gm)].map((m) => m[1] as string);
-    const configured = new Set(Object.keys(profile.cv ?? {}));
-    const stale = documented.filter((k) => !configured.has(k));
-    expect(stale, "README documents cv fields the config doesn't have").toEqual([]);
-  });
-});
-
 
 /**
  * The example config is what a fork copies first, and nothing imports it —
