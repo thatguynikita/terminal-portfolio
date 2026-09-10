@@ -49,9 +49,11 @@ input row, keybindings, completion and chips.
   `print`. Choose deliberately at each call site.
 - **Adding a command needs a matching i18n key** (`commands.<name>` in every
   locale) or `help` shows the raw key. `npm test` catches this.
-- **`ru.ts` is typed as `typeof en`**, so a missing translation is a *compile*
-  error. The Vitest i18n suite covers what types can't see: placeholder parity
-  and scripted-sequence lengths.
+- **Every catalogue is typed as `Messages` (= `typeof en`)**, so a missing
+  translation is a *compile* error. The Vitest i18n suite covers what types
+  can't see — placeholder parity and scripted-sequence lengths — and it walks
+  **every file in `src/i18n/messages/`, not just the selected locales**, since
+  an unselected catalogue is one import away from being live.
 - **Adding a new plain file to `src/fs/` needs a dev-server restart.** Vite
   doesn't re-scan the `?raw` glob on its own. `.ts` files hot-reload fine.
 - **Dotfiles need their own glob patterns** (`./.*`, `!./.*.ts`) — `*` does not
@@ -64,7 +66,7 @@ input row, keybindings, completion and chips.
 
 ## The CV
 
-Prerendered at build time, one page per `terminal.locales` entry: `/cv.html`
+Prerendered at build time, one page per selected locale: `/cv.html`
 for the default locale, `/<locale>/cv.html` for the rest.
 
 **Why static, and why the mirrors are gone.** The predecessor rendered the CV
@@ -98,6 +100,19 @@ concern went away together. **Do not reintroduce a mirror.**
 
 ### Page assembly, and its one subtlety
 
+**The shells live in `pages/`, and that directory is Vite's `root`.** That is
+what keeps them emitting to the top of `dist/` — a `root` at the repo with
+inputs at `pages/*.html` would emit `dist/pages/index.html` and break both
+GitHub Pages and the 404. Consequences worth knowing:
+
+- `build.outDir` is `../dist` and `publicDir` is `../public`, both relative to
+  `root`. `rollupOptions.input` needs resolved absolute paths.
+- The shells load `../src/main.ts`, not `/src/main.ts`: a root-absolute path in
+  the HTML would resolve to `pages/src/…`.
+- Anything in the plugin that reads a shell off disk must use the `page()`
+  helper. `readFileSync("cv.html")` worked only while cwd happened to be root,
+  and it 500s the dev server on `/ru/cv.html` the moment that stops being true.
+
 Vite requires HTML inputs to exist on disk, so the locale list can't drive
 `rollupOptions.input`. One real `cv.html` entry is processed normally, then
 cloned per additional locale in **`writeBundle`** — not `generateBundle`, where
@@ -123,6 +138,42 @@ through to the terminal — which is exactly what the language chip links to.
   is overridden.
 - **`identity.role` already contains an em dash**, so the page title is
   `name — CV — hostname`, not `name — role`.
+
+## Locales
+
+**`MESSAGES` in `profile.config.ts` is the locale set.** `Locale` is
+`keyof typeof MESSAGES` and `LOCALES` is `Object.keys(MESSAGES)`, so choosing
+languages is a config edit and there is no second list anywhere to drift from
+it. `terminal.locales` used to be that second list; it's gone.
+
+- **`src/i18n/locales.ts` imports from `profile.config.ts`, not the reverse.**
+  That looks backwards until you check `src/core/profile.ts`: its only import is
+  `import type`, erased at build, so the cycle is types-only and never exists at
+  runtime. Keep it that way — giving `core/profile.ts` a value import from the
+  i18n tree would close a real cycle.
+- **`src/i18n/messages/` holds every catalogue the repo ships** — `en`, `ru`,
+  `es`, `de` — selected or not. This site selects two; a test asserts the
+  unselected ones' text is absent from `dist/`. `tsc` still checks them
+  (tsconfig includes `src`), and the i18n suite walks every file on disk rather
+  than only the selected locales, since types can't see array lengths or
+  `{placeholders}`.
+- **Two example configs**, one per locale count: `profile.config.example.ts`
+  (English) and `profile.config.multilingual.example.ts` (en/es/de). They stay
+  at the repo root deliberately: a `cp` onto `profile.config.ts` has to work
+  untouched, and a relative import is only correct at one depth. Neither is
+  in tsconfig's `include` and neither can be — `Localized` resolves against the
+  *live* config's locales, so a trilingual example can't typecheck beside a
+  bilingual profile. `tests/config.test.ts` imports them at runtime instead and
+  walks their locale maps, which is the substitute for the typecheck.
+- **`en.ts` is the schema** — `Messages = typeof en` — and is imported for its
+  type even by a fork that doesn't ship English. Type-only, so it costs no bytes.
+- **No `import.meta.glob` in the registry.** `vite.config.ts` imports
+  `src/i18n` at module top level, so Node loads it outside Vite's transform
+  pipeline; a glob there throws `.glob is not a function`. The explicit import
+  map in the config is what makes it Node-loadable *and* tree-shakeable.
+- Dropping a language surfaces every config field still carrying its prose, one
+  compile error each — the same guarantee as adding one, running backwards.
+  That's intended: it stops dead translations lingering in the config.
 
 ## Theming
 
@@ -164,9 +215,9 @@ a test asserts exactly that.
 
 ## Conventions
 
-- The bilingual toggle is load-bearing: any new visible text needs every
+- The language toggle is load-bearing: any new visible text needs every
   enabled locale. Command *logic* lives in `src/commands/`; command *copy*
-  lives in `src/i18n/`; personal *data* lives in `profile.config.ts`.
+  lives in `src/i18n/messages/`; personal *data* lives in `profile.config.ts`.
 - `profile.config.ts` ships with real personal data, so `npm run check` guards
   the rebrand: it fails when `SITE_URL` and `identity.domain` disagree.
 - Prefer reusing a real command over duplicating its rendering — the boot intro

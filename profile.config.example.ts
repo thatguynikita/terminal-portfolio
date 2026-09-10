@@ -1,4 +1,16 @@
 import { defineProfile } from "./src/core/profile";
+import en from "./src/i18n/messages/en";
+
+/**
+ * The languages this site ships, in rotation order.
+ *
+ * This example is English-only, and that is the whole of it: `en` is the
+ * one catalogue imported, so every other language this repo ships stays
+ * out of the build. Want Russian too? Add the import and list it here —
+ * `Localized` will then point at every field below that needs
+ * translating, so a half-translated site can't ship.
+ */
+export const MESSAGES = { en };
 
 /**
  * ─────────────────────────────────────────────────────────────────────
@@ -7,16 +19,9 @@ import { defineProfile } from "./src/core/profile";
  *  Copy over profile.config.ts and edit. Domains use the reserved
  *  `.example` TLD (RFC 2606), so nothing here resolves anywhere real.
  *
- *  This file is English-only, so before using it trim the locale list to
- *  match — otherwise every field will be missing its other translations:
- *
- *    1. src/i18n/locales.ts  ->  export const LOCALES = ["en"] as const;
- *    2. delete src/i18n/ru.ts and its entry in src/i18n/index.ts
- *    3. delete content the other locale owned, if you added any
- *
- *  Keep both languages instead? Copy profile.config.ts's shape rather
- *  than this file: `Localized` requires a value for every locale in
- *  LOCALES, which is what stops a half-translated site from building.
+ *  Nothing outside this file needs touching to go English-only — the
+ *  locale set is MESSAGES above, and no source file carries a second
+ *  copy of that list.
  * ─────────────────────────────────────────────────────────────────────
  */
 export default defineProfile({
@@ -186,7 +191,7 @@ before a dashboard lies, and documentation someone reads at 2am.`,
     title: {
       en: "guest@marina.example — bash — 80×24",
     },
-    locales: ["en"],
+    // Which languages this site ships is MESSAGES, at the top of this file.
     defaultLocale: "en",
     defaultTheme: "random",
   },
@@ -235,7 +240,7 @@ before a dashboard lies, and documentation someone reads at 2am.`,
     },
   },
 
-  // The CV. One page is generated per locale in terminal.locales.
+  // The CV. One page is generated per locale in MESSAGES, at the top.
   // Delete this whole key and the CV disappears: no pages, no `cv` command,
   // no cv.html in `ls`, no sitemap rows — just the terminal.
   cv: {

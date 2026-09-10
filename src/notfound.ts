@@ -5,7 +5,7 @@ import profile from "../profile.config";
 import { createMatrixRain } from "./core/matrix";
 import { createThemeController } from "./core/theme";
 import { translate } from "./i18n";
-import { nextLocale, type Locale } from "./i18n/locales";
+import { LOCALES, nextLocale, type Locale } from "./i18n/locales";
 import { StorageKey, readStored, writeStored } from "./core/storage";
 import { escapeHtml } from "./core/html";
 import { CV_LINK_LABEL, cvUrl } from "./cv/url";
@@ -20,7 +20,7 @@ if (canvas) {
   createThemeController(matrix, { defaultTheme: profile.terminal.defaultTheme });
 }
 
-const locales = profile.terminal.locales;
+const locales = LOCALES;
 
 function initialLang(): Locale {
   const stored = readStored(StorageKey.lang);

@@ -26,11 +26,22 @@ Then:
 npm run check        # fails if the config is inconsistent or incomplete
 ```
 
-`profile.config.example.ts` is a filled-in example — a fictional data engineer,
-English only, using `.example` domains. Copy it over `profile.config.ts` to start
-from something complete rather than editing real data. Its header lists the two
-extra steps a single-language site needs (trim `LOCALES`, drop the other
-catalogue).
+Two filled-in examples ship alongside it, both fictional and both on `.example`
+domains. Copy either over `profile.config.ts` to start from something complete
+rather than editing real data:
+
+| File | Persona | Languages |
+|---|---|---|
+| `profile.config.example.ts` | data engineer | English |
+| `profile.config.multilingual.example.ts` | robotics firmware engineer | English, Spanish, German |
+
+```bash
+cp profile.config.multilingual.example.ts profile.config.ts
+```
+
+The only structural difference between them is how many catalogues `MESSAGES`
+imports. The trilingual one builds `/cv.html`, `/es/cv.html` and `/de/cv.html`
+with a matching hreflang cluster, and its language chip cycles all three.
 
 `npm run check` is the preflight for a fork. It verifies every user-visible
 field is translated into every enabled locale, that referenced assets exist,
@@ -158,17 +169,36 @@ and the random first-visit pool automatically.
 isn't near-black should also disable the CRT flicker (see `solarized.css`) —
 the `multiply` blend's periodic dip reads as a flash otherwise.
 
-## Adding a language
+## Choosing languages
 
-1. add the code to `LOCALES` in `src/i18n/locales.ts`
-2. create `src/i18n/<code>.ts` and register it in `src/i18n/index.ts`
-3. list it in `terminal.locales` in `profile.config.ts`
+The site ships the catalogues `MESSAGES` imports, at the top of
+`profile.config.ts` — that map is the whole locale setup, and no source file
+keeps a second copy of the list:
 
-Step 1 alone makes TypeScript point at every config field still needing a
-translation — you can't half-add a language. (Adding `de` to a two-language
-config surfaces every such field, each named individually.) The build also
-fails with a readable message if a required string is missing. With a single locale configured,
-the language toggle and the `lang` command disappear.
+```ts
+import en from "./src/i18n/messages/en";
+import ru from "./src/i18n/messages/ru";
+
+export const MESSAGES = { en, ru };   // English-only? delete the ru line.
+```
+
+The first entry is where the language toggle starts; `terminal.defaultLocale`
+picks which one is served unprefixed. With one locale configured the toggle and
+the `lang` command disappear, and `/cv.html` has no `/<locale>/` sibling.
+
+**Dropping a language takes its translations out of the build.**
+`src/i18n/messages/` ships English, Russian, Spanish and German; this site
+selects two, so the other two sit in the repo and never reach `dist/`. That
+matters because each catalogue is roughly a fifth of the JavaScript a visitor
+downloads.
+
+**Adding one** is a new file in `src/i18n/messages/` typed as `Messages`, plus
+its import and entry here. TypeScript then names every `profile.config.ts` field
+that still needs translating, one error per field, so a half-translated site
+can't ship — and the same happens in reverse when you remove a language and
+leave its prose behind. `npm test` covers what types can't see: placeholder
+parity and scripted-sequence lengths, across every catalogue on disk rather than
+only the selected ones.
 
 ---
 
@@ -318,15 +348,24 @@ blank for AWS. Needs `aws-cli` installed and `.env` filled in from
 
 ```
 profile.config.ts       everything about you, including the whole CV
+pages/                  the three page shells — Vite's root
 src/core/               engine: registry, output API, input loop, modes, theme
 src/commands/           one file per command — auto-registered
 src/cv/                 CV renderer, URLs, JSON-LD
 src/fs/                 the fake filesystem
-src/i18n/               one file per locale
+src/i18n/locales.ts     the locale set, derived from MESSAGES
+src/i18n/messages/      one file per language — en, ru, es, de
 src/themes/             one CSS file per theme — auto-registered
 src/styles/             shared chrome and per-page layout
 public/                 copied verbatim into dist/
 ```
+
+`pages/` is Vite's `root`, which is why the shells still land at the top of
+`dist/` rather than under `dist/pages/`. Their `<script>` tags point at
+`../src/…` for the same reason — relative to the shell, not the repo. The two
+example configs stay at the repo root next to `profile.config.ts`, since a `cp`
+onto it has to work with no edits and a relative import is only right at one
+depth.
 
 ## Licence
 

@@ -17,7 +17,7 @@ if (!body || !canvas) {
 }
 
 const terminal = createTerminal({ profile, body, canvas });
-const input = createInput(terminal, profile);
+const input = createInput(terminal);
 
 initGameOverlay(profile);
 renderChrome();

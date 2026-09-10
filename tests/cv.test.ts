@@ -2,7 +2,7 @@ import { describe, expect, it } from "vitest";
 import { readFileSync } from "node:fs";
 import { join } from "node:path";
 import profile from "../profile.config";
-import { LOCALES } from "../src/i18n/locales";
+import { LOCALES, type Localized } from "../src/i18n/locales";
 import { renderCv, renderCvTopbar } from "../src/cv/render";
 import { buildCvJsonLd } from "../src/cv/jsonld";
 import { CV_LINK_LABEL, cvLocales, cvUrl } from "../src/cv/url";
@@ -16,8 +16,26 @@ import { renderCopyright, skillsFor, socialsFor } from "../src/core/profile";
 const cv = profile.cv;
 const locales = cvLocales(profile);
 const withCv = cv ? describe : describe.skip;
+/**
+ * Tags out, entities back to the characters the config actually held.
+ *
+ * Decoding rather than blanking matters: the renderer escapes once, so a
+ * skill key of "Build & CI" reaches the page as "Build &amp; CI". Blanking
+ * entities made that unfindable and failed a config that was rendering
+ * perfectly well. `&amp;` is decoded last so "&amp;lt;" round-trips to
+ * "&lt;" instead of collapsing to "<".
+ */
+const decodeEntities = (s: string): string =>
+  s
+    .replace(/&lt;/g, "<")
+    .replace(/&gt;/g, ">")
+    .replace(/&quot;/g, '"')
+    .replace(/&#0?39;/g, "'")
+    .replace(/&nbsp;/g, " ")
+    .replace(/&amp;/g, "&");
+
 const strip = (html: string): string =>
-  html.replace(/<[^>]+>/g, " ").replace(/&[a-z]+;/g, " ").replace(/\s+/g, " ");
+  decodeEntities(html.replace(/<[^>]+>/g, " ")).replace(/\s+/g, " ");
 
 withCv("cv locales", () => {
   it("has content for every configured locale", () => {
@@ -41,8 +59,7 @@ withCv("cv locales", () => {
   });
 
   it("generates exactly the configured locales", () => {
-    expect(locales).toEqual(profile.terminal.locales);
-    for (const locale of locales) expect(LOCALES).toContain(locale);
+    expect(locales).toEqual(LOCALES);
   });
 
   it("puts the default locale at the root and the rest under a prefix", () => {
@@ -347,7 +364,7 @@ describe("when no CV is configured", () => {
   });
 
   it("renders nothing", () => {
-    for (const locale of profile.terminal.locales) {
+    for (const locale of LOCALES) {
       expect(renderCv(without, locale)).toBe("");
     }
   });
@@ -441,9 +458,15 @@ withCv("partial configs", () => {
   });
 
   it("renders with empty arrays as well as missing keys", () => {
+    // Built from LOCALES rather than a hardcoded {en, ru}: this fixture is a
+    // `Localized<string[]>`, so a fork that adds or drops a language would
+    // otherwise have to come and edit the test suite.
+    const emptyTraits = {} as Localized<string[]>;
+    for (const l of LOCALES) emptyTraits[l] = [];
+
     const emptied = {
       ...profile,
-      cv: { ...cv, jobs: [], certs: [], languages: [], traits: { en: [], ru: [] } },
+      cv: { ...cv, jobs: [], certs: [], languages: [], traits: emptyTraits },
     } as typeof profile;
     const html = renderCv(emptied, locale);
     expect(html).toContain("about.txt");

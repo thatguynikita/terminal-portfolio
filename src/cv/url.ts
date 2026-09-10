@@ -1,5 +1,5 @@
 import type { ProfileConfig } from "../core/profile";
-import type { Locale } from "../i18n/locales";
+import { LOCALES, type Locale } from "../i18n/locales";
 
 /**
  * Where the CV lives for a given locale.
@@ -15,7 +15,7 @@ export function cvUrl(profile: ProfileConfig, locale: Locale): string {
 
 /** Every CV page that should be generated, in configured order. */
 export function cvLocales(profile: ProfileConfig): Locale[] {
-  return profile.cv ? [...profile.terminal.locales] : [];
+  return profile.cv ? [...LOCALES] : [];
 }
 
 /** How the CV is labelled in every page's topbar. */

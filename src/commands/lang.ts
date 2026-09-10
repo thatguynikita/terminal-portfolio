@@ -1,14 +1,14 @@
 import { defineCommand } from "../core/types";
-import { isLocale } from "../i18n/locales";
+import { isLocale, LOCALES } from "../i18n/locales";
 
 export default defineCommand({
   name: "lang",
   usage: "<code>",
   order: 160,
-  complete: (ctx) => [...ctx.profile.terminal.locales],
+  complete: () => [...LOCALES],
   run(ctx, args) {
     const choice = (args.positional[0] ?? "").toLowerCase();
-    const enabled = ctx.profile.terminal.locales;
+    const enabled = LOCALES;
 
     if (isLocale(choice) && enabled.includes(choice)) {
       ctx.setLang(choice);

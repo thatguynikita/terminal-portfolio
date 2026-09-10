@@ -21,17 +21,35 @@ function flatten(node: Node, prefix = ""): Map<string, unknown> {
 const placeholders = (s: string): string[] =>
   [...s.matchAll(/\{(\w+)\}/g)].map((m) => m[1] as string).sort();
 
+/**
+ * Every catalogue this repo ships — *including the ones profile.config.ts
+ * doesn't select*. An unselected catalogue is one import away from being
+ * live, and `tsc` only pins its shape: array lengths and `{placeholders}`
+ * are invisible to the type system, so they're checked here or nowhere.
+ */
+const modules = import.meta.glob("../src/i18n/messages/*.ts", { eager: true }) as Record<
+  string,
+  { default: Node }
+>;
+
 const catalogues = Object.fromEntries(
-  LOCALES.map((l) => [l, flatten(messages[l] as unknown as Node)])
+  Object.entries(modules).map(([path, mod]) => [
+    (path.split("/").pop() as string).replace(/\.ts$/, ""),
+    flatten(mod.default),
+  ])
 ) as Record<string, Map<string, unknown>>;
 
+const CODES = Object.keys(catalogues).sort();
+
+// en.ts is the schema by construction — `Messages = typeof en` — so it is
+// the comparison base whether or not this fork ships English.
 const base = catalogues["en"] as Map<string, unknown>;
 
 describe("i18n", () => {
   // Key presence is already enforced by `tsc` (ru is typed as Messages);
   // this catches the cases types can't see.
-  it("every locale has the same keys as the default", () => {
-    for (const locale of LOCALES) {
+  it("every catalogue has the same keys as the schema", () => {
+    for (const locale of CODES) {
       const other = catalogues[locale] as Map<string, unknown>;
       expect([...base.keys()].filter((k) => !other.has(k)), `missing in ${locale}`).toEqual([]);
       expect([...other.keys()].filter((k) => !base.has(k)), `extra in ${locale}`).toEqual([]);
@@ -39,7 +57,7 @@ describe("i18n", () => {
   });
 
   it("no message is left empty", () => {
-    for (const locale of LOCALES) {
+    for (const locale of CODES) {
       for (const [key, value] of catalogues[locale] as Map<string, unknown>) {
         if (typeof value === "string") {
           expect(value.trim(), `${locale}/${key} is empty`).not.toBe("");
@@ -49,9 +67,9 @@ describe("i18n", () => {
   });
 
   // A translation that drops {host} renders a sentence with a hole in it.
-  it("interpolation placeholders match across locales", () => {
+  it("interpolation placeholders match across catalogues", () => {
     const mismatches: string[] = [];
-    for (const locale of LOCALES) {
+    for (const locale of CODES) {
       for (const [key, value] of catalogues[locale] as Map<string, unknown>) {
         const expected = base.get(key);
         if (typeof value !== "string" || typeof expected !== "string") continue;
@@ -63,8 +81,8 @@ describe("i18n", () => {
     expect(mismatches).toEqual([]);
   });
 
-  it("arrays used as sequences keep the same length across locales", () => {
-    for (const locale of LOCALES) {
+  it("arrays used as sequences keep the same length across catalogues", () => {
+    for (const locale of CODES) {
       for (const [key, value] of catalogues[locale] as Map<string, unknown>) {
         const expected = base.get(key);
         if (!Array.isArray(value) || !Array.isArray(expected)) continue;
@@ -73,6 +91,13 @@ describe("i18n", () => {
         expect(value.length, `${locale}/${key} length`).toBe(expected.length);
       }
     }
+  });
+
+  // The selected locales are a subset of what's on disk, and `messages` is
+  // exactly those — this is what makes the loops above cover the live site.
+  it("serves exactly the catalogues profile.config.ts selects", () => {
+    expect(Object.keys(messages).sort()).toEqual([...LOCALES].sort());
+    for (const locale of LOCALES) expect(CODES).toContain(locale);
   });
 
   it("interpolate substitutes known names and leaves unknown ones alone", () => {

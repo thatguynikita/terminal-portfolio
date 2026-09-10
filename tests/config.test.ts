@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest";
 import { existsSync, readFileSync } from "node:fs";
 import { join } from "node:path";
-import profile from "../profile.config";
+import profile, { MESSAGES } from "../profile.config";
 import { LOCALES, type Locale } from "../src/i18n/locales";
 import { THEME_NAMES } from "../src/themes";
 
@@ -15,7 +15,7 @@ import { THEME_NAMES } from "../src/themes";
  * this fails.
  */
 const ROOT = process.cwd();
-const enabled = profile.terminal.locales;
+const enabled = LOCALES;
 
 /** Walks the config for `{en: ..., ru: ...}`-shaped objects. */
 function localizedFields(node: unknown, path = ""): Array<[string, Record<string, unknown>]> {
@@ -31,10 +31,13 @@ function localizedFields(node: unknown, path = ""): Array<[string, Record<string
 }
 
 describe("profile.config.ts", () => {
-  it("declares at least one locale, and a default among them", () => {
+  // `defaultLocale` being one of the shipped locales is a *compile* error
+  // now that Locale is `keyof typeof MESSAGES`, so what's left to assert at
+  // runtime is that the derived list really is the config's map, in order —
+  // rotation order is MESSAGES' declaration order.
+  it("derives its locales from MESSAGES, in declaration order", () => {
     expect(enabled.length).toBeGreaterThan(0);
-    expect(enabled).toContain(profile.terminal.defaultLocale);
-    for (const locale of enabled) expect(LOCALES).toContain(locale);
+    expect(enabled).toEqual(Object.keys(MESSAGES));
   });
 
   it("translates every user-visible field into every enabled locale", () => {
@@ -95,7 +98,7 @@ describe("profile.config.ts", () => {
 
     // Anything the two pages reference by root-absolute path.
     for (const page of ["index.html", "404.html"]) {
-      const html = readFileSync(join(ROOT, page), "utf8");
+      const html = readFileSync(join(ROOT, "pages", page), "utf8");
       // Emitted by the build rather than shipped in public/, so they are
       // only on disk after `vite build`.
       const generated = new Set([
@@ -175,8 +178,56 @@ describe("README", () => {
  * rather than semantic: it must parse, cover the same keys, and stay
  * single-language.
  */
-describe("profile.config.example.ts", () => {
-  const example = readFileSync(join(ROOT, "profile.config.example.ts"), "utf8");
+/**
+ * Both example configs, checked against the same rules.
+ *
+ * Neither is in tsconfig's `include`, and they can't be: `Localized` is
+ * `Record<Locale, T>` where `Locale` comes from the *live* config's
+ * MESSAGES, so a three-language example can't typecheck alongside a
+ * two-language profile.config.ts. This suite is the substitute — it
+ * imports each example at runtime, where types don't exist, and walks it.
+ */
+const exampleModules = import.meta.glob("../profile.config.*.ts", { eager: true }) as Record<
+  string,
+  { default: unknown; MESSAGES: Record<string, unknown> }
+>;
+
+/**
+ * Paths of objects that look like locale maps but don't carry exactly the
+ * locales that example ships — a missing translation, or a stray one left
+ * behind from a language that was dropped.
+ */
+function localeMismatches(node: unknown, expected: string[], path = ""): string[] {
+  if (!node || typeof node !== "object") return [];
+  if (Array.isArray(node)) {
+    return node.flatMap((item, i) => localeMismatches(item, expected, `${path}[${i}]`));
+  }
+  const record = node as Record<string, unknown>;
+  const keys = Object.keys(record);
+  // A locale map is anything carrying at least one of this example's codes.
+  if (keys.some((k) => expected.includes(k))) {
+    const sorted = [...keys].sort();
+    return sorted.join(",") === [...expected].sort().join(",")
+      ? []
+      : [`${path}: {${sorted.join(",")}}`];
+  }
+  return Object.entries(record).flatMap(([key, value]) =>
+    localeMismatches(value, expected, path ? `${path}.${key}` : key)
+  );
+}
+
+describe.each([
+  { file: "profile.config.example.ts", locales: ["en"] },
+  { file: "profile.config.multilingual.example.ts", locales: ["en", "es", "de"] },
+])("$file", ({ file, locales }) => {
+  const example = readFileSync(join(ROOT, file), "utf8");
+  const mod = exampleModules[`../${file}`];
+
+  it("is importable, and declares the locales it claims", () => {
+    expect(mod, `${file} was not picked up by the glob`).toBeTruthy();
+    expect(Object.keys(mod!.MESSAGES)).toEqual(locales);
+    expect(example).toContain(`export const MESSAGES = { ${locales.join(", ")} };`);
+  });
 
   it("covers every top-level key the real config has", () => {
     const keys = Object.keys(profile);
@@ -190,10 +241,22 @@ describe("profile.config.example.ts", () => {
     expect(missing, "cv sections missing from the example").toEqual([]);
   });
 
-  it("is single-language, and says so", () => {
-    expect(example).toContain('locales: ["en"]');
-    expect(example, "a second locale leaked in").not.toMatch(/^\s*ru:/m);
-    expect(example, "the header should explain trimming LOCALES").toContain("LOCALES");
+  // The check that earns its keep on a three-language example, and the one
+  // `tsc` would do if these files could be typechecked in place.
+  it("translates every localized field into exactly its own locales", () => {
+    expect(localeMismatches(mod!.default, locales)).toEqual([]);
+  });
+
+  it("serves an unprefixed default that is one of its own locales", () => {
+    const fallback = /defaultLocale:\s*"([^"]+)"/.exec(example)?.[1] ?? "";
+    expect(locales, `defaultLocale "${fallback}" is not shipped`).toContain(fallback);
+  });
+
+  it("sends nobody into src/ to change languages", () => {
+    // The whole point of deriving Locale from MESSAGES: picking languages is
+    // this file and nothing else. A numbered recipe pointing at src/i18n
+    // means that promise has quietly broken.
+    expect(example, "the header should not send anyone into src/").not.toMatch(/\d\.\s+src\/i18n/);
   });
 
   it("publishes to a reserved domain, so it can't be deployed by accident", () => {

@@ -1,7 +1,18 @@
 import { defineConfig, type Plugin } from "vite";
 import { mkdirSync, readFileSync, writeFileSync } from "node:fs";
 import { execFileSync } from "node:child_process";
-import { dirname, join } from "node:path";
+import { dirname, join, resolve } from "node:path";
+import { fileURLToPath } from "node:url";
+
+const HERE = dirname(fileURLToPath(import.meta.url));
+
+/**
+ * Where the page shells live. This is Vite's `root`, so the HTML files sit
+ * together in one directory instead of scattered across the repo root — and
+ * because it's the root, they still emit to the top of `dist/`.
+ */
+const PAGES = resolve(HERE, "pages");
+const page = (name: string): string => resolve(PAGES, name);
 import profile from "./profile.config";
 import { renderCopyright, skillsFor, socialsFor } from "./src/core/profile";
 import type { Locale } from "./src/i18n/locales";
@@ -149,7 +160,7 @@ function assertLocaleReady(locale: Locale): void {
     if (typeof value !== "string" || value === "") {
       throw new Error(
         `profile.config.ts: ${field} has no "${locale}" translation. ` +
-          `Every locale in terminal.locales needs one.`
+          `Every locale in MESSAGES needs one.`
       );
     }
   }
@@ -424,7 +435,7 @@ function profileHtmlPlugin(): Plugin {
         if (!locale || locale === DEFAULT_LOCALE) return next();
 
         void server
-          .transformIndexHtml(req.url as string, readFileSync("cv.html", "utf8"))
+          .transformIndexHtml(req.url as string, readFileSync(page("cv.html"), "utf8"))
           .then((html) => {
             res.setHeader("Content-Type", "text/html; charset=utf-8");
             res.end(html);
@@ -471,6 +482,8 @@ function profileHtmlPlugin(): Plugin {
 }
 
 export default defineConfig({
+  root: PAGES,
+  publicDir: "../public",
   base: "/",
   define: {
     __CV_BYTES__: JSON.stringify(
@@ -479,14 +492,15 @@ export default defineConfig({
   },
   plugins: [profileHtmlPlugin()],
   build: {
-    outDir: "dist",
+    outDir: "../dist",
+    emptyOutDir: true,
     rollupOptions: {
       // The CV is opt-in: without a `cv` key in profile.config.ts the page
       // is never built, and the site is the terminal alone.
       input: {
-        index: "index.html",
-        404: "404.html",
-        ...(profile.cv ? { cv: "cv.html" } : {}),
+        index: page("index.html"),
+        404: page("404.html"),
+        ...(profile.cv ? { cv: page("cv.html") } : {}),
       },
     },
   },

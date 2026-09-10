@@ -1,6 +1,6 @@
 import type { ProfileConfig } from "../core/profile";
 import { skillsFor, socialsFor } from "../core/profile";
-import type { Locale } from "../i18n/locales";
+import { LOCALES, type Locale } from "../i18n/locales";
 import { translate } from "../i18n";
 import { escapeHtml as esc } from "../core/html";
 import { CV_LINK_LABEL, cvUrl } from "./url";
@@ -220,7 +220,7 @@ ${traits}
 
 /** The topbar, including the language chip — real links, so JS is optional. */
 export function renderCvTopbar(profile: ProfileConfig, locale: Locale): string {
-  const locales = profile.terminal.locales;
+  const locales = LOCALES;
   const index = locales.indexOf(locale);
   const next = locales[(index + 1) % locales.length] as Locale;
 

@@ -126,7 +126,7 @@ export interface ProfileConfig {
     hostname: string;
     /** Window-chrome title, e.g. "guest@nikita.sh — bash — 80x24". */
     title?: Localized;
-    locales: Locale[];
+    /** The locale set comes from MESSAGES in profile.config.ts. */
     defaultLocale: Locale;
     /** A theme name, or "random" to pick one per first-time visitor. */
     defaultTheme: string | "random";
@@ -167,7 +167,7 @@ export interface ProfileConfig {
   /**
    * The CV. Omit to drop the pages, the `cv` command and the filesystem
    * node entirely — a fork with no résumé to publish deletes this key.
-   * One page is generated per locale in `terminal.locales`.
+   * One page is generated per locale in `MESSAGES` (profile.config.ts).
    */
   cv?: CvConfig;
 

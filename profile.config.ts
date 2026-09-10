@@ -1,4 +1,17 @@
 import { defineProfile } from "./src/core/profile";
+import en from "./src/i18n/messages/en";
+import ru from "./src/i18n/messages/ru";
+
+/**
+ * The languages this site ships, in rotation order.
+ *
+ * This is the whole locale setup. Drop a language by deleting its import
+ * and its entry below — its catalogue stays in the repo and stops being
+ * built. Add one the same way; `Localized` then points at every field in
+ * this file that still needs a translation, so a half-translated site
+ * can't ship. The first entry is where the language toggle starts.
+ */
+export const MESSAGES = { en, ru };
 
 /**
  * ─────────────────────────────────────────────────────────────────────
@@ -201,7 +214,7 @@ and SRE practices into reality.`,
       en: "guest@nikita.sh — bash — 80×24",
       ru: "guest@nikita.sh — bash — 80×24",
     },
-    locales: ["en", "ru"],
+    // Which languages this site ships is MESSAGES, at the top of this file.
     defaultLocale: "en",
     defaultTheme: "random",
   },
@@ -255,7 +268,7 @@ and SRE practices into reality.`,
     },
   },
 
-  // The CV. One page is generated per locale in terminal.locales.
+  // The CV. One page is generated per locale in MESSAGES, at the top.
   // Delete this whole key and the CV disappears: no pages, no `cv` command,
   // no cv.html in `ls`, no sitemap rows — just the terminal.
   cv: {
