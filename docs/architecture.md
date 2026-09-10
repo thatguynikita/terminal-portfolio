@@ -84,7 +84,7 @@ through to the terminal — which is exactly what the language chip links to.
 
 ## Testing
 
-251 tests across nine suites, run with Vitest and happy-dom. The ones worth
+247 tests across nine suites, run with Vitest and happy-dom. The ones worth
 knowing about:
 
 - **`config.test.ts`** is `npm run check`, the preflight a fork runs before

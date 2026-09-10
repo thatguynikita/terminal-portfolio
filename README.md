@@ -26,13 +26,17 @@ Vite + TypeScript, no UI framework, no runtime dependencies.
 ## Features
 
 - **One file per command.** Drop `src/commands/whatever.ts` in and it registers itself — `help`, Tab-completion and the touch chips all read the same registry, so they can't drift. → [guide](docs/commands.md)
-- **38 commands out of the box**, from `ls` and `cat` to `kubectl`, `terraform`, a fake `top` and an `ssh` persona that answers recruiter questions.
+- **38 commands, and 18 of them never show up in `help`.** `ls`, `cat`, `kubectl`, `terraform`, a fake `top`, an `ssh` persona that answers recruiter questions — plus a pile you have to find. The boot message warns you: *psst — 'help' is being modest.*
+- **The hidden half is where the jokes are.** `sudo` reports the incident, deletes something precious, then admits it was kidding. `terraform destroy` warns it'll destroy your weekend. Ask `claude` for a light theme twice and it grudgingly ships you a secret one.
+- **There's a game in here.** `ls -a` turns up `milk-quest.sh`; running it is denied until you `sudo`. It opens in a CRT-tinted frame that picks up whatever theme you're on — the demo runs [condensed-milk-quest](https://github.com/thatguynikita/condensed-milk-quest), a vanilla-JS Canvas platformer.
+- **Live "now playing" from Spotify** in the neofetch card. Backend setup is [spotify-now-playing](https://github.com/thatguynikita/spotify-now-playing) — or leave the endpoint blank and the row never renders and never makes a request.
 - **7 themes**, one CSS file each, auto-registered. A random one greets each first-time visitor. → [guide](docs/theming.md)
 - **A real fake filesystem** — files show up in `ls` with their true byte sizes, and can be dynamic or executable. → [guide](docs/filesystem.md)
 - **A static CV**, prerendered per language, readable with JavaScript off and by AI crawlers that never run it. → [guide](docs/cv.md)
-- **Four languages ship**, and you pick which ones build. The ones you don't pick never reach the bundle. → [guide](docs/i18n.md)
+- **Built to be read by machines.** The résumé is in the raw HTML; the build emits `sitemap.xml`, `robots.txt` (with per-crawler rules and `Content-Signal`) and `llms.txt` from the same page list, plus a self-canonical hreflang cluster and JSON-LD. Scan it yourself with [Lighthouse](https://pagespeed.web.dev/) or [isitagentready.com](https://isitagentready.com/).
+- **Four languages ship, and adding one is a single file.** You pick which ones build; the rest never reach the bundle. → [guide](docs/i18n.md)
 - **Everything about you lives in one file** — `profile.config.ts`. Name, bio, skills, socials, CV, personas, SEO.
-- **251 tests**, and a preflight that refuses to deploy a fork still carrying someone else's name.
+- **247 tests**, and a preflight that refuses to deploy a fork still carrying someone else's name.
 - **Deploys anywhere static** — GitHub Pages and S3-compatible hosts are one command each. → [guide](docs/deploy.md)
 
 ---
@@ -269,11 +273,19 @@ several published palettes don't pass.
 
 ## Credits
 
-Rebuilt from [nikita.sh](https://nikita.sh), where the whole terminal was a
-single 1,890-line inline `<script>`. That site is still live and untouched.
+Rebuilt from [thatguynikita/nikita.sh](https://github.com/thatguynikita/nikita.sh),
+where the whole terminal was a single 1,890-line inline `<script>` and
+`runCommand()` was a 550-line `switch`. That repo is untouched and
+[still live](https://nikita.sh).
 
-The README shape and the single-config-file approach were shaped by
-[iamdhakrey/terminal-portfolio](https://github.com/iamdhakrey/terminal-portfolio).
+Shaped by three terminal portfolios worth reading:
+
+- [iamdhakrey/terminal-portfolio](https://github.com/iamdhakrey/terminal-portfolio)
+  — the README shape and the single-config-file approach
+- [micahkepe/term-website](https://github.com/micahkepe/term-website/)
+  — a minimal, configurable terminal website
+- [satnaing/terminal-portfolio](https://github.com/satnaing/terminal-portfolio)
+  — the terminal-as-portfolio idea, done in React
 
 ---
 
