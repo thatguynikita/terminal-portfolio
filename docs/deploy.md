@@ -20,6 +20,11 @@ The build reads `.env` itself, so no wrapper is needed; a variable in the shell
 or in CI's `vars.SITE_URL` wins over the file. **With no `SITE_URL` at all,
 `vite build` refuses to run** rather than emit URLs that point nowhere.
 
+The CI workflow only verifies the build compiles — nothing is deployed from
+it — so it falls back to a reserved placeholder origin when the repository
+variable isn't set. To have CI build against your real origin, set `SITE_URL`
+under **Settings → Secrets and variables → Actions → Variables**.
+
 To deploy past a failing test, skip the wrapper:
 
 ```bash
