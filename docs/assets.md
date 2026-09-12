@@ -2,40 +2,90 @@
 
 [← docs index](README.md)
 
-Four images ship with this repo. Three of them are **personal to the original
-author** — if you fork and don't replace them, your CV shows someone else's face
-and every link you share previews someone else's terminal.
+A few images ship with this repo, and two of them are **personal to the
+original author** — if you fork and don't replace them, every link you share
+previews someone else's terminal, and someone else's icon sits in the tab.
 
 | File | Used for | Size | If you don't replace it |
 |---|---|---|---|
-| `public/assets/img/nikita-photo.png` | The CV portrait | 480×480 | Someone else's face on your résumé |
+| `public/assets/img/portraits/` | The CV portrait — see below | 480×480 | **Only the one you configure ships**; the rest are pruned at build |
 | `public/assets/img/og-terminal.png` | Link previews on social, Slack, iMessage | 1200×630 | Someone else's terminal in every shared link |
 | `public/favicon.ico` + `public/assets/icons/*` | Browser tab, home screen, PWA | see below | Someone else's icon in the tab |
 | `public/assets/img/404-cat.png` | The 404 page | 821×357 | Nothing breaks — it's a joke, not an identity |
 
 `npm run check` fails if `identity.photo` or `seo.ogImage` point at a file that
-isn't there. It **cannot** tell whether the file is *yours* — a fork that keeps
-the shipped images passes the preflight and ships them.
+isn't there. It **cannot** tell whether the card or the icons are *yours* — a
+fork that keeps them passes the preflight and ships them.
 
 ## The CV portrait
 
 ```ts
 // profile.config.ts
 identity: {
-  photo: "/assets/img/you.png",
+  photo: "/assets/img/portraits/you.png",
 }
 ```
 
-Square, 480×480 is what ships. The CSS does the work: `src/styles/cv.css`
-applies `grayscale(1)` plus a theme-coloured overlay, so almost any photo lands
-in the site's palette without editing. It prints grayscale too.
+Drop your photo into `public/assets/img/portraits/` and point `identity.photo`
+at it. **That directory is the one place the build prunes**: it holds the
+author's portrait and both example personas', Vite copies `public/` verbatim,
+and only the file your config names survives into `dist/`. The other faces
+never ship. A test asserts exactly that.
+
+**By default the photo is served exactly as uploaded** — colour, no filter,
+no tint. Print greys it, nothing else touches it. `photoStyle` opts in to
+more:
+
+```ts
+identity: {
+  photo: "/assets/img/portraits/you.png",
+  photoStyle: "pixel",   // or "tint", or leave it out
+}
+```
+
+| `photoStyle` | On screen | Needs JavaScript |
+|---|---|---|
+| *(unset)* / `"plain"` | Exactly as uploaded | no |
+| `"tint"` | Grayscale under the theme colour | no |
+| `"pixel"` | A posterized pixel render under the theme colour | yes — degrades to `"tint"` without it |
+
+**`"pixel"`** is the full terminal look. On the CV page, `src/cv.ts` draws
+the image at 72×72, snaps it to six flat greys, and scales it back up with
+crisp pixel edges. A smooth studio headshot comes out as a posterized pixel
+render with no pre-processing on your side; the pipeline stretches contrast
+first, so a soft or washed-out source still uses the full range. Both example
+profiles use it.
+
+**`"tint"`** is for a photo that is already styled the way you want — the
+author's is a hand-made pixel render, so re-pixelating it would only coarsen
+it. Pure CSS, no canvas.
+
+The style is decided at build time as a class on the portrait's frame, which
+is why the first two need no JavaScript and why `"pixel"` falls back to
+`"tint"` rather than to the raw photo when scripts are off or the canvas
+can't read the image.
+
+What makes a good source: square, the face filling most of the frame, a plain
+background, reasonable contrast. 480×480 is what ships and is plenty — the
+render is 72 pixels across, so resolution beyond that is never seen on screen.
+
+Two things the effect deliberately does *not* touch:
+
+- **Print.** The pixel render is screen-only. Print discards it and shows your
+  source photo in grayscale — the same treatment as every other element on
+  the printed page, whichever `photoStyle` is set.
+- **The raw file.** It's what ships in `dist/`, what the sitemap's
+  `<image:loc>` points at, and what a reader without JavaScript sees. The
+  pixel version exists only in the browser. A `photo` on another origin can't
+  be processed — canvas security — and falls back to the plain image.
 
 It also becomes an `<image:image>` entry in `sitemap.xml`, with a title
 generated from `identity.name` and `identity.role` — so a broken path leaves a
 dead image URL in your sitemap, not just a gap on the page.
 
-**Omit `photo` entirely** and the CV renders without a portrait. That's a valid
-setup, and it's what both example configs do.
+**Omit `photo` entirely** and the CV renders without a portrait, and nothing
+from `portraits/` ships at all. A photo configured anywhere *outside* that
+directory is left alone — the pruning only ever touches `portraits/`.
 
 ## The link-preview card
 

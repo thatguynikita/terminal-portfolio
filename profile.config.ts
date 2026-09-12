@@ -47,7 +47,9 @@ export default defineProfile({
       en: "DevOps / SRE — Systems Engineer · 11y experience",
       ru: "DevOps / SRE — Системный инженер · 11 лет опыта",
     },
-    photo: "/assets/img/nikita-photo.png",
+    photo: "/assets/img/portraits/nikita-photo.png",
+    // Already a hand-made pixel render: just the theme tint, no re-pixelating.
+    photoStyle: "tint",
   },
 
   // Line breaks matter: `about` types this out one line at a time.

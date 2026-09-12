@@ -38,7 +38,16 @@
   border:1px solid var(--border);
   box-shadow:var(--glow), 0 10px 28px rgba(0,0,0,.55);
 }
-.avatar-frame::after{
+/* `identity.photoStyle` arrives as a class on the frame from the prerender,
+   so none of this needs JavaScript:
+     style-plain  the photo exactly as uploaded — colour, no filter, no tint
+     style-tint   grayscale under the theme colour
+     style-pixel  the same tint, over the canvas cv.ts swaps in; until that
+                  happens (or if it can't) the photo shows tinted, i.e. it
+                  degrades to style-tint rather than to colour.
+   Print greys the photo and drops the tint on its own (see the print block). */
+.avatar-frame.style-tint::after,
+.avatar-frame.style-pixel::after{
   content:"";
   position:absolute; inset:0;
   background:var(--fg);
@@ -51,8 +60,15 @@
   width:100%; height:100%;
   object-fit:cover;
   background:transparent;
-  filter:grayscale(1) contrast(1.05) brightness(1.05);
 }
+.style-tint .avatar,
+.style-pixel .avatar{filter:grayscale(1) contrast(1.05) brightness(1.05);}
+/* The canvas cv.ts inserts when photoStyle is "pixel": drawn at a few dozen
+   pixels and scaled up here, so the upscale must stay crisp or the blocks
+   smear back into a photo. Once it exists the source <img> steps aside — on
+   screen only; print puts it back (see the print block). */
+.avatar-pixel{image-rendering:pixelated;}
+.is-pixelated img.avatar{display:none;}
 
 .profile h1{font-size:26px; margin:4px 0 4px; font-weight:400;}
 .tagline{font-size:13px; margin-bottom:10px; color:var(--accent);}
@@ -220,4 +236,11 @@ footer{padding-bottom:24px;}
   /* Portrait: grayscale like everything else, in a plain frame. */
   .avatar { filter:grayscale(1) contrast(1.05) brightness(1.05); }
   .avatar-frame { border:1px solid #ccc; }
+
+  /* Paper gets the source photo, not the pixel render: discard the canvas
+     and bring the <img> back. !important like the rest of this block —
+     theme CSS is injected after it in dev, and the swap must not depend on
+     order. */
+  .avatar-pixel { display:none !important; }
+  .is-pixelated img.avatar { display:block !important; }
 }

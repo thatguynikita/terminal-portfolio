@@ -33,7 +33,7 @@ Vite + TypeScript, no UI framework, no runtime dependencies.
 - **Built to be read by machines.** The résumé is in the raw HTML; the build emits `sitemap.xml`, `robots.txt` (with per-crawler rules and `Content-Signal`) and `llms.txt` from the same page list, plus a self-canonical hreflang cluster and JSON-LD. Scan it yourself with [Lighthouse](https://pagespeed.web.dev/) or [isitagentready.com](https://isitagentready.com/).
 - **Four languages ship, and adding one is a single file.** You pick which ones build; the rest never reach the bundle. → [guide](docs/i18n.md)
 - **Everything about you lives in one file** — `profile.config.ts`. Name, bio, skills, socials, CV, personas, SEO.
-- **248 tests**, and a preflight that refuses to deploy a fork still carrying someone else's name.
+- **262 tests**, and a preflight that refuses to deploy a fork still carrying someone else's name.
 - **Deploys anywhere static** — GitHub Pages and S3-compatible hosts are one command each. → [guide](docs/deploy.md)
 
 ---
@@ -90,12 +90,12 @@ with a matching hreflang cluster, and its language chip cycles all three.
 
 ### Replace the images
 
-Three of the four images that ship are personal to the original author. Nothing
+Two of the shipped images are personal to the original author, and nothing
 warns you at build time, so it's worth doing early:
 
 | File | What it is | Size |
 |---|---|---|
-| `public/assets/img/nikita-photo.png` | the CV portrait — or drop `identity.photo` for no photo | 480×480 |
+| `public/assets/img/portraits/` | the CV portrait — only the one `identity.photo` names is built | 480×480 |
 | `public/assets/img/og-terminal.png` | the link-preview card, itself just a screenshot of the terminal | 1200×630 |
 | `public/favicon.ico` + `public/assets/icons/*` | tab and home-screen icons | various |
 

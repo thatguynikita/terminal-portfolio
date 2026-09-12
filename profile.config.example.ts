@@ -44,9 +44,10 @@ export default defineProfile({
     tagline: {
       en: "Data Engineer — Analytics Platform · 10y experience",
     },
-    // photo and seo.ogImage are omitted: this repo ships no portrait or
-    // social card for a fictional person. Add your own under
-    // public/assets/img/ and point these at them.
+    photo: "/assets/img/portraits/marina-photo.png",
+    // "pixel": a posterized pixel render under the theme tint. "tint": just the
+    // grayscale + tint. Leave it out and the photo is served exactly as uploaded.
+    photoStyle: "pixel",
   },
 
   // Line breaks matter: `about` types this out one line at a time.
@@ -214,9 +215,13 @@ before a dashboard lies, and documentation someone reads at 2am.`,
   },
 
   links: {
-    // Extra topbar links. The CV link is added automatically when
-    // `cv` is configured, so this is for anything else you want up there.
-    topbar: [],
+    // Extra links in the terminal page's top-right; the automatic `cv.html →`
+    // always sits last, furthest right. These render as plain text — no
+    // arrow. Labels are plain strings, not translated, terminal page only.
+    topbar: [
+      { label: "blog", href: "https://blog.marina.example" },
+      { label: "talks", href: "https://talks.marina.example" },
+    ],
   },
 
   game: {

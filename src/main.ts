@@ -49,12 +49,16 @@ function renderChrome(): void {
   if (links) {
     // The CV link follows the session's language, so a Russian session
     // lands on /ru/cv.html rather than the English page.
+    // Configured links first, the built-in CV link last and furthest right.
+    // The arrow marks only the CV link — the same `cv.html →` affordance the
+    // 404 page shows; configured links render as plain text.
     const cvLink = profile.cv
-      ? [{ label: CV_LINK_LABEL, href: cvUrl(profile, lang) }]
+      ? [`<a href="${ctx.escapeAttr(cvUrl(profile, lang))}">${ctx.escape(CV_LINK_LABEL)} &rarr;</a>`]
       : [];
-    links.innerHTML = [...cvLink, ...(profile.links?.topbar ?? [])]
-      .map((l) => `<a href="${ctx.escapeAttr(l.href)}">${ctx.escape(l.label)} &rarr;</a>`)
-      .join("");
+    const extra = (profile.links?.topbar ?? []).map(
+      (l) => `<a href="${ctx.escapeAttr(l.href)}">${ctx.escape(l.label)}</a>`
+    );
+    links.innerHTML = [...extra, ...cvLink].join("");
   }
 
   const footer = document.getElementById("siteFooter");

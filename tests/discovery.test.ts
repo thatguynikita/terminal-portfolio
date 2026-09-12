@@ -30,6 +30,29 @@ suite("built output", () => {
     }
   });
 
+  /**
+   * public/assets/img/portraits/ holds every persona's portrait — the
+   * author's and both examples'. Vite copies public/ verbatim, so this is
+   * the guard that a fork with its own photo doesn't ship the other faces.
+   */
+  it("ships only the configured portrait, and everything else in assets/img", () => {
+    const dir = join(DIST, "assets/img/portraits");
+    const photo = profile.identity.photo;
+    const shipped = existsSync(dir) ? readdirSync(dir) : [];
+    if (photo?.startsWith("/assets/img/portraits/")) {
+      expect(shipped).toEqual([photo.split("/").pop()]);
+    } else {
+      expect(shipped, "no portrait configured, yet portraits shipped").toEqual([]);
+    }
+    // The non-portrait images are untouched by the pruning.
+    const source = readdirSync(join(process.cwd(), "public/assets/img")).filter((f) =>
+      /\.(png|jpe?g|webp|svg)$/.test(f)
+    );
+    for (const f of source) {
+      expect(existsSync(join(DIST, "assets/img", f)), `${f} was dropped from dist`).toBe(true);
+    }
+  });
+
   it("leaves no llm/ mirror behind", () => {
     expect(existsSync(join(DIST, "llm"))).toBe(false);
   });

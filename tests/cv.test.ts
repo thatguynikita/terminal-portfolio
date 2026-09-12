@@ -337,6 +337,15 @@ withCv("cv print styles", () => {
     expect(printBlock).toMatch(/\.avatar-frame::after[^{]*\{[^}]*display\s*:\s*none|\.avatar-frame::after/);
   });
 
+  // The pixel render is screen-only. On paper the source photo comes back:
+  // the canvas cv.ts inserts is hidden and the original <img> shown again.
+  // Both carry !important like the rest of the block, since theme CSS lands
+  // after it in dev and the swap must not depend on order.
+  it("prints the source photo, discarding the pixel render", () => {
+    expect(printBlock).toMatch(/\.avatar-pixel\s*\{[^}]*display\s*:\s*none\s*!important/);
+    expect(printBlock).toMatch(/\.is-pixelated\s+img\.avatar\s*\{[^}]*display\s*:\s*block\s*!important/);
+  });
+
   it("keeps the command visible in headings, hiding only the prompt", () => {
     expect(printBlock, "the prompt should be hidden").toContain(".section-head .ps");
     expect(printBlock, "the command must not be hidden too").not.toContain(".section-head .cmd");
@@ -382,6 +391,50 @@ describe("when no CV is configured", () => {
     const cvFile = readFileSync(join(process.cwd(), "src/fs/cv.html.ts"), "utf8");
     expect(cvCommand).toContain("enabled: Boolean(profile.cv)");
     expect(cvFile).toContain("enabled: Boolean(profile.cv)");
+  });
+});
+
+/**
+ * `identity.photoStyle` is decided at prerender time as a class on the frame,
+ * so "tint" needs no JavaScript and "pixel" degrades to tint without it —
+ * which is only true if the class is actually in the static markup.
+ */
+withCv("portrait style", () => {
+  const locale = profile.terminal.defaultLocale;
+  const styled = (photoStyle?: "pixel" | "tint" | "plain"): string =>
+    renderCv(
+      { ...profile, identity: { ...profile.identity, photo: "/assets/img/portraits/x.png", photoStyle } } as typeof profile,
+      locale
+    );
+
+  it("defaults to plain — served as uploaded", () => {
+    expect(styled(undefined)).toContain('class="avatar-frame style-plain"');
+  });
+
+  it("carries the configured style as a class on the frame", () => {
+    for (const style of ["pixel", "tint", "plain"] as const) {
+      expect(styled(style)).toContain(`class="avatar-frame style-${style}"`);
+    }
+  });
+
+  it("never emits the canvas — that is cv.ts's job, at load, only for pixel", () => {
+    for (const style of ["pixel", "tint", "plain"] as const) {
+      expect(styled(style)).not.toContain("avatar-pixel");
+      expect(styled(style)).not.toContain("is-pixelated");
+    }
+  });
+
+  it("keys the screen tint and grayscale on tint and pixel only", () => {
+    const css = readFileSync(join(process.cwd(), "src/styles/cv.css"), "utf8");
+    // Rules only: the comments name every style, which would fool the
+    // selector checks below, and the header mentions "@media print" too.
+    const screen = css
+      .replace(/\/\*[\s\S]*?\*\//g, "")
+      .replace(/@media print\s*\{[\s\S]*\}\s*$/, "");
+    expect(screen).toMatch(/\.avatar-frame\.style-tint::after,\s*\.avatar-frame\.style-pixel::after\s*\{/);
+    expect(screen).toMatch(/\.style-tint \.avatar,\s*\.style-pixel \.avatar\s*\{[^}]*grayscale/);
+    // and no rule selects the plain style at all — it is the absence of styling
+    expect(screen).not.toMatch(/style-plain/);
   });
 });
 

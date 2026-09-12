@@ -107,8 +107,12 @@ GitHub Pages and the 404. Consequences worth knowing:
 
 - `build.outDir` is `../dist` and `publicDir` is `../public`, both relative to
   `root`. `rollupOptions.input` needs resolved absolute paths.
-- The shells load `../src/main.ts`, not `/src/main.ts`: a root-absolute path in
-  the HTML would resolve to `pages/src/…`.
+- **The shells load `/src/main.ts` via `resolve.alias`**, never `../src/`. The
+  relative form is right on disk and wrong in the browser: `..` above `/`
+  clamps, the request arrives as `/src/main.ts` anyway, and the dev server
+  answers with the SPA fallback — `index.html` served as a module, HTTP 200.
+  That 200 is why the breakage survived a status-code check; verify dev by
+  reading the response body, not the code.
 - Anything in the plugin that reads a shell off disk must use the `page()`
   helper. `readFileSync("cv.html")` worked only while cwd happened to be root,
   and it 500s the dev server on `/ru/cv.html` the moment that stops being true.
@@ -138,6 +142,22 @@ through to the terminal — which is exactly what the language chip links to.
   is overridden.
 - **`identity.role` already contains an em dash**, so the page title is
   `name — CV — hostname`, not `name — role`.
+- **The portrait is served as uploaded unless `identity.photoStyle` opts in**
+  — no filter, no tint, colour and all; only print greys it. `"tint"` is
+  grayscale under the theme colour, pure CSS. `"pixel"` adds the canvas:
+  `src/cv.ts` draws the `<img>` at 72×72, `src/cv/portrait.ts` posterizes it
+  to six greys, CSS `image-rendering: pixelated` does the upscale. **The style
+  is a prerendered class on the frame** (`style-tint` / `style-pixel`, from
+  `src/cv/render.ts`), and the tint overlay and grayscale filter key on
+  those — so tint needs no JS, and pixel degrades to tint without it rather
+  than to colour. It's in the browser rather than the build so any photo a
+  fork drops in gets the look with zero setup and zero dependencies. The pipeline is a pure function over
+  an RGBA buffer because happy-dom has no 2D context — that's the part with
+  tests; the canvas glue is verified by screenshot. The `<img>` is never
+  removed or inline-styled: screen/print visibility hangs off the frame's
+  `is-pixelated` class, and **print puts the source photo back**. A photo on
+  another origin taints the canvas; the guard leaves the `<img>` alone.
+  The opt-in is checked in `cv.ts` before anything is drawn.
 
 ## Locales
 
@@ -207,7 +227,11 @@ wrong directory. Changing this means changing `base` and the 404 page together.
 fallback from `profile.config.ts`. The noscript block matters: the terminal
 renders nothing without JavaScript.
 
-`public/` is copied verbatim into `dist/`. `dist/` is gitignored.
+`public/` is copied verbatim into `dist/` — with one exception.
+**`public/assets/img/portraits/` is pruned in `writeBundle`**: it holds every
+persona's portrait (the author's and both examples'), and only the file
+`identity.photo` names survives the build. Nothing else under `public/` is
+touched. `dist/` is gitignored.
 
 `sitemap.xml`, `robots.txt` and `llms.txt` are generated from the same page list
 that produces the pages, so they cannot reference a page that was not built —
