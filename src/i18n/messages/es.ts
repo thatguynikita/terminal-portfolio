@@ -333,9 +333,9 @@ const es: Messages = {
     stillFixing: "todavía arreglando producción",
   },
   files: {
-    milkQuest: [
+    game: [
       "#!/bin/bash",
-      "# milk-quest.sh — no lo leas, simplemente ejecútalo",
+      "# {script} — no lo leas, simplemente ejecútalo",
       "# ver también: <a href=\"{url}\" target=\"_blank\" rel=\"noopener\">{url}</a>",
       "# nota: vas a necesitar sudo",
       'echo "abriendo una pequeña sorpresa..."',

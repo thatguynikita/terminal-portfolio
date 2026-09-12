@@ -226,7 +226,9 @@ before a dashboard lies, and documentation someone reads at 2am.`,
 
   game: {
     url: "https://game.marina.example/",
-    title: "Milk Quest",
+    title: "Backfill Quest",
+    // The launcher: `ls -a` lists it, `sudo ./backfill.sh` opens the game.
+    script: "backfill.sh",
   },
 
   seo: {

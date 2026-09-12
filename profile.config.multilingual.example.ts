@@ -354,7 +354,9 @@ auftreten, und Prüfstände, die einen Defekt vor dem Lager bemerken.`,
 
   game: {
     url: "https://game.beatriz.example/",
-    title: "Milk Quest",
+    title: "Servo Rush",
+    // The launcher: `ls -a` lists it, `sudo ./flash-firmware.sh` opens the game.
+    script: "flash-firmware.sh",
   },
 
   seo: {

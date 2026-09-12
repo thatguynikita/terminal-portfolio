@@ -336,9 +336,9 @@ const en = {
     stillFixing: "still fixing prod",
   },
   files: {
-    milkQuest: [
+    game: [
       "#!/bin/bash",
-      "# milk-quest.sh — don't read it, just run it",
+      "# {script} — don't read it, just run it",
       "# see also: <a href=\"{url}\" target=\"_blank\" rel=\"noopener\">{url}</a>",
       "# note: you'll need sudo",
       'echo "opening a little surprise..."',

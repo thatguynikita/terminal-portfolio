@@ -248,6 +248,8 @@ and SRE practices into reality.`,
   game: {
     url: "https://cat.nikita.sh/",
     title: "Котик и Сгущенка",
+    // The launcher: `ls -a` lists it, `sudo ./milk-quest.sh` opens the game.
+    script: "milk-quest.sh",
   },
 
   seo: {

@@ -341,9 +341,9 @@ const de: Messages = {
     stillFixing: "repariert immer noch Produktion",
   },
   files: {
-    milkQuest: [
+    game: [
       "#!/bin/bash",
-      "# milk-quest.sh — nicht lesen, einfach ausführen",
+      "# {script} — nicht lesen, einfach ausführen",
       "# siehe auch: <a href=\"{url}\" target=\"_blank\" rel=\"noopener\">{url}</a>",
       "# Hinweis: du brauchst sudo",
       'echo "eine kleine Überraschung wird geöffnet ..."',

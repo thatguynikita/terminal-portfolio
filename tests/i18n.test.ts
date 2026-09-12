@@ -67,15 +67,24 @@ describe("i18n", () => {
   });
 
   // A translation that drops {host} renders a sentence with a hole in it.
+  // Arrays are checked item by item. This test used to skip them, which
+  // left every placeholder inside a scripted sequence — {host} in the boot
+  // lines, {script} in the launcher — unchecked in every catalogue.
   it("interpolation placeholders match across catalogues", () => {
     const mismatches: string[] = [];
+    const compare = (locale: string, key: string, value: unknown, expected: unknown): void => {
+      if (Array.isArray(value) && Array.isArray(expected)) {
+        value.forEach((item, i) => compare(locale, `${key}[${i}]`, item, expected[i]));
+        return;
+      }
+      if (typeof value !== "string" || typeof expected !== "string") return;
+      const got = placeholders(value).join(",");
+      const want = placeholders(expected).join(",");
+      if (got !== want) mismatches.push(`${locale}/${key}: {${got}} vs en {${want}}`);
+    };
     for (const locale of CODES) {
       for (const [key, value] of catalogues[locale] as Map<string, unknown>) {
-        const expected = base.get(key);
-        if (typeof value !== "string" || typeof expected !== "string") continue;
-        const got = placeholders(value).join(",");
-        const want = placeholders(expected).join(",");
-        if (got !== want) mismatches.push(`${locale}/${key}: {${got}} vs en {${want}}`);
+        compare(locale, key, value, base.get(key));
       }
     }
     expect(mismatches).toEqual([]);

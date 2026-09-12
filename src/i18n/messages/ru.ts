@@ -331,9 +331,9 @@ const ru: Messages = {
     stillFixing: "всё ещё чинит прод",
   },
   files: {
-    milkQuest: [
+    game: [
       "#!/bin/bash",
-      "# milk-quest.sh — ой, да не читай, просто запусти",
+      "# {script} — ой, да не читай, просто запусти",
       "# см. также: <a href=\"{url}\" target=\"_blank\" rel=\"noopener\">{url}</a>",
       "# заметка: понадобится sudo",
       'echo "открываю маленький сюрприз..."',

@@ -1,7 +1,11 @@
-import { describe, expect, it } from "vitest";
+import { describe, expect, it, vi } from "vitest";
 import { createFileSystem } from "../src/fs";
 import { createFakeContext } from "./helpers";
 import { skillsFor, socialsFor } from "../src/core/profile";
+import profile from "../profile.config";
+import gameFile from "../src/fs/game.sh";
+import gameCommand from "../src/commands/game";
+import { messages } from "../src/i18n";
 
 const ctx = createFakeContext("en");
 const fs = createFileSystem(() => ctx);
@@ -16,7 +20,7 @@ describe("filesystem", () => {
     expect(names).toContain("about.txt");
     expect(names).toContain("skills.txt");
     expect(names).toContain("contact.txt");
-    expect(names).toContain("milk-quest.sh");
+    if (profile.game) expect(names).toContain(profile.game.script);
   });
 
   it("never surfaces the loader's own modules as files", () => {
@@ -127,8 +131,76 @@ describe("filesystem", () => {
     });
 
     it("denies a sudo-gated file without sudo, and allows it with", async () => {
-      expect(await fs.run("milk-quest.sh")).toBe("denied");
-      expect(await fs.run("milk-quest.sh", { sudo: true })).toBe("ok");
+      if (!profile.game) return;
+      expect(await fs.run(profile.game.script)).toBe("denied");
+      expect(await fs.run(profile.game.script, { sudo: true })).toBe("ok");
     });
+  });
+});
+
+/**
+ * The launcher's name is `game.script` from the config, and both the file
+ * and the `game` command exist only when a game is configured. `enabled`
+ * and `name` are decided at module load from the real config, so these are
+ * asserted on the modules themselves — that is the wiring, tested as wiring.
+ */
+describe("game launcher", () => {
+  it("takes its filename from game.script", () => {
+    expect(gameFile.name).toBe(profile.game?.script ?? "game.sh");
+  });
+
+  it("exists exactly when a game is configured — file and command alike", () => {
+    expect(gameFile.enabled).toBe(Boolean(profile.game));
+    expect(gameCommand.enabled).toBe(Boolean(profile.game));
+  });
+
+  it("names itself in its own header line, from a placeholder", () => {
+    if (!profile.game) return;
+    const lines = fs.read(profile.game.script) ?? [];
+    expect(lines[1]).toContain(profile.game.script);
+    // Templated, not hardcoded: the catalogue carries {script}, so a fork's
+    // name lands here without touching the messages.
+    for (const [code, catalogue] of Object.entries(messages)) {
+      expect(catalogue.files.game[1], `${code} hardcodes the launcher name`).toContain("{script}");
+    }
+  });
+
+  it("is what the .bashrc game alias points at", () => {
+    const lines = (fs.read(".bashrc") ?? []).map((l) => l.replace(/<[^>]+>/g, ""));
+    // Exactly one, or none — a static copy left in the plain file alongside
+    // the configured one would be two.
+    const aliases = lines.filter((l) => l.startsWith("alias game="));
+    if (profile.game) expect(aliases).toEqual([`alias game='sudo ./${profile.game.script}'`]);
+    else expect(aliases, "a game alias with no game configured").toEqual([]);
+  });
+
+  it("keeps .bashrc's ls size honest about the alias line", () => {
+    const node = fs.get(".bashrc");
+    const visible = (fs.read(".bashrc") ?? []).map((l) => l.replace(/<[^>]+>/g, "")).join("\n");
+    expect(node?.size).toBe(new TextEncoder().encode(visible).length);
+  });
+});
+
+/**
+ * "Omit `game` to remove both" — tested for real, with the config mocked
+ * so `game` is absent, since `enabled` is fixed at module load and can't be
+ * toggled through a fake context. This is the first test of the
+ * optional-feature path; the CV's equivalent is only ever exercised by
+ * whichever config happens to be live.
+ */
+describe("game launcher, with no game configured", () => {
+  it("registers neither the file nor the command", async () => {
+    vi.resetModules();
+    vi.doMock("../profile.config", async () => {
+      const real = await vi.importActual<typeof import("../profile.config")>("../profile.config");
+      const { game: _game, ...rest } = real.default;
+      return { ...real, default: rest };
+    });
+    const file = (await import("../src/fs/game.sh")).default;
+    const command = (await import("../src/commands/game")).default;
+    expect(file.enabled).toBe(false);
+    expect(command.enabled).toBe(false);
+    vi.doUnmock("../profile.config");
+    vi.resetModules();
   });
 });
