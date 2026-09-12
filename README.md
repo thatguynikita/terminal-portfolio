@@ -33,7 +33,7 @@ Vite + TypeScript, no UI framework, no runtime dependencies.
 - **Built to be read by machines.** The résumé is in the raw HTML; the build emits `sitemap.xml`, `robots.txt` (with per-crawler rules and `Content-Signal`) and `llms.txt` from the same page list, plus a self-canonical hreflang cluster and JSON-LD. Scan it yourself with [Lighthouse](https://pagespeed.web.dev/) or [isitagentready.com](https://isitagentready.com/).
 - **Four languages ship, and adding one is a single file.** You pick which ones build; the rest never reach the bundle. → [guide](docs/i18n.md)
 - **Everything about you lives in one file** — `profile.config.ts`. Name, bio, skills, socials, CV, personas, SEO.
-- **271 tests**, and a preflight that refuses to deploy a fork still carrying someone else's name.
+- **281 tests**, and a preflight that refuses to deploy a fork still carrying someone else's name.
 - **Deploys anywhere static** — GitHub Pages and S3-compatible hosts are one command each. → [guide](docs/deploy.md)
 
 ---
@@ -52,6 +52,7 @@ Make it yours, then ship it:
 ```bash
 cp profile.config.example.ts profile.config.ts   # start from a filled-in example
 $EDITOR profile.config.ts                        # your name, bio, CV, socials
+cp .env.example .env                             # then set SITE_URL to where it'll live
 npm run check                                    # preflight — catches a half-done rebrand
 npm run build                                    # typecheck, then build to dist/
 npm run deploy                                   # publish to GitHub Pages
@@ -69,7 +70,7 @@ That's the whole loop. Everything below is detail.
 
 Edit **`profile.config.ts`**. That's the whole customisation surface: name, bio,
 skills, socials, the neofetch card, ssh personas, hostname, languages, default
-theme, SEO, and the entire CV.
+theme, whether the matrix rain starts on, SEO, and the entire CV.
 
 Two filled-in examples ship alongside it, both fictional and both on `.example`
 domains — copy either over `profile.config.ts` to start from something complete
@@ -95,7 +96,7 @@ warns you at build time, so it's worth doing early:
 
 | File | What it is | Size |
 |---|---|---|
-| `public/assets/img/portraits/` | the CV portrait — only the one `identity.photo` names is built | 480×480 |
+| `public/assets/img/portraits/` | the CV portrait — only the one `cv.photo` names is built | 480×480 |
 | `public/assets/img/og-terminal.png` | the link-preview card, itself just a screenshot of the terminal | 1200×630 |
 | `public/favicon.ico` + `public/assets/icons/*` | tab and home-screen icons | various |
 
@@ -108,8 +109,9 @@ npm run check
 ```
 
 It verifies every user-visible field is translated into every enabled language,
-that referenced assets exist, that `SITE_URL` agrees with `identity.domain`, and
-that social links are real URLs.
+that referenced assets exist, that `SITE_URL` is a bare origin, and that social
+links are real URLs. `npm run build` goes further and refuses to run without
+`SITE_URL` at all — it's the origin for every absolute URL the site emits.
 
 It checks that images *exist*, not that they're *yours* — swapping the portrait
 and the preview card is on you.

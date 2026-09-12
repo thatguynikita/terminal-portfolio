@@ -55,7 +55,7 @@ function renderChrome(): void {
     const cvLink = profile.cv
       ? [`<a href="${ctx.escapeAttr(cvUrl(profile, lang))}">${ctx.escape(CV_LINK_LABEL)} &rarr;</a>`]
       : [];
-    const extra = (profile.links?.topbar ?? []).map(
+    const extra = (profile.terminal.links ?? []).map(
       (l) => `<a href="${ctx.escapeAttr(l.href)}">${ctx.escape(l.label)}</a>`
     );
     links.innerHTML = [...extra, ...cvLink].join("");
@@ -63,18 +63,18 @@ function renderChrome(): void {
 
   const footer = document.getElementById("siteFooter");
   if (footer) {
-    footer.innerHTML = `${renderCopyright(profile, lang)} · ${ctx.t("ui.footerHint")}`;
+    footer.innerHTML = `${renderCopyright(profile, lang, __SITE_URL__)} · ${ctx.t("ui.footerHint")}`;
   }
 
   const gameTitle = document.getElementById("gameTitle");
-  if (gameTitle && profile.game) {
-    gameTitle.textContent = `${profile.identity.handle}@${profile.terminal.hostname} — ${profile.game.title}`;
+  if (gameTitle && profile.commands.game) {
+    gameTitle.textContent = `${profile.terminal.handle}@${profile.terminal.hostname} — ${profile.commands.game.title}`;
   }
 
   const gameHint = document.getElementById("gameHint");
-  if (gameHint && profile.game) {
+  if (gameHint && profile.commands.game) {
     gameHint.innerHTML =
       `press <span class="accent">ESC</span> or click <span class="accent">&times;</span> to exit &middot; ` +
-      `<a href="${ctx.escapeAttr(profile.game.url)}" target="_blank" rel="noopener">open directly &#8599;</a>`;
+      `<a href="${ctx.escapeAttr(profile.commands.game.url)}" target="_blank" rel="noopener">open directly &#8599;</a>`;
   }
 }

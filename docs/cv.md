@@ -34,7 +34,7 @@ cv: {
   certs:     [{ year: "2026", name: "Certified DevOps Engineer" }],
   languages: [{ name: { … }, filled: 8, sub: { … } }],  // filled: 0–10 meter
   traits:    { en: ["insatiable curiosity"], ru: ["неутолимое любопытство"] },
-  signOff:   { en: `$ echo "thanks for reading this far."`, ru: "…" },
+  signOff:   { en: "thanks for reading this far.", ru: "…" },   // rendered as $ echo "…"
 },
 ```
 

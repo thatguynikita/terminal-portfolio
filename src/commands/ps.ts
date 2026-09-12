@@ -5,7 +5,7 @@ export default defineCommand({
   name: "ps",
   hidden: true,
   run(ctx) {
-    const guest = ctx.escape(ctx.profile.identity.handle);
+    const guest = ctx.escape(ctx.profile.terminal.handle);
     const owner = ctx.escape(systemOwner(ctx.profile));
     ctx.table(
       ["USER", "PID", "%CPU", "%MEM", "COMMAND"],

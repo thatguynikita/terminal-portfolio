@@ -1,4 +1,15 @@
 import type { MatrixController } from "./types";
+import { StorageKey, readStored } from "./storage";
+
+/**
+ * Whether the rain starts enabled: the visitor's stored `matrix on|off`
+ * wins; a first visit takes the config's default. Shared by the terminal,
+ * the CV and the 404 so the three pages agree.
+ */
+export function initialMatrixEnabled(defaultState: "on" | "off"): boolean {
+  const stored = readStored(StorageKey.matrix);
+  return stored === "on" || stored === "off" ? stored === "on" : defaultState === "on";
+}
 
 const GLYPHS = "01アイウエオカキクケコサシスセソ$#&+=-<>/\\{}[]";
 const FONT_SIZE = 15;

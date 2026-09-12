@@ -3,8 +3,11 @@ import { existsSync, readdirSync, readFileSync } from "node:fs";
 import { join } from "node:path";
 import profile, { MESSAGES } from "../profile.config";
 import { cvLocales, cvUrl } from "../src/cv/url";
+import { socialsFor } from "../src/core/profile";
 
-const SITE_URL = (process.env["SITE_URL"] ?? `https://${profile.identity.domain}`).replace(/\/$/, "");
+// The same resolution vite.config.ts uses; vitest.config.ts loads .env into
+// process.env so a local dist/ and this suite agree on the origin.
+const SITE_URL = (process.env["SITE_URL"] ?? "").replace(/\/$/, "");
 
 /**
  * Asserts against the real `dist/`, because these files only exist after a
@@ -37,7 +40,7 @@ suite("built output", () => {
    */
   it("ships only the configured portrait, and everything else in assets/img", () => {
     const dir = join(DIST, "assets/img/portraits");
-    const photo = profile.identity.photo;
+    const photo = profile.cv?.photo;
     const shipped = existsSync(dir) ? readdirSync(dir) : [];
     if (photo?.startsWith("/assets/img/portraits/")) {
       expect(shipped).toEqual([photo.split("/").pop()]);
@@ -165,7 +168,7 @@ suite("built output", () => {
         .map((m) => m[1] as string)
         .filter((u) => /cv\.html/.test(u));
 
-      if (!profile.identity.photo) {
+      if (!profile.cv?.photo) {
         expect(xml, "an image block with no photo configured").not.toContain("<image:image>");
         return;
       }
@@ -174,7 +177,7 @@ suite("built output", () => {
       for (const block of cvBlocks) {
         expect(block, "a CV page has no portrait").toContain("<image:image>");
         const loc = /<image:loc>([^<]+)<\/image:loc>/.exec(block)?.[1] ?? "";
-        expect(loc).toContain(profile.identity.photo);
+        expect(loc).toContain(profile.cv?.photo);
         // The image must actually have shipped.
         const path = new URL(loc).pathname.replace(/^\//, "");
         expect(existsSync(join(DIST, path)), `sitemap lists ${path}, which is not built`).toBe(true);
@@ -186,7 +189,7 @@ suite("built output", () => {
     });
 
     it("titles the portrait per locale", () => {
-      if (!profile.identity.photo || locales.length < 2) return;
+      if (!profile.cv?.photo || locales.length < 2) return;
       const titles = [...xml.matchAll(/<image:title>([^<]+)<\/image:title>/g)].map((m) => m[1]);
       expect(new Set(titles).size, "every locale got the same portrait title").toBe(titles.length);
     });
@@ -252,7 +255,9 @@ suite("built output", () => {
     });
 
     it("lists the CV's contact set", () => {
-      expect(txt).toContain(profile.identity.email);
+      for (const s of socialsFor(profile, "cv")) {
+        expect(txt, `${s.label} is missing`).toContain(`[${s.label}](${s.href})`);
+      }
     });
   });
 

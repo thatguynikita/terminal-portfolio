@@ -49,7 +49,7 @@ interface NowPlayingResponse {
 
 /** Starts polling. Safe to call repeatedly; only the first call takes. */
 export function startNowPlaying(ctx: CommandContext): void {
-  const config = ctx.profile.nowPlaying;
+  const config = ctx.profile.neofetch.nowPlaying;
   if (started || !config?.endpoint) return;
   started = true;
 

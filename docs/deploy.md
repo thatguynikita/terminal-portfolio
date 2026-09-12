@@ -10,8 +10,15 @@ npm run deploy:s3    # AWS S3 or Yandex Object Storage; see .env.example
 ```
 
 Both run the test suite first, then typecheck and build. The config preflight is
-part of that, **so a fork can't publish with the original author's name and
-domain still in place.**
+part of that, **so a fork can't publish with the original author's name still in
+place.**
+
+Before either: put `SITE_URL=https://your.domain` in `.env` (copy
+`.env.example`). It's the origin for every absolute URL the build emits — the
+sitemap, canonicals, `og:url`, `llms.txt` — and the host of the `CNAME` file.
+The build reads `.env` itself, so no wrapper is needed; a variable in the shell
+or in CI's `vars.SITE_URL` wins over the file. **With no `SITE_URL` at all,
+`vite build` refuses to run** rather than emit URLs that point nowhere.
 
 To deploy past a failing test, skip the wrapper:
 
@@ -29,7 +36,7 @@ Set it up once:
 1. Make the repo public (Pages needs it on the free plan).
 2. **Settings → Pages → Deploy from a branch → `gh-pages` / `(root)`**.
 3. Add a DNS `CNAME` for your subdomain pointing at `<user>.github.io`.
-4. **Settings → Pages → Custom domain** — your domain from `identity.domain`.
+4. **Settings → Pages → Custom domain** — the host from your `SITE_URL`.
 
 ### Step 3 is not optional
 
@@ -41,7 +48,7 @@ That constraint is deliberate: `404.html` is served at arbitrary URL depths, so
 its asset paths must be root-absolute. Relative paths would resolve against
 whatever directory the broken URL happened to be in.
 
-The build emits a `CNAME` file from `identity.domain` so your custom domain
+The build emits a `CNAME` file from `SITE_URL`'s host so your custom domain
 survives each deploy — replacing the branch would otherwise clear it. HTTPS takes
 a few minutes to provision the first time.
 

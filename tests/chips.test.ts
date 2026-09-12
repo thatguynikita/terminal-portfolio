@@ -128,9 +128,9 @@ describe("completion labels", () => {
  * name or a turn of phrase, without editing the message catalogues.
  */
 describe("command descriptions", () => {
-  const base = { ...profile, commands: undefined } as ProfileConfig;
+  const base = { ...profile, commands: { ...profile.commands, descriptions: undefined } } as ProfileConfig;
   const withOverride = (over: Record<string, Record<string, string>>): ProfileConfig =>
-    ({ ...profile, commands: { descriptions: over } }) as unknown as ProfileConfig;
+    ({ ...profile, commands: { ...profile.commands, descriptions: over } }) as unknown as ProfileConfig;
 
   // Driven by the configured locales rather than by hardcoded Russian, so
   // the suite still passes for a fork that ships a single language.

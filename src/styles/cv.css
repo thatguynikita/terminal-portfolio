@@ -38,7 +38,7 @@
   border:1px solid var(--border);
   box-shadow:var(--glow), 0 10px 28px rgba(0,0,0,.55);
 }
-/* `identity.photoStyle` arrives as a class on the frame from the prerender,
+/* `cv.photoStyle` arrives as a class on the frame from the prerender,
    so none of this needs JavaScript:
      style-plain  the photo exactly as uploaded — colour, no filter, no tint
      style-tint   grayscale under the theme colour

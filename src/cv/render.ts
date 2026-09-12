@@ -42,7 +42,7 @@ export function renderCv(profile: ProfileConfig, locale: Locale): string {
   const cv = profile.cv;
   if (!cv) return "";
 
-  const prompt = `${esc(identity.handle)}@${esc(terminal.hostname)}:~$`;
+  const prompt = `${esc(terminal.handle)}@${esc(terminal.hostname)}:~$`;
 
   /**
    * The filename is the heading text; the prompt and command are decoration.
@@ -80,10 +80,10 @@ export function renderCv(profile: ProfileConfig, locale: Locale): string {
     <p class="contact-row">${contacts}</p>
     ${cv.metaLine ? `<p class="meta dim">${esc(cv.metaLine[locale])}</p>` : ""}
   </div>${
-    identity.photo
+    cv.photo
       ? `
-  <div class="avatar-frame style-${identity.photoStyle ?? "plain"}">
-    <img class="avatar" src="${esc(identity.photo)}" width="150" height="150"
+  <div class="avatar-frame style-${cv.photoStyle ?? "plain"}">
+    <img class="avatar" src="${esc(cv.photo)}" width="150" height="150"
          alt="${esc(t("photoAlt", { name: identity.name[locale], role: identity.role[locale] }))}">
   </div>`
       : ""
@@ -209,9 +209,14 @@ ${traits}
   }
 
   if (cv.signOff?.[locale]) {
+    // The shell dressing — `$ echo "…"` in the accent and amber colours —
+    // belongs here, not in the config: the value is the sentence alone, so
+    // a fork writes prose rather than markup, and it's escaped like prose.
     out.push(`<hr class="rule">`);
     out.push(
-      `<p class="sign-off">${cv.signOff[locale]}<span class="fake-cursor" aria-hidden="true"></span></p>`
+      `<p class="sign-off">$ <span class="accent">echo</span> ` +
+        `<span class="amber">"${esc(cv.signOff[locale])}"</span>` +
+        `<span class="fake-cursor" aria-hidden="true"></span></p>`
     );
   }
 

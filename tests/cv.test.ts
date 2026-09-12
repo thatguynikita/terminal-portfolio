@@ -6,7 +6,7 @@ import { LOCALES, type Localized } from "../src/i18n/locales";
 import { renderCv, renderCvTopbar } from "../src/cv/render";
 import { buildCvJsonLd } from "../src/cv/jsonld";
 import { CV_LINK_LABEL, cvLocales, cvUrl } from "../src/cv/url";
-import { renderCopyright, skillsFor, socialsFor } from "../src/core/profile";
+import { mailtoFor, renderCopyright, skillsFor, socialsFor } from "../src/core/profile";
 
 /**
  * The CV is optional, so these suites skip when it isn't configured — a
@@ -89,16 +89,28 @@ withCv("cv locales", () => {
     }
   });
 
-  // The CV used to build its own footer and lost the link on the name.
-  it("uses the configured copyright line, link and all", () => {
+  // The © line is generated — year, name, and a link to the site root —
+  // and shared by all three pages. The CV used to build its own and lost
+  // the link on the name.
+  it("generates the copyright line from the year, the name and SITE_URL", () => {
+    const year = String(new Date().getFullYear());
     for (const locale of locales) {
-      const expected = profile.footer.copyright[locale].replace("{year}", String(new Date().getFullYear()));
-      expect(expected, "the copyright line carries no link to check").toContain("<a ");
-      expect(
-        renderCopyright(profile, locale),
-        `${locale} copyright does not match the config`
-      ).toBe(expected);
+      const line = renderCopyright(profile, locale, "https://x.test");
+      expect(line).toContain(`© ${year} `);
+      expect(line).toContain(`>${profile.identity.name[locale]}</a>`);
+      const href = /href="([^"]*)"/.exec(line)?.[1];
+      expect(href, "no link").toBeTruthy();
+      expect(href).toBe("https://x.test");
+      // No origin (dev with no .env) must never produce an empty href.
+      expect(/href="([^"]*)"/.exec(renderCopyright(profile, locale, ""))?.[1]).toBe("/");
     }
+  });
+
+  it("escapes the name in the copyright line", () => {
+    const p = { ...profile, identity: { ...profile.identity, name: { ...profile.identity.name, [profile.terminal.defaultLocale]: "A <b>& B" } } } as typeof profile;
+    const line = renderCopyright(p, profile.terminal.defaultLocale, "https://x.test");
+    expect(line).toContain("A &lt;b&gt;&amp; B");
+    expect(line).not.toContain("<b>");
   });
 
   it("labels the CV the same way on every page", () => {
@@ -234,7 +246,9 @@ withCv("cv structured data", () => {
       expect(data["@type"]).toBe("Person");
       expect(data["name"]).toBe(profile.identity.name[locale]);
       expect(data["jobTitle"]).toBe(profile.identity.role[locale]);
-      expect(data["email"]).toBe(`mailto:${profile.identity.email}`);
+      // Derived from the socials, so the address a crawler reads is the one
+      // a visitor sees; absent when there's no mailto: social at all.
+      expect(data["email"]).toBe(mailtoFor(profile));
       expect(data["address"].addressLocality).toBe(profile.identity.location[locale]);
       // Serialisable, since it is emitted as JSON in a script tag.
       expect(() => JSON.parse(JSON.stringify(data))).not.toThrow();
@@ -395,7 +409,7 @@ describe("when no CV is configured", () => {
 });
 
 /**
- * `identity.photoStyle` is decided at prerender time as a class on the frame,
+ * `cv.photoStyle` is decided at prerender time as a class on the frame,
  * so "tint" needs no JavaScript and "pixel" degrades to tint without it —
  * which is only true if the class is actually in the static markup.
  */
@@ -403,7 +417,7 @@ withCv("portrait style", () => {
   const locale = profile.terminal.defaultLocale;
   const styled = (photoStyle?: "pixel" | "tint" | "plain"): string =>
     renderCv(
-      { ...profile, identity: { ...profile.identity, photo: "/assets/img/portraits/x.png", photoStyle } } as typeof profile,
+      { ...profile, cv: { ...cv, photo: "/assets/img/portraits/x.png", photoStyle } } as typeof profile,
       locale
     );
 
@@ -481,6 +495,21 @@ withCv("partial configs", () => {
     expect(html, "an empty meta paragraph was left behind").not.toContain('class="meta dim"');
   });
 
+  // The config value is the sentence alone; the renderer adds `$ echo "…"`.
+  // So it's escaped like prose — markup in the config must not become markup.
+  it("dresses the sign-off as a shell line and escapes the text", () => {
+    const html = renderCv(
+      { ...profile, cv: { ...cv, signOff: { ...cv!.signOff, [locale]: 'a <b>bold</b> "claim"' } } } as typeof profile,
+      locale
+    );
+    const line = /<p class="sign-off">(.*?)<\/p>/.exec(html)?.[1] ?? "";
+    expect(line).toMatch(/^\$ <span class="accent">echo<\/span> <span class="amber">"/);
+    // Text content: angle brackets escaped, quotes left as they are.
+    expect(line).toContain('a &lt;b&gt;bold&lt;/b&gt; "claim"');
+    expect(line).not.toContain("<b>");
+    expect(line).toContain('<span class="fake-cursor"');
+  });
+
   it("renders without signOff, and drops its rule too", () => {
     const html = renderCv(omit("signOff"), locale);
     expect(html).toContain(profile.identity.name[locale]);
@@ -542,5 +571,34 @@ withCv("partial configs", () => {
       expect(html, `${key} left an empty list`).not.toMatch(/<ul[^>]*>\s*<\/ul>/);
       expect(html, `${key} left an empty table`).not.toMatch(/<table[^>]*>\s*<\/table>/);
     }
+  });
+});
+
+/**
+ * JSON-LD's `email` is derived from the socials rather than configured, so
+ * the address a crawler reads is the one a visitor sees.
+ */
+describe("mailtoFor", () => {
+  const withSocials = (socials: typeof profile.socials): typeof profile =>
+    ({ ...profile, socials }) as typeof profile;
+
+  it("returns the first mailto: href, scheme included", () => {
+    const p = withSocials([
+      { label: "Web", href: "https://a.example", display: "a" },
+      { label: "Email", href: "mailto:one@a.example", display: "one" },
+      { label: "Other", href: "mailto:two@a.example", display: "two" },
+    ]);
+    expect(mailtoFor(p)).toBe("mailto:one@a.example");
+  });
+
+  it("is undefined with no mailto: social, and JSON-LD then omits email", () => {
+    const p = withSocials([{ label: "Web", href: "https://a.example", display: "a" }]);
+    expect(mailtoFor(p)).toBeUndefined();
+    const data = buildCvJsonLd(p, profile.terminal.defaultLocale, "https://example.com") as Record<string, unknown>;
+    expect("email" in data).toBe(false);
+  });
+
+  it("the shipped config has exactly one mailto: social", () => {
+    expect(profile.socials.filter((s) => s.href.startsWith("mailto:"))).toHaveLength(1);
   });
 });

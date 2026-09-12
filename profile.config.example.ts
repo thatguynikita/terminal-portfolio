@@ -25,29 +25,91 @@ export const MESSAGES = { en };
  * ─────────────────────────────────────────────────────────────────────
  */
 export default defineProfile({
+  terminal: {
+    handle: "guest",
+    // Cosmetic — the prompt and `uname`. Where the site is published is
+    // SITE_URL in .env, which drives every absolute URL and the CNAME.
+    hostname: "marina.example",
+    // Which languages this site ships is MESSAGES, at the top of this file.
+    defaultLocale: "en",
+    defaultTheme: "random",
+    // Background rain for a first-time visitor; `matrix on|off` is remembered.
+    defaultMatrix: "on",
+    // Extra topbar links. The CV link is added automatically when `cv` is
+    // configured, so this is for anything else you want up there.
+    links: [
+      { label: "blog", href: "https://blog.marina.example" },
+      { label: "talks", href: "https://talks.marina.example" },
+    ],
+  },
+
   identity: {
     name: {
       en: "Marina Volkova",
     },
-    handle: "guest",
-    // Where the site is published: the CNAME the build emits and the
-    // canonical URL. Distinct from terminal.hostname below, which is only
-    // the hostname shown in the prompt.
-    domain: "marina.example",
     role: {
       en: "Data Engineer — Analytics Platform",
     },
-    email: "hello@marina.example",
     location: {
       en: "Belgrade, Serbia",
     },
     tagline: {
       en: "Data Engineer — Analytics Platform · 10y experience",
     },
-    photo: "/assets/img/portraits/marina-photo.png",
-    // "pixel": a posterized pixel render under the theme tint. "tint": just the
-    // grayscale + tint. Leave it out and the photo is served exactly as uploaded.
-    photoStyle: "pixel",
+  },
+
+  seo: {
+    title: {
+      en: "Marina Volkova — Data Engineer",
+    },
+    description: {
+      en: "Interactive terminal portfolio of a data engineer with 10 years of experience. Type `help` to explore.",
+    },
+  },
+
+  neofetch: {
+    ascii: `<span class="outline">  ╭───────────╮
+  │ </span><span class="eye">▪ ▪ ▪ ▪ ▪</span><span class="outline"> │
+  ├───────────┤
+  │ </span><span class="nose">◆</span><span class="outline"> ░░░░░░░ │
+  ├───────────┤
+  │ ░░░░░░░░░ │
+  ╰───────────╯</span>`,
+    rows: [
+      {
+        key: { en: "Name" },
+        value: { en: "Marina Volkova" },
+      },
+      { key: { en: "Role" }, value: { en: "Data Engineer" } },
+      {
+        key: { en: "Uptime" },
+        value: { en: "10+ years in pipelines" },
+      },
+      { key: { en: "Shell" }, value: { en: "/bin/zsh" } },
+      {
+        key: { en: "Stack" },
+        value: {
+          en: "Snowflake · dbt · Airflow · Kafka",
+        },
+      },
+      {
+        key: { en: "Status" },
+        value: {
+          en: "open to interesting problems",
+        },
+        highlight: true,
+      },
+    ],
+
+    // The live "Playing" row in the neofetch card. Delete this whole block
+    // (or blank the endpoint) to turn the widget off: the row isn't rendered
+    // at all and no request is ever made — neofetch just ends at Status.
+    // An endpoint that's set but unreachable keeps the row and shows
+    // "spotify offline" instead.
+    nowPlaying: {
+      endpoint: "https://api.marina.example/now-playing",
+      pollMs: 20000,
+    },
   },
 
   // Line breaks matter: `about` types this out one line at a time.
@@ -94,109 +156,6 @@ before a dashboard lies, and documentation someone reads at 2am.`,
     },
   ],
 
-  neofetch: {
-    ascii: `<span class="outline">  ╭───────────╮
-  │ </span><span class="eye">▪ ▪ ▪ ▪ ▪</span><span class="outline"> │
-  ├───────────┤
-  │ </span><span class="nose">◆</span><span class="outline"> ░░░░░░░ │
-  ├───────────┤
-  │ ░░░░░░░░░ │
-  ╰───────────╯</span>`,
-    rows: [
-      {
-        key: { en: "Name" },
-        value: { en: "Marina Volkova" },
-      },
-      { key: { en: "Role" }, value: { en: "Data Engineer" } },
-      {
-        key: { en: "Uptime" },
-        value: { en: "10+ years in pipelines" },
-      },
-      { key: { en: "Shell" }, value: { en: "/bin/zsh" } },
-      {
-        key: { en: "Stack" },
-        value: {
-          en: "Snowflake · dbt · Airflow · Kafka",
-        },
-      },
-      {
-        key: { en: "Status" },
-        value: {
-          en: `<span class="amber">open to interesting problems</span>`,
-        },
-      },
-    ],
-  },
-
-  // The live "Playing" row in the neofetch card. Delete this whole block
-  // (or blank the endpoint) to turn the widget off: the row isn't rendered
-  // at all and no request is ever made — neofetch just ends at Status.
-  // An endpoint that's set but unreachable keeps the row and shows
-  // "spotify offline" instead.
-  nowPlaying: {
-    endpoint: "https://api.marina.example/now-playing",
-    pollMs: 20000,
-  },
-
-  ssh: {
-    personas: {
-      recruiter: {
-        host: "recruiter@marina.example",
-        qa: [
-          {
-            cmd: "why",
-            q: { en: "Why should we hire you?" },
-            a: {
-              en: "Ten years of making data trustworthy rather than merely available. I ship pipelines that other teams stop worrying about, and I write the runbook before I'm asked.",
-            },
-          },
-          {
-            cmd: "favorite",
-            q: {
-              en: "What's your favorite part of the job?",
-            },
-            a: {
-              en: "Deleting a pipeline. Every one I remove is a model that turned out to be simpler than we thought.",
-            },
-          },
-          {
-            cmd: "incident",
-            q: {
-              en: "Tell me about an incident you handled.",
-            },
-            a: {
-              en: "A timezone change silently shifted a daily partition by an hour. Six dashboards were wrong for nine days. Now every model has a freshness test, and I still check timezone handling first.",
-            },
-          },
-          {
-            cmd: "goals",
-            q: { en: "What are you looking for next?" },
-            a: {
-              en: "A team that treats data as a product, with real ownership and a roadmap — not a ticket queue attached to a warehouse.",
-            },
-          },
-          {
-            cmd: "salary",
-            q: { en: "Salary expectations?" },
-            a: {
-              en: "Negotiable, and better discussed over email than in a terminal easter egg :)",
-            },
-          },
-        ],
-      },
-    },
-  },
-
-  terminal: {
-    hostname: "marina.example",
-    title: {
-      en: "guest@marina.example — bash — 80×24",
-    },
-    // Which languages this site ships is MESSAGES, at the top of this file.
-    defaultLocale: "en",
-    defaultTheme: "random",
-  },
-
   commands: {
     // Overrides a command's one-line description in `help`. Anything not
     // listed here falls back to `commands.<name>` in src/i18n/<locale>.ts.
@@ -208,42 +167,65 @@ before a dashboard lies, and documentation someone reads at 2am.`,
     },
 
     // The fake-system commands (ps, who, w, env) show two accounts: the
-    // visitor, who is identity.handle, and the machine's owner — you.
+    // visitor, who is terminal.handle, and the machine's owner — you.
     system: {
       owner: "marina",
     },
-  },
 
-  links: {
-    // Extra links in the terminal page's top-right; the automatic `cv.html →`
-    // always sits last, furthest right. These render as plain text — no
-    // arrow. Labels are plain strings, not translated, terminal page only.
-    topbar: [
-      { label: "blog", href: "https://blog.marina.example" },
-      { label: "talks", href: "https://talks.marina.example" },
-    ],
-  },
-
-  game: {
-    url: "https://game.marina.example/",
-    title: "Backfill Quest",
-    // The launcher: `ls -a` lists it, `sudo ./backfill.sh` opens the game.
-    script: "backfill.sh",
-  },
-
-  seo: {
-    title: {
-      en: "Marina Volkova — Data Engineer",
+    game: {
+      url: "https://game.marina.example/",
+      title: "Backfill Quest",
+      // The launcher: `ls -a` lists it, `sudo ./backfill.sh` opens the game.
+      script: "backfill.sh",
     },
-    description: {
-      en: "Interactive terminal portfolio of a data engineer with 10 years of experience. Type `help` to explore.",
-    },
-  },
 
-  footer: {
-    /** The © line. Each page appends its own tail (see ui.footerHint). */
-    copyright: {
-      en: `© {year} <a href="https://marina.example" target="_blank" rel="noopener">Marina Volkova</a>`,
+    ssh: {
+      personas: {
+        recruiter: {
+          host: "recruiter@marina.example",
+          qa: [
+            {
+              cmd: "why",
+              q: { en: "Why should we hire you?" },
+              a: {
+                en: "Ten years of making data trustworthy rather than merely available. I ship pipelines that other teams stop worrying about, and I write the runbook before I'm asked.",
+              },
+            },
+            {
+              cmd: "favorite",
+              q: {
+                en: "What's your favorite part of the job?",
+              },
+              a: {
+                en: "Deleting a pipeline. Every one I remove is a model that turned out to be simpler than we thought.",
+              },
+            },
+            {
+              cmd: "incident",
+              q: {
+                en: "Tell me about an incident you handled.",
+              },
+              a: {
+                en: "A timezone change silently shifted a daily partition by an hour. Six dashboards were wrong for nine days. Now every model has a freshness test, and I still check timezone handling first.",
+              },
+            },
+            {
+              cmd: "goals",
+              q: { en: "What are you looking for next?" },
+              a: {
+                en: "A team that treats data as a product, with real ownership and a roadmap — not a ticket queue attached to a warehouse.",
+              },
+            },
+            {
+              cmd: "salary",
+              q: { en: "Salary expectations?" },
+              a: {
+                en: "Negotiable, and better discussed over email than in a terminal easter egg :)",
+              },
+            },
+          ],
+        },
+      },
     },
   },
 
@@ -251,6 +233,11 @@ before a dashboard lies, and documentation someone reads at 2am.`,
   // Delete this whole key and the CV disappears: no pages, no `cv` command,
   // no cv.html in `ls`, no sitemap rows — just the terminal.
   cv: {
+    photo: "/assets/img/portraits/marina-photo.png",
+    // "pixel": a posterized pixel render under the theme tint. "tint": just the
+    // grayscale + tint. Leave it out and the photo is served exactly as uploaded.
+    photoStyle: "pixel",
+
     // The line under the contact row on the CV.
     metaLine: {
       en: "Belgrade, Serbia · EU work authorisation · remote-first, open to hybrid in CET",
@@ -383,6 +370,14 @@ before a dashboard lies, and documentation someone reads at 2am.`,
       { year: "2019", name: "Confluent Certified Developer for Apache Kafka" },
     ],
 
+    // `filled` is the 0–10 proficiency meter; `sub` is the text beside it.
+    languages: [
+      { name: { en: "Polish" }, filled: 10, sub: { en: "Native" } },
+      { name: { en: "English" }, filled: 9, sub: { en: "C1 — Advanced" } },
+      { name: { en: "Serbian" }, filled: 5, sub: { en: "B1 — Intermediate" } },
+      { name: { en: "German" }, filled: 3, sub: { en: "A2 — Elementary" } },
+    ],
+
     // The playful "notes.txt" list at the foot of the CV.
     traits: {
       en: [
@@ -398,17 +393,9 @@ before a dashboard lies, and documentation someone reads at 2am.`,
       ],
     },
 
-    // `filled` is the 0–10 proficiency meter; `sub` is the text beside it.
-    languages: [
-      { name: { en: "Polish" }, filled: 10, sub: { en: "Native" } },
-      { name: { en: "English" }, filled: 9, sub: { en: "C1 — Advanced" } },
-      { name: { en: "Serbian" }, filled: 5, sub: { en: "B1 — Intermediate" } },
-      { name: { en: "German" }, filled: 3, sub: { en: "A2 — Elementary" } },
-    ],
-
-    // The closing line. Rendered as HTML, so markup is allowed.
+    // The closing line, plain text. Rendered as `$ echo "…"` with a blinking cursor.
     signOff: {
-      en: `$ <span class="accent">echo</span> <span class="amber">"if you read this far, you'd probably enjoy working together."</span>`,
+      en: "if you read this far, you'd probably enjoy working together.",
     },
   },
 });

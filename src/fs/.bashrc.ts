@@ -15,7 +15,7 @@ import profile from "../../profile.config";
  * file, which no longer contains the alias line.
  */
 const lines = RAW.replace(/\n$/, "").split("\n");
-if (profile.game) lines.push(`alias game='sudo ./${profile.game.script}'`);
+if (profile.commands.game) lines.push(`alias game='sudo ./${profile.commands.game.script}'`);
 
 const text = lines.join("\n");
 

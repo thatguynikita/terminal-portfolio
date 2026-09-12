@@ -41,8 +41,8 @@ hint: (ctx) => ctx.t("cv.catHint"),   // cat: cv.html: not a text file — use `
 an executable behaves the same however it's reached.
 
 The game's own launcher is the one executable whose *name* comes from config:
-`game.script` in `profile.config.ts` decides what `ls -a` lists and what
-`sudo ./<script>` runs. Omit the `game` block and the file, the `game` command
+`commands.game.script` in `profile.config.ts` decides what `ls -a` lists and what
+`sudo ./<script>` runs. Omit `commands.game` and the file, the `game` command
 and the `.bashrc` alias all disappear together.
 
 ## Two things that bite

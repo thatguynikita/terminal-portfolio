@@ -4,6 +4,6 @@ export default defineCommand({
   name: "pwd",
   hidden: true,
   run(ctx) {
-    ctx.print(`/home/${ctx.escape(ctx.profile.identity.handle)}`);
+    ctx.print(`/home/${ctx.escape(ctx.profile.terminal.handle)}`);
   },
 });

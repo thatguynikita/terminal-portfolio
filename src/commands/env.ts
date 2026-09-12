@@ -6,7 +6,7 @@ export default defineCommand({
   aliases: ["printenv"],
   hidden: true,
   run(ctx) {
-    const user = ctx.profile.identity.handle;
+    const user = ctx.profile.terminal.handle;
     const owner = systemOwner(ctx.profile);
     ctx.printLines(
       [

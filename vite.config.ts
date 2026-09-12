@@ -1,4 +1,4 @@
-import { defineConfig, type Plugin } from "vite";
+import { defineConfig, loadEnv, type Plugin } from "vite";
 import { existsSync, mkdirSync, readdirSync, readFileSync, rmSync, unlinkSync, writeFileSync } from "node:fs";
 import { execFileSync } from "node:child_process";
 import { basename, dirname, join, resolve } from "node:path";
@@ -14,7 +14,7 @@ const HERE = dirname(fileURLToPath(import.meta.url));
 const PAGES = resolve(HERE, "pages");
 const page = (name: string): string => resolve(PAGES, name);
 import profile from "./profile.config";
-import { renderCopyright, skillsFor, socialsFor } from "./src/core/profile";
+import { mailtoFor, renderCopyright, skillsFor, socialsFor } from "./src/core/profile";
 import type { Locale } from "./src/i18n/locales";
 import { StorageKey } from "./src/core/storage";
 import { cvByteSize, renderCv, renderCvTopbar } from "./src/cv/render";
@@ -22,7 +22,23 @@ import { buildCvJsonLd } from "./src/cv/jsonld";
 import { cvLocales, cvUrl } from "./src/cv/url";
 import { translate } from "./src/i18n";
 
-const SITE_URL = (process.env["SITE_URL"] ?? `https://${profile.identity.domain}`).replace(/\/$/, "");
+/**
+ * Where the site is published — the origin for every absolute URL the build
+ * emits (canonicals, the hreflang cluster, og:url, the sitemap, llms.txt)
+ * and the source of the CNAME file. It lives in the environment, not the
+ * config: `SITE_URL` in `.env` (see .env.example), or the shell, or CI's
+ * `vars.SITE_URL`. The shell wins over the file.
+ *
+ * Vite only exposes VITE_-prefixed variables to the app; this file runs in
+ * Node and reads `.env` itself with loadEnv, so `npm run build` and
+ * `npm run deploy` see it without a dotenv wrapper.
+ *
+ * Empty is allowed in dev — URLs come out root-relative, which is fine on
+ * localhost — and refused for a build, below.
+ */
+const SITE_URL = (
+  process.env["SITE_URL"] ?? loadEnv("production", process.cwd(), "")["SITE_URL"] ?? ""
+).replace(/\/$/, "");
 const DEFAULT_LOCALE = profile.terminal.defaultLocale;
 
 function escapeHtml(s: string): string {
@@ -77,7 +93,7 @@ function personJsonLd(lang: Locale): string {
     "@type": "Person",
     name: profile.identity.name[lang],
     jobTitle: profile.identity.role[lang],
-    email: `mailto:${profile.identity.email}`,
+    ...(mailtoFor(profile) ? { email: mailtoFor(profile) } : {}),
     url: SITE_URL,
     sameAs: profile.socials.filter((s) => s.href.startsWith("http")).map((s) => s.href),
   };
@@ -108,7 +124,7 @@ function cvHead(locale: Locale): string {
   // Not "name — role": role already contains an em dash of its own.
   const title = `${name} — CV — ${profile.terminal.hostname}`;
   const description = profile.seo.description[locale];
-  const ogImage = profile.identity.photo ? `${SITE_URL}${profile.identity.photo}` : "";
+  const ogImage = profile.cv?.photo ? `${SITE_URL}${profile.cv?.photo}` : "";
 
   return [
     `<title>${escapeHtml(title)}</title>`,
@@ -175,7 +191,7 @@ function assertLocaleReady(locale: Locale): void {
 function fillCv(html: string, locale: Locale): string {
   assertLocaleReady(locale);
   const footer =
-    `${renderCopyright(profile, locale)} · ` +
+    `${renderCopyright(profile, locale, SITE_URL)} · ` +
     `<a href="/">${escapeHtml(translate(locale, "cv.backToTerminal"))}</a>`;
 
   return html
@@ -184,7 +200,7 @@ function fillCv(html: string, locale: Locale): string {
     .replace("<!--CV_TOPBAR-->", renderCvTopbar(profile, locale))
     .replace(
       "<!--CV_TITLE-->",
-      escapeHtml(`${profile.identity.handle}@${profile.terminal.hostname} — open cv.html`)
+      escapeHtml(`${profile.terminal.handle}@${profile.terminal.hostname} — open cv.html`)
     )
     .replace("<!--CV-->", renderCv(profile, locale))
     .replace("<!--CV_FOOTER-->", footer);
@@ -211,7 +227,7 @@ function lastModified(): string {
 function sitemapXml(): string {
   const locales = cvLocales(profile);
   const lastmod = lastModified();
-  const photo = profile.identity.photo;
+  const photo = profile.cv?.photo;
 
   const imageBlock = (locale: Locale): string => {
     if (!photo) return "";
@@ -400,7 +416,7 @@ function llmsTxt(): string {
  * personas'. Vite copies public/ verbatim, so without pruning a fork that
  * configured its own photo would still ship the other two faces.
  *
- * Only the file `identity.photo` names survives the build; with no photo
+ * Only the file `cv.photo` names survives the build; with no photo
  * configured, none do. A photo configured *outside* this directory is left
  * alone and the directory is emptied. Nothing else under assets/img/ is
  * touched — the 404 cat and the link-preview card always ship.
@@ -410,7 +426,7 @@ const PORTRAITS_DIR = "assets/img/portraits";
 function prunePortraits(outDir: string): void {
   const dir = join(outDir, PORTRAITS_DIR);
   if (!existsSync(dir)) return;
-  const photo = profile.identity.photo;
+  const photo = profile.cv?.photo;
   const keep = photo && dirname(photo) === `/${PORTRAITS_DIR}` ? basename(photo) : null;
   for (const name of readdirSync(dir)) {
     if (name !== keep) unlinkSync(join(dir, name));
@@ -425,142 +441,156 @@ function profileHtmlPlugin(): Plugin {
   let cvTemplate: string | null = null;
 
   return {
-    name: "profile-html",
+      name: "profile-html",
 
-    transformIndexHtml(html, ctx) {
-      const withBootstrap = html.replace("</head>", `  ${themeBootstrap()}\n</head>`);
+      transformIndexHtml(html, ctx) {
+        const withBootstrap = html.replace("</head>", `  ${themeBootstrap()}\n</head>`);
 
-      if (ctx.filename.endsWith("cv.html")) {
-        // Keep the shell (placeholders intact) so other locales can reuse
-        // it with Vite's hashed asset tags already injected.
-        cvTemplate = withBootstrap;
-        // In dev the locale comes from the URL the middleware below asked
-        // for — `path` when the call is ours, `originalUrl` when it came
-        // through Vite's own HTML middleware. At build time there is no URL
-        // at all, and this is the default page.
-        const requested = localeFromUrl(ctx.originalUrl) ?? localeFromUrl(ctx.path);
-        return fillCv(withBootstrap, requested ?? lang);
-      }
+        if (ctx.filename.endsWith("cv.html")) {
+          // Keep the shell (placeholders intact) so other locales can reuse
+          // it with Vite's hashed asset tags already injected.
+          cvTemplate = withBootstrap;
+          // In dev the locale comes from the URL the middleware below asked
+          // for — `path` when the call is ours, `originalUrl` when it came
+          // through Vite's own HTML middleware. At build time there is no URL
+          // at all, and this is the default page.
+          const requested = localeFromUrl(ctx.originalUrl) ?? localeFromUrl(ctx.path);
+          return fillCv(withBootstrap, requested ?? lang);
+        }
 
-      const isIndex = ctx.filename.endsWith("index.html");
-      const title = isIndex ? profile.seo.title[lang] : `404 — ${profile.terminal.hostname}`;
-      const description = profile.seo.description[lang];
-      const ogImage = profile.seo.ogImage ? `${SITE_URL}${profile.seo.ogImage}` : "";
+        const isIndex = ctx.filename.endsWith("index.html");
+        const title = isIndex ? profile.seo.title[lang] : `404 — ${profile.terminal.hostname}`;
+        const description = profile.seo.description[lang];
+        const ogImage = profile.seo.ogImage ? `${SITE_URL}${profile.seo.ogImage}` : "";
 
-      const head = [
-        `<title>${escapeHtml(title)}</title>`,
-        `<meta name="description" content="${escapeHtml(description)}" />`,
-        profile.seo.noindex ? `<meta name="robots" content="noindex" />` : "",
-        isIndex ? `<link rel="canonical" href="${SITE_URL}/" />` : "",
-        `<meta property="og:type" content="website" />`,
-        `<meta property="og:title" content="${escapeHtml(title)}" />`,
-        `<meta property="og:description" content="${escapeHtml(description)}" />`,
-        `<meta property="og:url" content="${SITE_URL}/" />`,
-        ogImage ? `<meta property="og:image" content="${escapeHtml(ogImage)}" />` : "",
-        `<meta name="twitter:card" content="summary_large_image" />`,
-        isIndex ? personJsonLd(lang) : "",
-      ]
-        .filter(Boolean)
-        .join("\n  ");
+        const head = [
+          `<title>${escapeHtml(title)}</title>`,
+          `<meta name="description" content="${escapeHtml(description)}" />`,
+          profile.seo.noindex ? `<meta name="robots" content="noindex" />` : "",
+          isIndex ? `<link rel="canonical" href="${SITE_URL}/" />` : "",
+          `<meta property="og:type" content="website" />`,
+          `<meta property="og:title" content="${escapeHtml(title)}" />`,
+          `<meta property="og:description" content="${escapeHtml(description)}" />`,
+          `<meta property="og:url" content="${SITE_URL}/" />`,
+          ogImage ? `<meta property="og:image" content="${escapeHtml(ogImage)}" />` : "",
+          `<meta name="twitter:card" content="summary_large_image" />`,
+          isIndex ? personJsonLd(lang) : "",
+        ]
+          .filter(Boolean)
+          .join("\n  ");
 
-      return withBootstrap
-        .replace("</head>", `  ${head}\n</head>`)
-        .replace("<!--NOSCRIPT-->", isIndex ? noscriptHtml(lang) : "");
+        return withBootstrap
+          .replace("</head>", `  ${head}\n</head>`)
+          .replace("<!--NOSCRIPT-->", isIndex ? noscriptHtml(lang) : "");
+      },
+
+      /**
+       * Serve the non-default CV locales in dev.
+       *
+       * They only exist as files after `writeBundle`, so without this
+       * `npm run dev` would 404 on /ru/cv.html and fall through to the
+       * terminal — which is exactly what the language chip links to.
+       */
+      configureServer(server) {
+        server.middlewares.use((req, res, next) => {
+          const locale = localeFromUrl(req.url);
+          if (!locale || locale === DEFAULT_LOCALE) return next();
+
+          void server
+            .transformIndexHtml(req.url as string, readFileSync(page("cv.html"), "utf8"))
+            .then((html) => {
+              res.setHeader("Content-Type", "text/html; charset=utf-8");
+              res.end(html);
+            })
+            .catch(next);
+        });
+      },
+
+      generateBundle() {
+        // Custom domain, so `base: "/"` is correct and 404.html's
+        // root-absolute paths resolve at any URL depth.
+        this.emitFile({ type: "asset", fileName: "CNAME", source: `${new URL(SITE_URL).hostname}\n` });
+
+        this.emitFile({ type: "asset", fileName: "sitemap.xml", source: sitemapXml() });
+        this.emitFile({ type: "asset", fileName: "robots.txt", source: robotsTxt() });
+        this.emitFile({ type: "asset", fileName: "llms.txt", source: llmsTxt() });
+        this.emitFile({ type: "asset", fileName: "site.webmanifest", source: siteWebmanifest() });
+      },
+
+      /**
+       * One CV page per configured locale.
+       *
+       * Vite needs its HTML inputs to exist on disk, so the locale list can't
+       * drive rollupOptions.input; instead the *processed* cv.html — the one
+       * with Vite's hashed asset tags already injected — is cloned per
+       * locale. That works because `base` is "/", so those asset URLs are
+       * root-absolute and resolve just as well from /ru/.
+       *
+       * Written here rather than in generateBundle because Vite's own HTML
+       * plugin populates the template during that same phase, and plugin
+       * order would decide whether it exists yet.
+       */
+      writeBundle(options) {
+        const outDir = options.dir ?? "dist";
+        // Runs for every config, CV or not — public/ is already in outDir here.
+        prunePortraits(outDir);
+
+        if (!cvTemplate) return;
+        for (const locale of cvLocales(profile)) {
+          if (locale === DEFAULT_LOCALE) continue;
+          const file = join(outDir, locale, "cv.html");
+          mkdirSync(dirname(file), { recursive: true });
+          writeFileSync(file, fillCv(cvTemplate, locale));
+        }
+      },
+    };
+  }
+
+  export default defineConfig(({ command }) => {
+    // Absolute URLs with no origin would ship a sitemap and canonicals that
+    // point nowhere. Refuse to build rather than publish that.
+    if (command === "build" && !SITE_URL) {
+      throw new Error(
+        "SITE_URL is not set. Put `SITE_URL=https://your.domain` in .env (see .env.example) " +
+          "or export it in the shell — it is the origin for every absolute URL the build emits."
+      );
+    }
+    if (command === "build" && !/^https?:\/\/[^/]+$/.test(SITE_URL)) {
+      throw new Error(`SITE_URL must be an origin with no path, e.g. https://your.domain — got "${SITE_URL}".`);
+    }
+    return {
+    root: PAGES,
+    publicDir: "../public",
+    base: "/",
+    resolve: {
+      // With `root` at pages/, a root-absolute `/src/main.ts` in a shell would
+      // resolve to pages/src/. A relative `../src/main.ts` is right on disk
+      // but wrong in the browser: `..` above `/` clamps, the request comes in
+      // as /src/main.ts anyway, and the dev server answers with the SPA
+      // fallback — index.html served as a module. This alias makes /src/ mean
+      // the real src/ in both dev and build, so the shells can use the same
+      // root-absolute paths they use for everything else.
+      alias: { "/src": resolve(HERE, "src") },
     },
-
-    /**
-     * Serve the non-default CV locales in dev.
-     *
-     * They only exist as files after `writeBundle`, so without this
-     * `npm run dev` would 404 on /ru/cv.html and fall through to the
-     * terminal — which is exactly what the language chip links to.
-     */
-    configureServer(server) {
-      server.middlewares.use((req, res, next) => {
-        const locale = localeFromUrl(req.url);
-        if (!locale || locale === DEFAULT_LOCALE) return next();
-
-        void server
-          .transformIndexHtml(req.url as string, readFileSync(page("cv.html"), "utf8"))
-          .then((html) => {
-            res.setHeader("Content-Type", "text/html; charset=utf-8");
-            res.end(html);
-          })
-          .catch(next);
-      });
+    define: {
+      __SITE_URL__: JSON.stringify(SITE_URL),
+      __CV_BYTES__: JSON.stringify(
+        profile.cv ? cvByteSize(profile, DEFAULT_LOCALE) : 0
+      ),
     },
-
-    generateBundle() {
-      // Custom domain, so `base: "/"` is correct and 404.html's
-      // root-absolute paths resolve at any URL depth.
-      this.emitFile({ type: "asset", fileName: "CNAME", source: `${profile.identity.domain}\n` });
-
-      this.emitFile({ type: "asset", fileName: "sitemap.xml", source: sitemapXml() });
-      this.emitFile({ type: "asset", fileName: "robots.txt", source: robotsTxt() });
-      this.emitFile({ type: "asset", fileName: "llms.txt", source: llmsTxt() });
-      this.emitFile({ type: "asset", fileName: "site.webmanifest", source: siteWebmanifest() });
-    },
-
-    /**
-     * One CV page per configured locale.
-     *
-     * Vite needs its HTML inputs to exist on disk, so the locale list can't
-     * drive rollupOptions.input; instead the *processed* cv.html — the one
-     * with Vite's hashed asset tags already injected — is cloned per
-     * locale. That works because `base` is "/", so those asset URLs are
-     * root-absolute and resolve just as well from /ru/.
-     *
-     * Written here rather than in generateBundle because Vite's own HTML
-     * plugin populates the template during that same phase, and plugin
-     * order would decide whether it exists yet.
-     */
-    writeBundle(options) {
-      const outDir = options.dir ?? "dist";
-      // Runs for every config, CV or not — public/ is already in outDir here.
-      prunePortraits(outDir);
-
-      if (!cvTemplate) return;
-      for (const locale of cvLocales(profile)) {
-        if (locale === DEFAULT_LOCALE) continue;
-        const file = join(outDir, locale, "cv.html");
-        mkdirSync(dirname(file), { recursive: true });
-        writeFileSync(file, fillCv(cvTemplate, locale));
-      }
-    },
-  };
-}
-
-export default defineConfig({
-  root: PAGES,
-  publicDir: "../public",
-  base: "/",
-  resolve: {
-    // With `root` at pages/, a root-absolute `/src/main.ts` in a shell would
-    // resolve to pages/src/. A relative `../src/main.ts` is right on disk
-    // but wrong in the browser: `..` above `/` clamps, the request comes in
-    // as /src/main.ts anyway, and the dev server answers with the SPA
-    // fallback — index.html served as a module. This alias makes /src/ mean
-    // the real src/ in both dev and build, so the shells can use the same
-    // root-absolute paths they use for everything else.
-    alias: { "/src": resolve(HERE, "src") },
-  },
-  define: {
-    __CV_BYTES__: JSON.stringify(
-      profile.cv ? cvByteSize(profile, DEFAULT_LOCALE) : 0
-    ),
-  },
-  plugins: [profileHtmlPlugin()],
-  build: {
-    outDir: "../dist",
-    emptyOutDir: true,
-    rollupOptions: {
-      // The CV is opt-in: without a `cv` key in profile.config.ts the page
-      // is never built, and the site is the terminal alone.
-      input: {
-        index: page("index.html"),
-        404: page("404.html"),
-        ...(profile.cv ? { cv: page("cv.html") } : {}),
+    plugins: [profileHtmlPlugin()],
+    build: {
+      outDir: "../dist",
+      emptyOutDir: true,
+      rollupOptions: {
+        // The CV is opt-in: without a `cv` key in profile.config.ts the page
+        // is never built, and the site is the terminal alone.
+        input: {
+          index: page("index.html"),
+          404: page("404.html"),
+          ...(profile.cv ? { cv: page("cv.html") } : {}),
+        },
       },
     },
-  },
+  };
 });

@@ -30,7 +30,7 @@ const DEFAULT_OWNER = "root";
 
 /**
  * The account the fake-system commands (`ps`, `who`, `w`, `env`) show as
- * owning the machine — you, as opposed to `identity.handle`, the visitor.
+ * owning the machine — you, as opposed to `terminal.handle`, the visitor.
  *
  * Shared rather than read inline by each command, so the four of them
  * cannot drift apart on the fallback.

@@ -13,7 +13,7 @@ previews someone else's terminal, and someone else's icon sits in the tab.
 | `public/favicon.ico` + `public/assets/icons/*` | Browser tab, home screen, PWA | see below | Someone else's icon in the tab |
 | `public/assets/img/404-cat.png` | The 404 page | 821×357 | Nothing breaks — it's a joke, not an identity |
 
-`npm run check` fails if `identity.photo` or `seo.ogImage` point at a file that
+`npm run check` fails if `cv.photo` or `seo.ogImage` point at a file that
 isn't there. It **cannot** tell whether the card or the icons are *yours* — a
 fork that keeps them passes the preflight and ships them.
 
@@ -21,12 +21,12 @@ fork that keeps them passes the preflight and ships them.
 
 ```ts
 // profile.config.ts
-identity: {
+cv: {
   photo: "/assets/img/portraits/you.png",
 }
 ```
 
-Drop your photo into `public/assets/img/portraits/` and point `identity.photo`
+Drop your photo into `public/assets/img/portraits/` and point `cv.photo`
 at it. **That directory is the one place the build prunes**: it holds the
 author's portrait and both example personas', Vite copies `public/` verbatim,
 and only the file your config names survives into `dist/`. The other faces
@@ -37,7 +37,7 @@ no tint. Print greys it, nothing else touches it. `photoStyle` opts in to
 more:
 
 ```ts
-identity: {
+cv: {
   photo: "/assets/img/portraits/you.png",
   photoStyle: "pixel",   // or "tint", or leave it out
 }

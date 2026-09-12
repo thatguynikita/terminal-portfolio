@@ -1,4 +1,4 @@
-import type { ProfileConfig } from "../core/profile";
+import { mailtoFor, type ProfileConfig } from "../core/profile";
 import type { Locale } from "../i18n/locales";
 
 /**
@@ -21,7 +21,7 @@ export function buildCvJsonLd(
     "@type": "Person",
     name: identity.name[locale],
     jobTitle: identity.role[locale],
-    email: `mailto:${identity.email}`,
+    ...(mailtoFor(profile) ? { email: mailtoFor(profile) } : {}),
     url: `${origin}/`,
     address: {
       "@type": "PostalAddress",
@@ -30,6 +30,6 @@ export function buildCvJsonLd(
     sameAs: profile.socials.filter((s) => s.href.startsWith("http")).map((s) => s.href),
   };
 
-  if (identity.photo) data["image"] = `${origin}${identity.photo}`;
+  if (profile.cv?.photo) data["image"] = `${origin}${profile.cv?.photo}`;
   return data;
 }

@@ -5,7 +5,7 @@ import { translate, translateList } from "../i18n";
 import { createRegistry, type Registry } from "./registry";
 import { createFileSystem } from "../fs";
 import { createThemeController } from "./theme";
-import { createMatrixRain } from "./matrix";
+import { createMatrixRain, initialMatrixEnabled } from "./matrix";
 import { createOutput } from "./output";
 import { parseArgs } from "./args";
 import { escapeAttr, escapeHtml, pace } from "./html";
@@ -49,7 +49,7 @@ export function createTerminal(options: TerminalOptions): Terminal {
   }
 
   const matrix = createMatrixRain(canvas);
-  matrix.setEnabled(readStored(StorageKey.matrix) !== "off");
+  matrix.setEnabled(initialMatrixEnabled(profile.terminal.defaultMatrix));
 
   const theme = createThemeController(matrix, {
     defaultTheme: profile.terminal.defaultTheme,
@@ -135,15 +135,17 @@ export function createTerminal(options: TerminalOptions): Terminal {
 
     prompt() {
       if (mode) return mode.prompt(ctx);
-      const { handle } = profile.identity;
+      const { handle } = profile.terminal;
       const { hostname } = profile.terminal;
       return `${escapeHtml(handle)}@${escapeHtml(hostname)} <span class="path">~</span> $`;
     },
 
+    // The fake window's title bar at the plain prompt. Modes (`top`, `ssh`)
+    // supply their own while active. Not configurable: every config ever
+    // written set it to exactly this string, once per locale.
     title() {
       if (mode?.title) return mode.title(ctx);
-      const fallback = `${profile.identity.handle}@${profile.terminal.hostname} — bash — 80×24`;
-      return profile.terminal.title?.[lang] ?? fallback;
+      return `${profile.terminal.handle}@${profile.terminal.hostname} — bash — 80×24`;
     },
 
     pushHistory,

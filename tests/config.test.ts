@@ -61,8 +61,8 @@ describe("profile.config.ts", () => {
   // The launcher is typed as a fake shell file: `./<script>` has to parse as
   // a path, and `ls` has to print it. A space or a slash would break both.
   it("names the game launcher as a bare filename", () => {
-    if (!profile.game) return;
-    expect(profile.game.script).toMatch(/^[\w.-]+$/);
+    if (!profile.commands.game) return;
+    expect(profile.commands.game.script).toMatch(/^[\w.-]+$/);
   });
 
   it("names a theme that exists", () => {
@@ -70,11 +70,15 @@ describe("profile.config.ts", () => {
     if (theme !== "random") expect(THEME_NAMES).toContain(theme);
   });
 
-  // The rebrand tripwire: change one and forget the other and this fails.
-  it("agrees with SITE_URL about which domain this is", () => {
+  // SITE_URL is the one deployment fact that isn't in the config: the
+  // origin for every absolute URL and the CNAME. `vite build` refuses to
+  // run without it. Here it's only checked for shape when present, since
+  // CI runs the tests with no environment and that must stay green.
+  it("SITE_URL, when set, is a bare origin", () => {
     const siteUrl = process.env["SITE_URL"];
-    if (!siteUrl) return; // unset locally is fine; CI and deploy set it
-    expect(new URL(siteUrl).hostname.replace(/^www\./, "")).toBe(profile.identity.domain);
+    if (!siteUrl) return;
+    expect(siteUrl, "SITE_URL must be https://host with no path").toMatch(/^https?:\/\/[^/]+\/?$/);
+    expect(new URL(siteUrl).hostname).not.toMatch(/\.example$/);
   });
 
   it("has usable social links", () => {
@@ -89,9 +93,8 @@ describe("profile.config.ts", () => {
     }
   });
 
-  it("uses the configured domain in its own email and links", () => {
-    expect(profile.identity.email).toMatch(/@/);
-    expect(profile.identity.handle.trim()).not.toBe("");
+  it("has a shell user and hostname", () => {
+    expect(profile.terminal.handle.trim()).not.toBe("");
     expect(profile.terminal.hostname.trim()).not.toBe("");
   });
 
@@ -105,7 +108,7 @@ describe("profile.config.ts", () => {
     // The CV portrait. It isn't referenced from either shell — cv.html is
     // generated — so without this line a broken path ships a broken image
     // on the CV and a dead <image:loc> in sitemap.xml, and check stays green.
-    check(profile.identity.photo);
+    check(profile.cv?.photo);
 
     // Anything the two pages reference by root-absolute path.
     for (const page of ["index.html", "404.html"]) {
@@ -135,7 +138,7 @@ describe("profile.config.ts", () => {
   });
 
   it("gives every ssh persona a host and at least one question", () => {
-    for (const [key, persona] of Object.entries(profile.ssh.personas)) {
+    for (const [key, persona] of Object.entries(profile.commands.ssh?.personas ?? {})) {
       expect(persona.host, `${key} has no host`).toMatch(/\S/);
       expect(persona.qa.length, `${key} has no questions`).toBeGreaterThan(0);
       const cmds = persona.qa.map((q) => q.cmd);
@@ -239,12 +242,6 @@ describe.each([
     const script = /script:\s*"([^"]*)"/.exec(game)?.[1];
     expect(script, "game block without a script").toBeTruthy();
     expect(script).toMatch(/^[\w.-]+$/);
-  });
-
-  it("publishes to a reserved domain, so it can't be deployed by accident", () => {
-    // identity.domain drives the CNAME the build emits.
-    const domain = /^\s*domain:\s*"([^"]+)"/m.exec(example)?.[1] ?? "";
-    expect(domain, `example domain "${domain}" is not reserved`).toMatch(/\.example$/);
   });
 
   it("keeps its own hosts non-resolving, apart from real social platforms", () => {
