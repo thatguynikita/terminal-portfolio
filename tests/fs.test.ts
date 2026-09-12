@@ -20,7 +20,7 @@ describe("filesystem", () => {
     expect(names).toContain("about.txt");
     expect(names).toContain("skills.txt");
     expect(names).toContain("contact.txt");
-    if (profile.game) expect(names).toContain(profile.game.script);
+    if (profile.commands.game) expect(names).toContain(profile.commands.game.script);
   });
 
   it("never surfaces the loader's own modules as files", () => {
@@ -131,9 +131,9 @@ describe("filesystem", () => {
     });
 
     it("denies a sudo-gated file without sudo, and allows it with", async () => {
-      if (!profile.game) return;
-      expect(await fs.run(profile.game.script)).toBe("denied");
-      expect(await fs.run(profile.game.script, { sudo: true })).toBe("ok");
+      if (!profile.commands.game) return;
+      expect(await fs.run(profile.commands.game.script)).toBe("denied");
+      expect(await fs.run(profile.commands.game.script, { sudo: true })).toBe("ok");
     });
   });
 });
@@ -146,18 +146,18 @@ describe("filesystem", () => {
  */
 describe("game launcher", () => {
   it("takes its filename from game.script", () => {
-    expect(gameFile.name).toBe(profile.game?.script ?? "game.sh");
+    expect(gameFile.name).toBe(profile.commands.game?.script ?? "game.sh");
   });
 
   it("exists exactly when a game is configured — file and command alike", () => {
-    expect(gameFile.enabled).toBe(Boolean(profile.game));
-    expect(gameCommand.enabled).toBe(Boolean(profile.game));
+    expect(gameFile.enabled).toBe(Boolean(profile.commands.game));
+    expect(gameCommand.enabled).toBe(Boolean(profile.commands.game));
   });
 
   it("names itself in its own header line, from a placeholder", () => {
-    if (!profile.game) return;
-    const lines = fs.read(profile.game.script) ?? [];
-    expect(lines[1]).toContain(profile.game.script);
+    if (!profile.commands.game) return;
+    const lines = fs.read(profile.commands.game.script) ?? [];
+    expect(lines[1]).toContain(profile.commands.game.script);
     // Templated, not hardcoded: the catalogue carries {script}, so a fork's
     // name lands here without touching the messages.
     for (const [code, catalogue] of Object.entries(messages)) {
@@ -170,7 +170,7 @@ describe("game launcher", () => {
     // Exactly one, or none — a static copy left in the plain file alongside
     // the configured one would be two.
     const aliases = lines.filter((l) => l.startsWith("alias game="));
-    if (profile.game) expect(aliases).toEqual([`alias game='sudo ./${profile.game.script}'`]);
+    if (profile.commands.game) expect(aliases).toEqual([`alias game='sudo ./${profile.commands.game.script}'`]);
     else expect(aliases, "a game alias with no game configured").toEqual([]);
   });
 
@@ -193,8 +193,8 @@ describe("game launcher, with no game configured", () => {
     vi.resetModules();
     vi.doMock("../profile.config", async () => {
       const real = await vi.importActual<typeof import("../profile.config")>("../profile.config");
-      const { game: _game, ...rest } = real.default;
-      return { ...real, default: rest };
+      const { game: _game, ...commands } = real.default.commands;
+      return { ...real, default: { ...real.default, commands } };
     });
     const file = (await import("../src/fs/game.sh")).default;
     const command = (await import("../src/commands/game")).default;

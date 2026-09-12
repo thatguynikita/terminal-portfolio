@@ -20,8 +20,12 @@ export function createFakeContext(lang: Locale = "en", overrides: Partial<Profil
   const root = document.createElement("div");
   const lines: string[] = [];
   // No network in tests: the now-playing poller is off unless a test
-  // explicitly opts in via `overrides`.
-  const config = { ...profile, nowPlaying: undefined, ...overrides } as ProfileConfig;
+  // explicitly opts in via `overrides.neofetch`.
+  const config = {
+    ...profile,
+    neofetch: { ...profile.neofetch, nowPlaying: undefined },
+    ...overrides,
+  } as ProfileConfig;
   let mode: Mode | null = null;
 
   const print = (html: string): HTMLElement => {

@@ -38,7 +38,7 @@ function createTopMode(): Mode {
     prompt: (ctx) => `<span class="dim">${ctx.t("top.promptLabel")}</span>`,
 
     title: (ctx) =>
-      `${ctx.profile.identity.handle}@${ctx.profile.terminal.hostname} — top — 80×24`,
+      `${ctx.profile.terminal.handle}@${ctx.profile.terminal.hostname} — top — 80×24`,
 
     enter(ctx) {
       container = ctx.print(tableHtml(ctx));

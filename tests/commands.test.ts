@@ -1,10 +1,12 @@
-import { describe, expect, it } from "vitest";
+import { afterAll, afterEach, beforeAll, describe, expect, it, vi } from "vitest";
 import { loadCommands } from "../src/core/registry";
-import { LOCALES } from "../src/i18n/locales";
+import { LOCALES, type Localized } from "../src/i18n/locales";
 import { createFakeContext, withNodes, args } from "./helpers";
 import profile from "../profile.config";
+import { initialMatrixEnabled } from "../src/core/matrix";
+import { StorageKey } from "../src/core/storage";
 
-const profileHandle = profile.identity.handle;
+const profileHandle = profile.terminal.handle;
 import type { FsNode } from "../src/core/types";
 
 const commands = loadCommands();
@@ -68,6 +70,98 @@ describe("commands", () => {
       await command!.run(ctx, args("", name));
       expect(ctx.lines.join("").trim(), `${name} printed nothing`).not.toBe("");
     }
+  });
+
+  /**
+   * Row values are prose, escaped like prose; the amber highlight is a flag
+   * on the row. The Status row used to carry its <span> in the config.
+   */
+  describe("neofetch rows", () => {
+    const neofetch = () => commands.find((c) => c.name === "neofetch")!;
+    // Built from LOCALES, never a literal {en, ru}: this suite must run for
+    // a fork that ships any set of languages.
+    const loc = (text: string): Localized => {
+      const out = {} as Localized;
+      for (const l of LOCALES) out[l] = text;
+      return out;
+    };
+    const render = async (rows: NonNullable<typeof profile.neofetch.rows>): Promise<string> => {
+      const ctx = createFakeContext("en", {
+        neofetch: { ...profile.neofetch, rows, nowPlaying: undefined },
+      });
+      await neofetch().run(ctx, args("", "neofetch"));
+      return ctx.root.innerHTML;
+    };
+
+    it("wraps a highlighted row in the amber accent, and nothing else", async () => {
+      const html = await render([
+        { key: loc("Role"), value: loc("Plain") },
+        { key: loc("Status"), value: loc("Lit"), highlight: true },
+      ]);
+      expect(html).toContain('<span class="nf-key">Status</span> <span class="amber">Lit</span>');
+      expect(html).toContain('<span class="nf-key">Role</span> Plain<');
+      expect((html.match(/class="amber"/g) ?? []).length).toBe(1);
+    });
+
+    it("escapes row values — markup in the config stays text", async () => {
+      const html = await render([
+        { key: loc("K"), value: loc("a <b>bold</b> & co"), highlight: true },
+      ]);
+      expect(html).toContain("a &lt;b&gt;bold&lt;/b&gt; &amp; co");
+      expect(html).not.toContain("<b>");
+    });
+
+    it("the shipped config highlights exactly one row, and none carry markup", () => {
+      const first = LOCALES[0]!;
+      expect(profile.neofetch.rows.filter((r) => r.highlight)).toHaveLength(1);
+      for (const r of profile.neofetch.rows) {
+        for (const l of LOCALES) expect(r.value[l], `${r.key[first]} (${l}) carries markup`).not.toMatch(/<\w+/);
+      }
+    });
+  });
+
+  /**
+   * terminal.defaultMatrix is the first-visit state; the visitor's own
+   * `matrix on|off` is stored and wins afterwards. One helper decides it
+   * for all three pages.
+   */
+  describe("initialMatrixEnabled", () => {
+    const KEY = StorageKey.matrix;
+    // happy-dom here has no global localStorage (readStored quietly returns
+    // null), so a Map-backed stand-in is installed for this suite only.
+    const store = new Map<string, string>();
+    beforeAll(() =>
+      vi.stubGlobal("localStorage", {
+        getItem: (k: string) => store.get(k) ?? null,
+        setItem: (k: string, v: string) => void store.set(k, v),
+        removeItem: (k: string) => void store.delete(k),
+      })
+    );
+    afterAll(() => vi.unstubAllGlobals());
+    afterEach(() => localStorage.removeItem(KEY));
+
+    it("takes the config default on a first visit", () => {
+      localStorage.removeItem(KEY);
+      expect(initialMatrixEnabled("on")).toBe(true);
+      expect(initialMatrixEnabled("off")).toBe(false);
+    });
+
+    it("lets a stored choice win over either default", () => {
+      localStorage.setItem(KEY, "off");
+      expect(initialMatrixEnabled("on")).toBe(false);
+      localStorage.setItem(KEY, "on");
+      expect(initialMatrixEnabled("off")).toBe(true);
+    });
+
+    it("ignores a stored value that isn't on/off", () => {
+      localStorage.setItem(KEY, "maybe");
+      expect(initialMatrixEnabled("off")).toBe(false);
+      expect(initialMatrixEnabled("on")).toBe(true);
+    });
+
+    it("all three shipped configs start with the rain on", () => {
+      expect(profile.terminal.defaultMatrix).toBe("on");
+    });
   });
 
   it("completion candidates are strings and never empty", async () => {

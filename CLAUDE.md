@@ -39,7 +39,7 @@ Four contracts in `src/core/types.ts` carry the design. Read them first.
   `<filename>.ts` descriptors handle dynamic and executable files. `ctx.runFile`
   is shared by `./name`, `sudo ./name` and the `game` shortcut. **A descriptor
   can override its name** — `src/fs/game.sh.ts` is called whatever
-  `game.script` says, and is `enabled` only when a game is configured; the
+  `commands.game.script` says, and is `enabled` only when one is configured; the
   `.bashrc` alias for it is appended from config by `.bashrc.ts`, not stored in
   the plain file.
 - **`Mode`** — a sub-REPL that owns the input line (`top`, `ssh`).
@@ -146,7 +146,7 @@ through to the terminal — which is exactly what the language chip links to.
   is overridden.
 - **`identity.role` already contains an em dash**, so the page title is
   `name — CV — hostname`, not `name — role`.
-- **The portrait is served as uploaded unless `identity.photoStyle` opts in**
+- **The portrait is served as uploaded unless `cv.photoStyle` opts in**
   — no filter, no tint, colour and all; only print greys it. `"tint"` is
   grayscale under the theme colour, pure CSS. `"pixel"` adds the canvas:
   `src/cv.ts` draws the `<img>` at 72×72, `src/cv/portrait.ts` posterizes it
@@ -221,7 +221,7 @@ purely because of that confusion.)
 
 ## Build and deploy
 
-`base` is fixed at `/` and the build emits `CNAME` from `identity.domain`.
+`base` is fixed at `/` and the build emits `CNAME` from the host of `SITE_URL`.
 **GitHub Pages therefore needs a custom domain or a user/org root site** — a
 project site at `/repo-name/` would break. This is deliberate: `404.html` is
 served at arbitrary URL depths, so relative asset paths resolve against the
@@ -234,7 +234,7 @@ renders nothing without JavaScript.
 `public/` is copied verbatim into `dist/` — with one exception.
 **`public/assets/img/portraits/` is pruned in `writeBundle`**: it holds every
 persona's portrait (the author's and both examples'), and only the file
-`identity.photo` names survives the build. Nothing else under `public/` is
+`cv.photo` names survives the build. Nothing else under `public/` is
 touched. `dist/` is gitignored.
 
 `sitemap.xml`, `robots.txt` and `llms.txt` are generated from the same page list
@@ -247,7 +247,13 @@ a test asserts exactly that.
   enabled locale. Command *logic* lives in `src/commands/`; command *copy*
   lives in `src/i18n/messages/`; personal *data* lives in `profile.config.ts`.
 - `profile.config.ts` ships with real personal data, so `npm run check` guards
-  the rebrand: it fails when `SITE_URL` and `identity.domain` disagree.
+  the rebrand. **`SITE_URL` is the one deployment fact that lives outside the
+  config** — in `.env`, the shell, or CI's `vars.SITE_URL`, shell winning.
+  `vite.config.ts` reads `.env` itself with `loadEnv` (Vite only exposes
+  `VITE_`-prefixed vars to the app, and this file runs in Node), and
+  `vitest.config.ts` does the same so a local `dist/` and the discovery suite
+  agree on the origin. A build with no `SITE_URL` is refused outright; the
+  tests tolerate its absence because CI runs them with no environment.
 - Prefer reusing a real command over duplicating its rendering — the boot intro
   calls the `neofetch` command, and `alias` reads `.bashrc` from the filesystem
   rather than keeping a second copy of the list.

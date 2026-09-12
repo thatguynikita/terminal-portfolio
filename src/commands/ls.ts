@@ -42,7 +42,7 @@ export default defineCommand({
     if (all) blocks += 2;
     ctx.print(ctx.t("ls.total", { n: blocks }));
 
-    const owner = ctx.profile.identity.handle;
+    const owner = ctx.profile.terminal.handle;
     const row = (perms: string, links: number, size: number, name: string): void => {
       const sizeStr = (human ? humanSize(size) : String(size)).padStart(6);
       ctx.print(`${perms}  ${links} ${ctx.escape(owner)} staff ${sizeStr} ${DATE} ${name}`);

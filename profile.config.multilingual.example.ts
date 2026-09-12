@@ -34,23 +34,36 @@ export const MESSAGES = { en, es, de };
  * ─────────────────────────────────────────────────────────────────────
  */
 export default defineProfile({
+  terminal: {
+    handle: "guest",
+    // Cosmetic — the prompt and `uname`. Where the site is published is
+    // SITE_URL in .env, which drives every absolute URL and the CNAME.
+    hostname: "beatriz.example",
+    // Which languages this site ships is MESSAGES, at the top of this file.
+    // The chip rotates in that order; this one is served unprefixed.
+    defaultLocale: "en",
+    defaultTheme: "random",
+    // Background rain for a first-time visitor; `matrix on|off` is remembered.
+    defaultMatrix: "on",
+    // Extra topbar links. The CV link is added automatically when `cv` is
+    // configured, so this is for anything else you want up there.
+    links: [
+      { label: "lab", href: "https://lab.beatriz.example" },
+      { label: "talks", href: "https://talks.beatriz.example" },
+    ],
+  },
+
   identity: {
     name: {
       en: "Beatriz Ocaña Ruiz",
       es: "Beatriz Ocaña Ruiz",
       de: "Beatriz Ocaña Ruiz",
     },
-    handle: "guest",
-    // Where the site is published: the CNAME the build emits and the
-    // canonical URL. Distinct from terminal.hostname below, which is only
-    // the hostname shown in the prompt.
-    domain: "beatriz.example",
     role: {
       en: "Embedded Systems Engineer — Robotics",
       es: "Ingeniera de sistemas embebidos — Robótica",
       de: "Embedded-Systems-Entwicklerin — Robotik",
     },
-    email: "hola@beatriz.example",
     location: {
       en: "Munich, Germany",
       es: "Múnich, Alemania",
@@ -61,10 +74,86 @@ export default defineProfile({
       es: "Ingeniera de sistemas embebidos — Robótica · 10 años de experiencia",
       de: "Embedded-Systems-Entwicklerin — Robotik · 10 Jahre Erfahrung",
     },
-    photo: "/assets/img/portraits/beatriz-photo.png",
-    // "pixel": a posterized pixel render under the theme tint. "tint": just the
-    // grayscale + tint. Leave it out and the photo is served exactly as uploaded.
-    photoStyle: "pixel",
+  },
+
+  seo: {
+    title: {
+      en: "Beatriz Ocaña Ruiz — Embedded Systems Engineer",
+      es: "Beatriz Ocaña Ruiz — Ingeniera de sistemas embebidos",
+      de: "Beatriz Ocaña Ruiz — Embedded-Systems-Entwicklerin",
+    },
+    description: {
+      en: "Interactive terminal portfolio of an embedded systems engineer with 10 years in robotics. Type `help` to explore.",
+      es: "Portfolio interactivo en terminal de una ingeniera de sistemas embebidos con 10 años en robótica. Escribe `help` para explorar.",
+      de: "Interaktives Terminal-Portfolio einer Embedded-Systems-Entwicklerin mit 10 Jahren Robotik-Erfahrung. Tippe `help` zum Stöbern.",
+    },
+  },
+
+  neofetch: {
+    ascii: `<span class="outline">  ╭───────────╮
+  │ </span><span class="eye">▪ ▪ ▪ ▪ ▪</span><span class="outline"> │
+  ├───────────┤
+  │ </span><span class="nose">◆</span><span class="outline"> ░░░░░░░ │
+  ├───────────┤
+  │ ░░░░░░░░░ │
+  ╰───────────╯</span>`,
+    rows: [
+      {
+        key: { en: "Name", es: "Nombre", de: "Name" },
+        value: {
+          en: "Beatriz Ocaña Ruiz",
+          es: "Beatriz Ocaña Ruiz",
+          de: "Beatriz Ocaña Ruiz",
+        },
+      },
+      {
+        key: { en: "Role", es: "Puesto", de: "Rolle" },
+        value: {
+          en: "Embedded Systems Engineer",
+          es: "Ingeniera de sistemas embebidos",
+          de: "Embedded-Systems-Entwicklerin",
+        },
+      },
+      {
+        key: { en: "Uptime", es: "Tiempo activo", de: "Laufzeit" },
+        value: {
+          en: "10+ years close to the metal",
+          es: "más de 10 años pegada al metal",
+          de: "über 10 Jahre nah an der Hardware",
+        },
+      },
+      {
+        key: { en: "Shell", es: "Shell", de: "Shell" },
+        value: { en: "/bin/zsh", es: "/bin/zsh", de: "/bin/zsh" },
+      },
+      {
+        key: { en: "Stack", es: "Stack", de: "Stack" },
+        value: {
+          en: "Zephyr · ROS 2 · Rust · CAN-FD",
+          es: "Zephyr · ROS 2 · Rust · CAN-FD",
+          de: "Zephyr · ROS 2 · Rust · CAN-FD",
+        },
+      },
+      {
+        key: { en: "Status", es: "Estado", de: "Status" },
+        value: {
+          en: "open to interesting problems",
+          es: "abierta a problemas interesantes",
+          de: "offen für interessante Probleme",
+        },
+        highlight: true,
+      },
+    ],
+
+    // The live "Playing" row in the neofetch card. Delete this whole block
+    // (or blank the endpoint) to turn the widget off: the row isn't rendered
+    // at all and no request is ever made — neofetch just ends at Status.
+    // An endpoint that's set but unreachable keeps the row and shows
+    // "spotify offline" instead.
+    nowPlaying: {
+      endpoint: "https://api.beatriz.example/now-playing",
+      pollMs: 20000,
+    },
   },
 
   // Line breaks matter: `about` types this out one line at a time.
@@ -169,160 +258,6 @@ auftreten, und Prüfstände, die einen Defekt vor dem Lager bemerken.`,
     },
   ],
 
-  neofetch: {
-    ascii: `<span class="outline">  ╭───────────╮
-  │ </span><span class="eye">▪ ▪ ▪ ▪ ▪</span><span class="outline"> │
-  ├───────────┤
-  │ </span><span class="nose">◆</span><span class="outline"> ░░░░░░░ │
-  ├───────────┤
-  │ ░░░░░░░░░ │
-  ╰───────────╯</span>`,
-    rows: [
-      {
-        key: { en: "Name", es: "Nombre", de: "Name" },
-        value: {
-          en: "Beatriz Ocaña Ruiz",
-          es: "Beatriz Ocaña Ruiz",
-          de: "Beatriz Ocaña Ruiz",
-        },
-      },
-      {
-        key: { en: "Role", es: "Puesto", de: "Rolle" },
-        value: {
-          en: "Embedded Systems Engineer",
-          es: "Ingeniera de sistemas embebidos",
-          de: "Embedded-Systems-Entwicklerin",
-        },
-      },
-      {
-        key: { en: "Uptime", es: "Tiempo activo", de: "Laufzeit" },
-        value: {
-          en: "10+ years close to the metal",
-          es: "más de 10 años pegada al metal",
-          de: "über 10 Jahre nah an der Hardware",
-        },
-      },
-      {
-        key: { en: "Shell", es: "Shell", de: "Shell" },
-        value: { en: "/bin/zsh", es: "/bin/zsh", de: "/bin/zsh" },
-      },
-      {
-        key: { en: "Stack", es: "Stack", de: "Stack" },
-        value: {
-          en: "Zephyr · ROS 2 · Rust · CAN-FD",
-          es: "Zephyr · ROS 2 · Rust · CAN-FD",
-          de: "Zephyr · ROS 2 · Rust · CAN-FD",
-        },
-      },
-      {
-        key: { en: "Status", es: "Estado", de: "Status" },
-        value: {
-          en: `<span class="amber">open to interesting problems</span>`,
-          es: `<span class="amber">abierta a problemas interesantes</span>`,
-          de: `<span class="amber">offen für interessante Probleme</span>`,
-        },
-      },
-    ],
-  },
-
-  // The live "Playing" row in the neofetch card. Delete this whole block
-  // (or blank the endpoint) to turn the widget off: the row isn't rendered
-  // at all and no request is ever made — neofetch just ends at Status.
-  // An endpoint that's set but unreachable keeps the row and shows
-  // "spotify offline" instead.
-  nowPlaying: {
-    endpoint: "https://api.beatriz.example/now-playing",
-    pollMs: 20000,
-  },
-
-  ssh: {
-    personas: {
-      recruiter: {
-        host: "recruiter@beatriz.example",
-        qa: [
-          {
-            cmd: "why",
-            q: {
-              en: "Why should we hire you?",
-              es: "¿Por qué deberíamos contratarte?",
-              de: "Warum sollten wir dich einstellen?",
-            },
-            a: {
-              en: "Ten years of firmware that runs next to people and doesn't surprise them. I bring boards up quickly, I write the test rig before the feature, and I'm the person who asks what happens when the encoder lies.",
-              es: "Diez años de firmware que funciona junto a personas sin darles sustos. Pongo placas en marcha rápido, monto el banco de pruebas antes que la funcionalidad y soy la que pregunta qué pasa cuando el encoder miente.",
-              de: "Zehn Jahre Firmware, die neben Menschen läuft und sie nicht überrascht. Ich nehme Platinen schnell in Betrieb, baue den Prüfstand vor dem Feature und bin die, die fragt, was passiert, wenn der Encoder lügt.",
-            },
-          },
-          {
-            cmd: "favorite",
-            q: {
-              en: "What's your favorite part of the job?",
-              es: "¿Qué es lo que más te gusta del trabajo?",
-              de: "Was magst du an der Arbeit am liebsten?",
-            },
-            a: {
-              en: "The first clean motion after a week of jitter. You feel it in the room before you see it on the scope.",
-              es: "El primer movimiento limpio después de una semana de jitter. Se nota en la sala antes de verlo en el osciloscopio.",
-              de: "Die erste saubere Bewegung nach einer Woche Jitter. Man spürt sie im Raum, bevor man sie auf dem Oszilloskop sieht.",
-            },
-          },
-          {
-            cmd: "incident",
-            q: {
-              en: "Tell me about an incident you handled.",
-              es: "Cuéntame algún incidente que hayas gestionado.",
-              de: "Erzähl von einem Vorfall, den du bearbeitet hast.",
-            },
-            a: {
-              en: "A fleet started stopping short on cold mornings. A crystal drifted just enough below 5 °C to skew a CAN bit time. We found it with a thermal chamber and a very long weekend; now every board is characterised across its full temperature range before it ships.",
-              es: "Una flota empezó a frenar antes de tiempo en las mañanas frías. Un cristal se desviaba lo justo por debajo de 5 °C para alterar el bit time del CAN. Lo encontramos con una cámara térmica y un fin de semana muy largo; ahora cada placa se caracteriza en todo su rango de temperatura antes de salir.",
-              de: "Eine Flotte bremste an kalten Morgen zu früh. Ein Quarz driftete unter 5 °C gerade so weit, dass die CAN-Bitzeit verrutschte. Gefunden haben wir es mit einer Klimakammer und einem sehr langen Wochenende; heute wird jede Platine über den vollen Temperaturbereich charakterisiert, bevor sie ausgeliefert wird.",
-            },
-          },
-          {
-            cmd: "goals",
-            q: {
-              en: "What are you looking for next?",
-              es: "¿Qué buscas a continuación?",
-              de: "Was suchst du als Nächstes?",
-            },
-            a: {
-              en: "A team that treats firmware as a product with a lifecycle — versioned, tested on real hardware in CI, and updatable in the field without a truck roll.",
-              es: "Un equipo que trate el firmware como un producto con ciclo de vida: versionado, probado sobre hardware real en CI y actualizable en campo sin mandar una furgoneta.",
-              de: "Ein Team, das Firmware als Produkt mit Lebenszyklus behandelt — versioniert, in der CI auf echter Hardware getestet und im Feld aktualisierbar, ohne einen Techniker rauszuschicken.",
-            },
-          },
-          {
-            cmd: "salary",
-            q: {
-              en: "Salary expectations?",
-              es: "¿Expectativas salariales?",
-              de: "Gehaltsvorstellung?",
-            },
-            a: {
-              en: "Negotiable, and better discussed over email than in a terminal easter egg :)",
-              es: "Negociable, y mejor hablarlo por correo que en un easter egg de una terminal :)",
-              de: "Verhandelbar — und per E-Mail besser aufgehoben als in einem Terminal-Easter-Egg :)",
-            },
-          },
-        ],
-      },
-    },
-  },
-
-  terminal: {
-    hostname: "beatriz.example",
-    title: {
-      en: "guest@beatriz.example — bash — 80×24",
-      es: "guest@beatriz.example — bash — 80×24",
-      de: "guest@beatriz.example — bash — 80×24",
-    },
-    // Which languages this site ships is MESSAGES, at the top of this file.
-    // The chip rotates in that order; this one is served unprefixed.
-    defaultLocale: "en",
-    defaultTheme: "random",
-  },
-
   commands: {
     // Overrides a command's one-line description in `help`. Anything not
     // listed here falls back to `commands.<name>` in src/i18n/messages/.
@@ -336,48 +271,91 @@ auftreten, und Prüfstände, die einen Defekt vor dem Lager bemerken.`,
     },
 
     // The fake-system commands (ps, who, w, env) show two accounts: the
-    // visitor, who is identity.handle, and the machine's owner — you.
+    // visitor, who is terminal.handle, and the machine's owner — you.
     system: {
       owner: "beatriz",
     },
-  },
 
-  links: {
-    // Extra links in the terminal page's top-right; the automatic `cv.html →`
-    // always sits last, furthest right. These render as plain text — no
-    // arrow. Labels are plain strings, not translated, terminal page only.
-    topbar: [
-      { label: "lab", href: "https://lab.beatriz.example" },
-      { label: "talks", href: "https://talks.beatriz.example" },
-    ],
-  },
-
-  game: {
-    url: "https://game.beatriz.example/",
-    title: "Servo Rush",
-    // The launcher: `ls -a` lists it, `sudo ./flash-firmware.sh` opens the game.
-    script: "flash-firmware.sh",
-  },
-
-  seo: {
-    title: {
-      en: "Beatriz Ocaña Ruiz — Embedded Systems Engineer",
-      es: "Beatriz Ocaña Ruiz — Ingeniera de sistemas embebidos",
-      de: "Beatriz Ocaña Ruiz — Embedded-Systems-Entwicklerin",
+    game: {
+      url: "https://game.beatriz.example/",
+      title: "Servo Rush",
+      // The launcher: `ls -a` lists it, `sudo ./flash-firmware.sh` opens the game.
+      script: "flash-firmware.sh",
     },
-    description: {
-      en: "Interactive terminal portfolio of an embedded systems engineer with 10 years in robotics. Type `help` to explore.",
-      es: "Portfolio interactivo en terminal de una ingeniera de sistemas embebidos con 10 años en robótica. Escribe `help` para explorar.",
-      de: "Interaktives Terminal-Portfolio einer Embedded-Systems-Entwicklerin mit 10 Jahren Robotik-Erfahrung. Tippe `help` zum Stöbern.",
-    },
-  },
 
-  footer: {
-    /** The © line. Each page appends its own tail (see ui.footerHint). */
-    copyright: {
-      en: `© {year} <a href="https://beatriz.example" target="_blank" rel="noopener">Beatriz Ocaña Ruiz</a>`,
-      es: `© {year} <a href="https://beatriz.example" target="_blank" rel="noopener">Beatriz Ocaña Ruiz</a>`,
-      de: `© {year} <a href="https://beatriz.example" target="_blank" rel="noopener">Beatriz Ocaña Ruiz</a>`,
+    ssh: {
+      personas: {
+        recruiter: {
+          host: "recruiter@beatriz.example",
+          qa: [
+            {
+              cmd: "why",
+              q: {
+                en: "Why should we hire you?",
+                es: "¿Por qué deberíamos contratarte?",
+                de: "Warum sollten wir dich einstellen?",
+              },
+              a: {
+                en: "Ten years of firmware that runs next to people and doesn't surprise them. I bring boards up quickly, I write the test rig before the feature, and I'm the person who asks what happens when the encoder lies.",
+                es: "Diez años de firmware que funciona junto a personas sin darles sustos. Pongo placas en marcha rápido, monto el banco de pruebas antes que la funcionalidad y soy la que pregunta qué pasa cuando el encoder miente.",
+                de: "Zehn Jahre Firmware, die neben Menschen läuft und sie nicht überrascht. Ich nehme Platinen schnell in Betrieb, baue den Prüfstand vor dem Feature und bin die, die fragt, was passiert, wenn der Encoder lügt.",
+              },
+            },
+            {
+              cmd: "favorite",
+              q: {
+                en: "What's your favorite part of the job?",
+                es: "¿Qué es lo que más te gusta del trabajo?",
+                de: "Was magst du an der Arbeit am liebsten?",
+              },
+              a: {
+                en: "The first clean motion after a week of jitter. You feel it in the room before you see it on the scope.",
+                es: "El primer movimiento limpio después de una semana de jitter. Se nota en la sala antes de verlo en el osciloscopio.",
+                de: "Die erste saubere Bewegung nach einer Woche Jitter. Man spürt sie im Raum, bevor man sie auf dem Oszilloskop sieht.",
+              },
+            },
+            {
+              cmd: "incident",
+              q: {
+                en: "Tell me about an incident you handled.",
+                es: "Cuéntame algún incidente que hayas gestionado.",
+                de: "Erzähl von einem Vorfall, den du bearbeitet hast.",
+              },
+              a: {
+                en: "A fleet started stopping short on cold mornings. A crystal drifted just enough below 5 °C to skew a CAN bit time. We found it with a thermal chamber and a very long weekend; now every board is characterised across its full temperature range before it ships.",
+                es: "Una flota empezó a frenar antes de tiempo en las mañanas frías. Un cristal se desviaba lo justo por debajo de 5 °C para alterar el bit time del CAN. Lo encontramos con una cámara térmica y un fin de semana muy largo; ahora cada placa se caracteriza en todo su rango de temperatura antes de salir.",
+                de: "Eine Flotte bremste an kalten Morgen zu früh. Ein Quarz driftete unter 5 °C gerade so weit, dass die CAN-Bitzeit verrutschte. Gefunden haben wir es mit einer Klimakammer und einem sehr langen Wochenende; heute wird jede Platine über den vollen Temperaturbereich charakterisiert, bevor sie ausgeliefert wird.",
+              },
+            },
+            {
+              cmd: "goals",
+              q: {
+                en: "What are you looking for next?",
+                es: "¿Qué buscas a continuación?",
+                de: "Was suchst du als Nächstes?",
+              },
+              a: {
+                en: "A team that treats firmware as a product with a lifecycle — versioned, tested on real hardware in CI, and updatable in the field without a truck roll.",
+                es: "Un equipo que trate el firmware como un producto con ciclo de vida: versionado, probado sobre hardware real en CI y actualizable en campo sin mandar una furgoneta.",
+                de: "Ein Team, das Firmware als Produkt mit Lebenszyklus behandelt — versioniert, in der CI auf echter Hardware getestet und im Feld aktualisierbar, ohne einen Techniker rauszuschicken.",
+              },
+            },
+            {
+              cmd: "salary",
+              q: {
+                en: "Salary expectations?",
+                es: "¿Expectativas salariales?",
+                de: "Gehaltsvorstellung?",
+              },
+              a: {
+                en: "Negotiable, and better discussed over email than in a terminal easter egg :)",
+                es: "Negociable, y mejor hablarlo por correo que en un easter egg de una terminal :)",
+                de: "Verhandelbar — und per E-Mail besser aufgehoben als in einem Terminal-Easter-Egg :)",
+              },
+            },
+          ],
+        },
+      },
     },
   },
 
@@ -385,6 +363,11 @@ auftreten, und Prüfstände, die einen Defekt vor dem Lager bemerken.`,
   // Delete this whole key and the CV disappears: no pages, no `cv` command,
   // no cv.html in `ls`, no sitemap rows — just the terminal.
   cv: {
+    photo: "/assets/img/portraits/beatriz-photo.png",
+    // "pixel": a posterized pixel render under the theme tint. "tint": just the
+    // grayscale + tint. Leave it out and the photo is served exactly as uploaded.
+    photoStyle: "pixel",
+
     // The line under the contact row on the CV.
     metaLine: {
       en: "Munich, Germany · EU citizen · on-site for bring-up, remote for the rest",
@@ -588,6 +571,34 @@ auftreten, und Prüfstände, die einen Defekt vor dem Lager bemerken.`,
       { year: "2018", name: "IPC-A-610 Certified Specialist" },
     ],
 
+    // `filled` is the 0–10 proficiency meter; `sub` is the text beside it.
+    languages: [
+      {
+        name: { en: "Spanish", es: "Español", de: "Spanisch" },
+        filled: 10,
+        sub: { en: "Native", es: "Nativo", de: "Muttersprache" },
+      },
+      {
+        name: { en: "Valencian", es: "Valencià", de: "Valencianisch" },
+        filled: 9,
+        sub: { en: "Bilingual", es: "Bilingüe", de: "Zweisprachig" },
+      },
+      {
+        name: { en: "English", es: "Inglés", de: "Englisch" },
+        filled: 9,
+        sub: { en: "C1 — Advanced", es: "C1 — Avanzado", de: "C1 — Fortgeschritten" },
+      },
+      {
+        name: { en: "German", es: "Alemán", de: "Deutsch" },
+        filled: 7,
+        sub: {
+          en: "B2 — Upper intermediate",
+          es: "B2 — Intermedio alto",
+          de: "B2 — Gute Mittelstufe",
+        },
+      },
+    ],
+
     // The playful "notes.txt" list at the foot of the CV.
     traits: {
       en: [
@@ -625,39 +636,11 @@ auftreten, und Prüfstände, die einen Defekt vor dem Lager bemerken.`,
       ],
     },
 
-    // `filled` is the 0–10 proficiency meter; `sub` is the text beside it.
-    languages: [
-      {
-        name: { en: "Spanish", es: "Español", de: "Spanisch" },
-        filled: 10,
-        sub: { en: "Native", es: "Nativo", de: "Muttersprache" },
-      },
-      {
-        name: { en: "Valencian", es: "Valencià", de: "Valencianisch" },
-        filled: 9,
-        sub: { en: "Bilingual", es: "Bilingüe", de: "Zweisprachig" },
-      },
-      {
-        name: { en: "English", es: "Inglés", de: "Englisch" },
-        filled: 9,
-        sub: { en: "C1 — Advanced", es: "C1 — Avanzado", de: "C1 — Fortgeschritten" },
-      },
-      {
-        name: { en: "German", es: "Alemán", de: "Deutsch" },
-        filled: 7,
-        sub: {
-          en: "B2 — Upper intermediate",
-          es: "B2 — Intermedio alto",
-          de: "B2 — Gute Mittelstufe",
-        },
-      },
-    ],
-
-    // The closing line. Rendered as HTML, so markup is allowed.
+    // The closing line, plain text. Rendered as `$ echo "…"` with a blinking cursor.
     signOff: {
-      en: `$ <span class="accent">echo</span> <span class="amber">"if you read this far, you'd probably enjoy working together."</span>`,
-      es: `$ <span class="accent">echo</span> <span class="amber">"si has llegado hasta aquí, seguramente trabajaríamos bien juntos."</span>`,
-      de: `$ <span class="accent">echo</span> <span class="amber">"wenn du bis hierher gelesen hast, würde uns die Zusammenarbeit vermutlich liegen."</span>`,
+      en: "if you read this far, you'd probably enjoy working together.",
+      es: "si has llegado hasta aquí, seguramente trabajaríamos bien juntos.",
+      de: "wenn du bis hierher gelesen hast, würde uns die Zusammenarbeit vermutlich liegen.",
     },
   },
 });

@@ -31,7 +31,13 @@ jobs:
       - name: Test
         run: npm test
 
+      # The build refuses to run without SITE_URL — it's the origin for every
+      # absolute URL it emits. CI only checks that the build compiles; dist/
+      # is never deployed from here. So a repo that hasn't set the SITE_URL
+      # variable (Settings → Secrets and variables → Actions → Variables)
+      # builds against a reserved placeholder instead of failing. Set the
+      # variable to build against your real origin.
       - name: Build
         run: npx vite build
         env:
-          SITE_URL: ${{ vars.SITE_URL }}
+          SITE_URL: ${{ vars.SITE_URL || 'https://ci.invalid' }}

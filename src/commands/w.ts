@@ -12,7 +12,7 @@ export default defineCommand({
       ["USER", "TTY", "FROM", "LOGIN@", "IDLE", "WHAT"],
       [
         [
-          ctx.escape(ctx.profile.identity.handle),
+          ctx.escape(ctx.profile.terminal.handle),
           "pts/0",
           ctx.escape(ctx.t("who.yourBrowser")),
           loginTime,

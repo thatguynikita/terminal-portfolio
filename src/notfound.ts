@@ -2,7 +2,7 @@ import "./styles/base.css";
 import "./styles/notfound.css";
 
 import profile from "../profile.config";
-import { createMatrixRain } from "./core/matrix";
+import { createMatrixRain, initialMatrixEnabled } from "./core/matrix";
 import { createThemeController } from "./core/theme";
 import { translate } from "./i18n";
 import { LOCALES, nextLocale, type Locale } from "./i18n/locales";
@@ -14,7 +14,7 @@ import { renderCopyright } from "./core/profile";
 const canvas = document.getElementById("matrix") as HTMLCanvasElement | null;
 if (canvas) {
   const matrix = createMatrixRain(canvas);
-  matrix.setEnabled(readStored(StorageKey.matrix) !== "off");
+  matrix.setEnabled(initialMatrixEnabled(profile.terminal.defaultMatrix));
   // Applies the persisted theme, so a preference set on the terminal
   // carries over to this page.
   createThemeController(matrix, { defaultTheme: profile.terminal.defaultTheme });
@@ -49,7 +49,7 @@ const text = (id: string, value: string): void => {
 function render(): void {
   document.documentElement.lang = lang;
   const t = (key: string): string => translate(lang, key);
-  const { handle } = profile.identity;
+  const { handle } = profile.terminal;
   const { hostname } = profile.terminal;
   const path = requestedPath();
 
@@ -80,7 +80,7 @@ function render(): void {
   const footer = document.getElementById("pageFooter");
   if (footer) {
     footer.innerHTML =
-      renderCopyright(profile, lang) + ` · <a href="/">${escapeHtml(t("notFound.back"))}</a>`;
+      renderCopyright(profile, lang, __SITE_URL__) + ` · <a href="/">${escapeHtml(t("notFound.back"))}</a>`;
   }
 }
 

@@ -5,13 +5,17 @@ export default defineCommand({
   name: "neofetch",
   order: 40,
   run(ctx) {
-    const { identity, terminal, neofetch, nowPlaying } = ctx.profile;
+    const { terminal, neofetch } = ctx.profile;
+    const { nowPlaying } = neofetch;
 
+    // Values are prose, escaped like prose; the amber highlight is a flag on
+    // the row, not markup in the config.
     const rows = neofetch.rows
-      .map(
-        (r) =>
-          `<div><span class="nf-key">${ctx.escape(r.key[ctx.lang])}</span> ${r.value[ctx.lang]}</div>`
-      )
+      .map((r) => {
+        const value = ctx.escape(r.value[ctx.lang]);
+        const shown = r.highlight ? `<span class="amber">${value}</span>` : value;
+        return `<div><span class="nf-key">${ctx.escape(r.key[ctx.lang])}</span> ${shown}</div>`;
+      })
       .join("");
 
     const playingRow = nowPlaying
@@ -23,7 +27,7 @@ export default defineCommand({
     ctx.print(`<div class="neofetch">
       <div class="nf-art">${neofetch.ascii}</div>
       <div class="nf-info">
-        <div><span class="nf-key accent">${ctx.escape(identity.handle)}</span>@<span class="accent">${ctx.escape(terminal.hostname)}</span></div>
+        <div><span class="nf-key accent">${ctx.escape(terminal.handle)}</span>@<span class="accent">${ctx.escape(terminal.hostname)}</span></div>
         <div class="dim">--------------------</div>
         ${rows}
         ${playingRow}

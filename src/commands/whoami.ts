@@ -62,7 +62,7 @@ export default defineCommand({
 
     ctx.print(
       [
-        row(ctx.t("whoami.user"), ctx.escape(ctx.profile.identity.handle)),
+        row(ctx.t("whoami.user"), ctx.escape(ctx.profile.terminal.handle)),
         row(ctx.t("whoami.browser"), ctx.escape(browser)),
         row(ctx.t("whoami.os"), ctx.escape(os)),
         row(

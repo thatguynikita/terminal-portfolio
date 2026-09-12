@@ -2,9 +2,9 @@ import "./styles/base.css";
 import "./styles/cv.css";
 
 import profile from "../profile.config";
-import { createMatrixRain } from "./core/matrix";
+import { createMatrixRain, initialMatrixEnabled } from "./core/matrix";
 import { createThemeController } from "./core/theme";
-import { StorageKey, writeStored, readStored } from "./core/storage";
+import { StorageKey, writeStored } from "./core/storage";
 import { posterizeGray } from "./cv/portrait";
 
 /**
@@ -15,7 +15,7 @@ import { posterizeGray } from "./cv/portrait";
 const canvas = document.getElementById("matrix") as HTMLCanvasElement | null;
 if (canvas) {
   const matrix = createMatrixRain(canvas);
-  matrix.setEnabled(readStored(StorageKey.matrix) !== "off");
+  matrix.setEnabled(initialMatrixEnabled(profile.terminal.defaultMatrix));
   createThemeController(matrix, { defaultTheme: profile.terminal.defaultTheme });
 }
 
@@ -78,7 +78,7 @@ function pixelatePortrait(img: HTMLImageElement): void {
 
 const avatar = document.querySelector<HTMLImageElement>("img.avatar");
 // Opt-in: without `photoStyle: "pixel"` the <img> is served as uploaded.
-if (avatar && profile.identity.photoStyle === "pixel") {
+if (avatar && profile.cv?.photoStyle === "pixel") {
   if (avatar.complete && avatar.naturalWidth > 0) pixelatePortrait(avatar);
   else avatar.addEventListener("load", () => pixelatePortrait(avatar), { once: true });
 }

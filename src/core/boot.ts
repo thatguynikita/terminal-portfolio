@@ -17,7 +17,7 @@ export async function boot(terminal: Terminal, input: InputController): Promise<
   const bootEl = document.getElementById("boot");
   const lines = ctx.tList("boot.lines", {
     host: ctx.profile.terminal.hostname,
-    user: ctx.profile.identity.handle,
+    user: ctx.profile.terminal.handle,
   });
 
   const alreadyBooted = readSession(BOOTED_SESSION_KEY) === "1";

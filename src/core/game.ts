@@ -11,7 +11,7 @@ let gameUrl = "";
 export function initGameOverlay(profile: ProfileConfig): void {
   overlay = document.getElementById("gameOverlay");
   frame = document.getElementById("gameFrame") as HTMLIFrameElement | null;
-  gameUrl = profile.game?.url ?? "";
+  gameUrl = profile.commands.game?.url ?? "";
   if (!overlay || !frame) return;
 
   document.getElementById("gameClose")?.addEventListener("click", closeGame);
