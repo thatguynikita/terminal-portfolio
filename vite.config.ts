@@ -1,7 +1,7 @@
 import { defineConfig, type Plugin } from "vite";
-import { existsSync, mkdirSync, readFileSync, writeFileSync } from "node:fs";
+import { existsSync, mkdirSync, readdirSync, readFileSync, rmSync, unlinkSync, writeFileSync } from "node:fs";
 import { execFileSync } from "node:child_process";
-import { dirname, join, resolve } from "node:path";
+import { basename, dirname, join, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 
 const HERE = dirname(fileURLToPath(import.meta.url));
@@ -395,6 +395,29 @@ function llmsTxt(): string {
   return lines.join("\n");
 }
 
+/**
+ * Every portrait the repo ships lives here — the author's and the example
+ * personas'. Vite copies public/ verbatim, so without pruning a fork that
+ * configured its own photo would still ship the other two faces.
+ *
+ * Only the file `identity.photo` names survives the build; with no photo
+ * configured, none do. A photo configured *outside* this directory is left
+ * alone and the directory is emptied. Nothing else under assets/img/ is
+ * touched — the 404 cat and the link-preview card always ship.
+ */
+const PORTRAITS_DIR = "assets/img/portraits";
+
+function prunePortraits(outDir: string): void {
+  const dir = join(outDir, PORTRAITS_DIR);
+  if (!existsSync(dir)) return;
+  const photo = profile.identity.photo;
+  const keep = photo && dirname(photo) === `/${PORTRAITS_DIR}` ? basename(photo) : null;
+  for (const name of readdirSync(dir)) {
+    if (name !== keep) unlinkSync(join(dir, name));
+  }
+  if (readdirSync(dir).length === 0) rmSync(dir, { recursive: true });
+}
+
 function profileHtmlPlugin(): Plugin {
   const lang = DEFAULT_LOCALE;
   // Filled during transformIndexHtml, consumed in generateBundle to clone
@@ -492,8 +515,11 @@ function profileHtmlPlugin(): Plugin {
      * order would decide whether it exists yet.
      */
     writeBundle(options) {
-      if (!cvTemplate) return;
       const outDir = options.dir ?? "dist";
+      // Runs for every config, CV or not — public/ is already in outDir here.
+      prunePortraits(outDir);
+
+      if (!cvTemplate) return;
       for (const locale of cvLocales(profile)) {
         if (locale === DEFAULT_LOCALE) continue;
         const file = join(outDir, locale, "cv.html");
@@ -508,6 +534,16 @@ export default defineConfig({
   root: PAGES,
   publicDir: "../public",
   base: "/",
+  resolve: {
+    // With `root` at pages/, a root-absolute `/src/main.ts` in a shell would
+    // resolve to pages/src/. A relative `../src/main.ts` is right on disk
+    // but wrong in the browser: `..` above `/` clamps, the request comes in
+    // as /src/main.ts anyway, and the dev server answers with the SPA
+    // fallback — index.html served as a module. This alias makes /src/ mean
+    // the real src/ in both dev and build, so the shells can use the same
+    // root-absolute paths they use for everything else.
+    alias: { "/src": resolve(HERE, "src") },
+  },
   define: {
     __CV_BYTES__: JSON.stringify(
       profile.cv ? cvByteSize(profile, DEFAULT_LOCALE) : 0

@@ -57,8 +57,12 @@ Consequences worth knowing:
 
 - `build.outDir` is `../dist` and `publicDir` is `../public`, both relative to
   `root`; `rollupOptions.input` needs resolved absolute paths.
-- The shells load `../src/main.ts`, not `/src/main.ts` — a root-absolute path
-  would now mean `pages/src/`.
+- The shells load `/src/main.ts` through a `resolve.alias` that maps `/src` to
+  the real `src/`. A relative `../src/main.ts` is correct on disk but wrong in
+  the browser — `..` above `/` clamps, so the request arrives as `/src/main.ts`
+  regardless, and without the alias the dev server answers with the SPA
+  fallback: `index.html` served as a module. The build never showed it, since
+  Vite rewrites the tag to a hashed `/assets/…` URL.
 - Anything in the Vite plugin that reads a shell off disk must resolve it
   explicitly. A cwd-relative `readFileSync("cv.html")` worked only while cwd
   happened to equal the root.
@@ -84,7 +88,7 @@ through to the terminal — which is exactly what the language chip links to.
 
 ## Testing
 
-248 tests across nine suites, run with Vitest and happy-dom. The ones worth
+262 tests across ten suites, run with Vitest and happy-dom. The ones worth
 knowing about:
 
 - **`config.test.ts`** is `npm run check`, the preflight a fork runs before

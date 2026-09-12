@@ -93,6 +93,18 @@ export interface ProfileConfig {
     tagline: Localized;
     /** Portrait, root-absolute. Shown on the CV and used as JSON-LD `image`. */
     photo?: string;
+    /**
+     * How the CV renders the portrait on screen.
+     *
+     * - unset / `"plain"` — exactly as uploaded, colour and all
+     * - `"tint"` — grayscale under the theme colour; for a photo that is
+     *   already styled the way you want, like a hand-made pixel render
+     * - `"pixel"` — the full terminal look: a posterized pixel render under
+     *   the theme tint, so any photo reads as part of the site
+     *
+     * Print shows the source photo in grayscale whichever is set.
+     */
+    photoStyle?: "pixel" | "tint" | "plain";
   };
 
   /** `about` and `cat about.txt`. Line breaks are load-bearing — the

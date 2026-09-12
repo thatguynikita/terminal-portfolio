@@ -82,7 +82,7 @@ export function renderCv(profile: ProfileConfig, locale: Locale): string {
   </div>${
     identity.photo
       ? `
-  <div class="avatar-frame">
+  <div class="avatar-frame style-${identity.photoStyle ?? "plain"}">
     <img class="avatar" src="${esc(identity.photo)}" width="150" height="150"
          alt="${esc(t("photoAlt", { name: identity.name[locale], role: identity.role[locale] }))}">
   </div>`
