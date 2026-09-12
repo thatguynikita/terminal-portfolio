@@ -147,7 +147,7 @@ generator will produce this set from a single square source.
 ## The 404 cat
 
 `public/assets/img/404-cat.png` is tied to the condensed-milk running joke that
-also names `milk-quest.sh`. Replace it, or keep it and inherit the joke —
+also names the author's launcher, `milk-quest.sh`. Replace it, or keep it and inherit the joke —
 nothing depends on it either way. Its alt text comes from `notFound.catAlt` in
 each message catalogue, so change that too if you swap the picture.
 

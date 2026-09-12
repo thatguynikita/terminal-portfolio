@@ -1,8 +1,14 @@
 import { defineCommand } from "../core/types";
+import profile from "../../profile.config";
 
-/** Shortcut for `sudo ./milk-quest.sh` — same filesystem node, same exec. */
+/**
+ * Shortcut for `sudo ./<game.script>` — same filesystem node, same exec.
+ * Registered only when a game is configured, so `game` is command-not-found
+ * on a fork without one rather than a command that does nothing.
+ */
 export default defineCommand({
   name: "game",
   hidden: true,
-  run: (ctx) => ctx.runFile("milk-quest.sh", { sudo: true }),
+  enabled: Boolean(profile.game),
+  run: (ctx) => ctx.runFile(ctx.profile.game?.script ?? "", { sudo: true }),
 });

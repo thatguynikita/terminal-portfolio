@@ -183,10 +183,15 @@ export interface ProfileConfig {
    */
   cv?: CvConfig;
 
-  /** The `game` command and `milk-quest.sh`. Omit to disable both. */
+  /** The `game` command and its launcher script. Omit to remove both. */
   game?: {
     url: string;
     title: string;
+    /**
+     * The fake shell script that launches it — `ls -a` lists it,
+     * `./<script>` is denied, `sudo ./<script>` runs it. A bare filename.
+     */
+    script: string;
   };
 
   seo: {

@@ -58,6 +58,13 @@ describe("profile.config.ts", () => {
     expect(gaps).toEqual([]);
   });
 
+  // The launcher is typed as a fake shell file: `./<script>` has to parse as
+  // a path, and `ls` has to print it. A space or a slash would break both.
+  it("names the game launcher as a bare filename", () => {
+    if (!profile.game) return;
+    expect(profile.game.script).toMatch(/^[\w.-]+$/);
+  });
+
   it("names a theme that exists", () => {
     const theme = profile.terminal.defaultTheme;
     if (theme !== "random") expect(THEME_NAMES).toContain(theme);
@@ -224,6 +231,14 @@ describe.each([
     // this file and nothing else. A numbered recipe pointing at src/i18n
     // means that promise has quietly broken.
     expect(example, "the header should not send anyone into src/").not.toMatch(/\d\.\s+src\/i18n/);
+  });
+
+  it("names its game launcher, as a bare filename", () => {
+    const game = /game:\s*\{([^}]*)\}/.exec(example)?.[1] ?? "";
+    if (!game) return; // no game is a valid setup
+    const script = /script:\s*"([^"]*)"/.exec(game)?.[1];
+    expect(script, "game block without a script").toBeTruthy();
+    expect(script).toMatch(/^[\w.-]+$/);
   });
 
   it("publishes to a reserved domain, so it can't be deployed by accident", () => {

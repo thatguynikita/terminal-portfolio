@@ -37,7 +37,11 @@ Four contracts in `src/core/types.ts` carry the design. Read them first.
   the DOM and never close over module state.
 - **`FsNode`** — `src/fs/`. Plain files are picked up with real byte sizes;
   `<filename>.ts` descriptors handle dynamic and executable files. `ctx.runFile`
-  is shared by `./name`, `sudo ./name` and the `game` shortcut.
+  is shared by `./name`, `sudo ./name` and the `game` shortcut. **A descriptor
+  can override its name** — `src/fs/game.sh.ts` is called whatever
+  `game.script` says, and is `enabled` only when a game is configured; the
+  `.bashrc` alias for it is appended from config by `.bashrc.ts`, not stored in
+  the plain file.
 - **`Mode`** — a sub-REPL that owns the input line (`top`, `ssh`).
 
 `src/core/terminal.ts` owns state and dispatch; `src/core/input.ts` owns the

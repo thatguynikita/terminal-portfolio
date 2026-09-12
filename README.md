@@ -25,7 +25,7 @@ Vite + TypeScript, no UI framework, no runtime dependencies.
 - **One file per command.** Drop `src/commands/whatever.ts` in and it registers itself — `help`, Tab-completion and the touch chips all read the same registry, so they can't drift. → [guide](docs/commands.md)
 - **38 commands, and 18 of them never show up in `help`.** `ls`, `cat`, `kubectl`, `terraform`, a fake `top`, an `ssh` persona that answers recruiter questions — plus a pile you have to find. The boot message warns you: *psst — 'help' is being modest.*
 - **The hidden half is where the jokes are.** `sudo` reports the incident, deletes something precious, then admits it was kidding. `terraform destroy` warns it'll destroy your weekend. Ask `claude` for a light theme twice and it grudgingly ships you a secret one.
-- **There's a game in here.** `ls -a` turns up `milk-quest.sh`; running it is denied until you `sudo`. It opens in a CRT-tinted frame that picks up whatever theme you're on — the demo runs [condensed-milk-quest](https://github.com/thatguynikita/condensed-milk-quest), a vanilla-JS Canvas platformer.
+- **There's a game in here.** `ls -a` turns up a launcher script — `milk-quest.sh` on this site, whatever you name it on yours; running it is denied until you `sudo`. It opens in a CRT-tinted frame that picks up whatever theme you're on — the demo runs [condensed-milk-quest](https://github.com/thatguynikita/condensed-milk-quest), a vanilla-JS Canvas platformer.
 - **Live "now playing" from Spotify** in the neofetch card. Backend setup is [spotify-now-playing](https://github.com/thatguynikita/spotify-now-playing) — or leave the endpoint blank and the row never renders and never makes a request.
 - **7 themes**, one CSS file each, auto-registered. A random one greets each first-time visitor. → [guide](docs/theming.md)
 - **A real fake filesystem** — files show up in `ls` with their true byte sizes, and can be dynamic or executable. → [guide](docs/filesystem.md)
@@ -33,7 +33,7 @@ Vite + TypeScript, no UI framework, no runtime dependencies.
 - **Built to be read by machines.** The résumé is in the raw HTML; the build emits `sitemap.xml`, `robots.txt` (with per-crawler rules and `Content-Signal`) and `llms.txt` from the same page list, plus a self-canonical hreflang cluster and JSON-LD. Scan it yourself with [Lighthouse](https://pagespeed.web.dev/) or [isitagentready.com](https://isitagentready.com/).
 - **Four languages ship, and adding one is a single file.** You pick which ones build; the rest never reach the bundle. → [guide](docs/i18n.md)
 - **Everything about you lives in one file** — `profile.config.ts`. Name, bio, skills, socials, CV, personas, SEO.
-- **262 tests**, and a preflight that refuses to deploy a fork still carrying someone else's name.
+- **271 tests**, and a preflight that refuses to deploy a fork still carrying someone else's name.
 - **Deploys anywhere static** — GitHub Pages and S3-compatible hosts are one command each. → [guide](docs/deploy.md)
 
 ---
