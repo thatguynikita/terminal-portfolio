@@ -1,12 +1,12 @@
 import { defineCommand } from "../core/types";
 import { nowDateTime, uptimeLine } from "./uptime";
-import { systemOwner } from "../core/describe";
+import { systemOwner, systemSince } from "../core/describe";
 
 export default defineCommand({
   name: "w",
   hidden: true,
   run(ctx) {
-    ctx.printText(uptimeLine(2));
+    ctx.printText(uptimeLine(systemSince(ctx.profile), 2));
     const loginTime = nowDateTime().split(" ")[1] ?? "";
     ctx.table(
       ["USER", "TTY", "FROM", "LOGIN@", "IDLE", "WHAT"],

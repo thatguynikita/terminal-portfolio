@@ -63,6 +63,22 @@ function themeBootstrap(): string {
 }
 
 /**
+ * Two optional pieces of the terminal shell, switched off in config by
+ * removing their markup rather than hiding it: `terminal.bootScreen` is the
+ * `#boot` overlay (its `> booting ...` placeholder would otherwise flash
+ * before JS runs), `terminal.chips` is the `#chips` bar (and its border).
+ * The runtime checks the same flags, so a shell that keeps the markup still
+ * behaves. The patterns match the exact lines in pages/index.html.
+ */
+function stripDisabledChrome(html: string, isIndex: boolean): string {
+  if (!isIndex) return html;
+  let out = html;
+  if (!profile.terminal.bootScreen) out = out.replace(/[ \t]*<div id="boot"[^>]*>[^<]*<\/div>\n?/, "");
+  if (!profile.terminal.chips) out = out.replace(/[ \t]*<div class="chips" id="chips"><\/div>\n?/, "");
+  return out;
+}
+
+/**
  * Static fallback for crawlers and no-JS clients on the terminal page.
  * The CV needs no equivalent — its content is the page.
  */
@@ -479,7 +495,7 @@ function profileHtmlPlugin(): Plugin {
           .filter(Boolean)
           .join("\n  ");
 
-        return withBootstrap
+        return stripDisabledChrome(withBootstrap, isIndex)
           .replace("</head>", `  ${head}\n</head>`)
           .replace("<!--NOSCRIPT-->", isIndex ? noscriptHtml(lang) : "");
       },
@@ -574,6 +590,7 @@ function profileHtmlPlugin(): Plugin {
     },
     define: {
       __SITE_URL__: JSON.stringify(SITE_URL),
+      __BUILD_TIME__: JSON.stringify(new Date().toISOString()),
       __CV_BYTES__: JSON.stringify(
         profile.cv ? cvByteSize(profile, DEFAULT_LOCALE) : 0
       ),

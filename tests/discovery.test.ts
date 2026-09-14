@@ -25,6 +25,14 @@ const suite = built ? describe : describe.skip;
 const locales = cvLocales(profile);
 
 suite("built output", () => {
+  // The two shell switches remove markup at build rather than hiding it, so
+  // the built page carries #boot / #chips exactly when the config says so.
+  it("ships the boot screen and the chip bar only when they are switched on", () => {
+    const index = read("index.html");
+    expect(index.includes('id="boot"'), "#boot vs terminal.bootScreen").toBe(profile.terminal.bootScreen);
+    expect(index.includes('id="chips"'), "#chips vs terminal.chips").toBe(profile.terminal.chips);
+  });
+
   it("emits one CV page per configured locale", () => {
     // No `cv` in the config means no pages, which is a valid setup.
     for (const locale of locales) {

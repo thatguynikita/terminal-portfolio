@@ -30,6 +30,18 @@ function localizedFields(node: unknown, path = ""): Array<[string, Record<string
   );
 }
 
+/**
+ * `commands.system.since` must carry an offset (or Z): a naive
+ * "2026-08-09T20:48:27" is parsed as the *visitor's* local time, so the
+ * same config would count uptime differently in every timezone.
+ */
+function expectValidSince(since: unknown, label: string): void {
+  if (since === undefined) return; // omitted means "the build" — fine
+  expect(typeof since, `${label}: since must be a string`).toBe("string");
+  expect(Number.isNaN(new Date(since as string).getTime()), `${label}: unparsable since`).toBe(false);
+  expect(since as string, `${label}: since needs a UTC offset or Z`).toMatch(/(Z|[+-]\d\d:\d\d)$/);
+}
+
 describe("profile.config.ts", () => {
   // `defaultLocale` being one of the shipped locales is a *compile* error
   // now that Locale is `keyof typeof MESSAGES`, so what's left to assert at
@@ -63,6 +75,10 @@ describe("profile.config.ts", () => {
   it("names the game launcher as a bare filename", () => {
     if (!profile.commands.game) return;
     expect(profile.commands.game.script).toMatch(/^[\w.-]+$/);
+  });
+
+  it("dates the machine with an offset, when it dates it at all", () => {
+    expectValidSince(profile.commands.system?.since, "profile.config.ts");
   });
 
   it("names a theme that exists", () => {
@@ -227,6 +243,19 @@ describe.each([
   it("serves an unprefixed default that is one of its own locales", () => {
     const fallback = /defaultLocale:\s*"([^"]+)"/.exec(example)?.[1] ?? "";
     expect(locales, `defaultLocale "${fallback}" is not shipped`).toContain(fallback);
+  });
+
+  // The examples aren't typechecked, so the switches `tsc` would insist on
+  // for the real config are checked here instead.
+  it("sets both terminal switches explicitly", () => {
+    const { terminal } = mod!.default as { terminal: Record<string, unknown> };
+    expect(typeof terminal["bootScreen"], "terminal.bootScreen").toBe("boolean");
+    expect(typeof terminal["chips"], "terminal.chips").toBe("boolean");
+  });
+
+  it("dates the machine with an offset, when it dates it at all", () => {
+    const { commands } = mod!.default as { commands: { system?: { since?: unknown } } };
+    expectValidSince(commands.system?.since, file);
   });
 
   it("sends nobody into src/ to change languages", () => {

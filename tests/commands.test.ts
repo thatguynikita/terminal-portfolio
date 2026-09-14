@@ -4,7 +4,9 @@ import { LOCALES, type Localized } from "../src/i18n/locales";
 import { createFakeContext, withNodes, args } from "./helpers";
 import profile from "../profile.config";
 import { initialMatrixEnabled } from "../src/core/matrix";
-import { StorageKey } from "../src/core/storage";
+import { BOOTED_SESSION_KEY, StorageKey } from "../src/core/storage";
+import { systemSince } from "../src/core/describe";
+import { lsStamp, unameStamp, uptimeLine } from "../src/commands/uptime";
 
 const profileHandle = profile.terminal.handle;
 import type { FsNode } from "../src/core/types";
@@ -326,5 +328,167 @@ describe("terminal title bar", () => {
       head.remove();
       ctx.root.remove();
     }
+  });
+});
+
+/**
+ * The launch date used to be three literals in three formats (`uptime`,
+ * `uname -a`, `ls -l`). Now `commands.system.since` — or the build, when
+ * it's omitted — feeds all three through `systemSince`.
+ */
+describe("system since", () => {
+  const SINCE = "2026-08-09T20:48:27+03:00";
+
+  it("takes the configured date, and falls back to the build otherwise", () => {
+    const base = createFakeContext("en").profile;
+    const configured = { ...base, commands: { ...base.commands, system: { since: SINCE } } };
+    expect(systemSince(configured).toISOString()).toBe(new Date(SINCE).toISOString());
+
+    const build = new Date(__BUILD_TIME__).toISOString();
+    const omitted = { ...base, commands: { ...base.commands, system: {} } };
+    expect(systemSince(omitted).toISOString()).toBe(build);
+    const garbage = { ...base, commands: { ...base.commands, system: { since: "yesterday-ish" } } };
+    expect(systemSince(garbage).toISOString()).toBe(build);
+  });
+
+  it("stamps uname in UTC, the way uname prints it", () => {
+    // 20:48:27 at +03:00 is 17:48:27 UTC — the old literal said 20:48 UTC.
+    expect(unameStamp(new Date(SINCE))).toBe("Sun Aug 9 17:48:27 UTC 2026");
+  });
+
+  it("stamps ls -l with the day space-padded to two", () => {
+    const ninth = lsStamp(new Date(2026, 7, 9, 20, 48));
+    const nineteenth = lsStamp(new Date(2026, 7, 19, 20, 48));
+    expect(ninth).toMatch(/^[A-Z][a-z]{2} [ \d]\d \d\d:\d\d$/);
+    expect(ninth).toBe("Aug  9 20:48");
+    expect(nineteenth).toBe("Aug 19 20:48");
+  });
+
+  it("counts uptime from the date", () => {
+    vi.useFakeTimers();
+    try {
+      const now = new Date("2026-09-14T12:00:00Z");
+      vi.setSystemTime(now);
+      const twoDays = new Date(now.getTime() - ((2 * 24 + 3) * 60 + 4) * 60000);
+      expect(uptimeLine(twoDays)).toContain("up 2 days, 3:04,");
+      const fiveMinutes = new Date(now.getTime() - 5 * 60000);
+      expect(uptimeLine(fiveMinutes)).toContain("up 0:05,");
+    } finally {
+      vi.useRealTimers();
+    }
+  });
+
+  it("feeds uname, ls -l and uptime from the config, not the build", async () => {
+    const overrides = { commands: { system: { since: SINCE } } };
+    const run = async (name: string, flags: string): Promise<string> => {
+      const command = commands.find((c) => c.name === name)!;
+      const ctx = createFakeContext("en", overrides);
+      withNodes(ctx, fixtureNodes());
+      await command.run(ctx, args(flags, name));
+      return ctx.lines.join("\n");
+    };
+    expect(await run("uname", "-a")).toContain("Sun Aug 9 17:48:27 UTC 2026");
+    expect(await run("ls", "-l")).toContain(lsStamp(new Date(SINCE)));
+    // A build from this very run would say "up 0:00"; the configured date is weeks back.
+    expect(await run("uptime", "")).not.toContain("up 0:00,");
+  });
+});
+
+/**
+ * `terminal.bootScreen` and `terminal.chips` also strip their markup at
+ * build time; these cover the runtime half, for a shell that keeps it.
+ */
+describe("terminal switches", () => {
+  const stubTerminal = (ctx: ReturnType<typeof createFakeContext>) =>
+    ({
+      ctx,
+      registry: {
+        get: (name: string) => commands.find((c) => c.name === name),
+        names: () => commands.map((c) => c.name),
+        visible: () => commands.filter((c) => !c.hidden),
+      },
+      prompt: () => "$",
+      title: () => "guest@example — bash — 80×24",
+      run: async () => {},
+      pushHistory: () => {},
+      historyIndex: 0,
+    }) as unknown as import("../src/core/terminal").Terminal;
+
+  describe("chips", () => {
+    const withChipsEl = async (chips: boolean): Promise<HTMLElement> => {
+      const { createInput } = await import("../src/core/input");
+      const ctx = createFakeContext("en", { terminal: { ...profile.terminal, chips } });
+      const chipsEl = document.createElement("div");
+      chipsEl.id = "chips";
+      document.body.append(chipsEl, ctx.root);
+      try {
+        createInput(stubTerminal(ctx)).mount();
+        await new Promise((r) => requestAnimationFrame(() => r(undefined)));
+        return chipsEl;
+      } finally {
+        chipsEl.remove();
+        ctx.root.remove();
+      }
+    };
+
+    it("renders the bar when on", async () => {
+      const el = await withChipsEl(true);
+      expect(el.hidden).toBe(false);
+      expect(el.querySelectorAll(".chip").length).toBeGreaterThan(0);
+    });
+
+    it("hides the bar and never fills it when off", async () => {
+      const el = await withChipsEl(false);
+      expect(el.hidden).toBe(true);
+      expect(el.innerHTML).toBe("");
+    });
+  });
+
+  describe("boot screen", () => {
+    const session = new Map<string, string>();
+    beforeAll(() => {
+      vi.stubGlobal("sessionStorage", {
+        getItem: (k: string) => session.get(k) ?? null,
+        setItem: (k: string, v: string) => void session.set(k, v),
+        removeItem: (k: string) => void session.delete(k),
+      });
+      // Reduced motion: the sequence is marked as shown without animating.
+      vi.stubGlobal("matchMedia", () => ({ matches: true }));
+    });
+    afterAll(() => vi.unstubAllGlobals());
+    afterEach(() => session.clear());
+
+    const runBoot = async (bootScreen: boolean) => {
+      const { boot } = await import("../src/core/boot");
+      const ctx = createFakeContext("en", { terminal: { ...profile.terminal, bootScreen } });
+      const bootEl = document.createElement("div");
+      bootEl.id = "boot";
+      bootEl.textContent = "> booting ...";
+      document.body.append(bootEl, ctx.root);
+      const mount = vi.fn();
+      try {
+        await boot(stubTerminal(ctx), { mount } as never);
+        return { bootEl, mount, ctx };
+      } finally {
+        bootEl.remove();
+        ctx.root.remove();
+      }
+    };
+
+    it("marks the sequence as shown when on", async () => {
+      const { bootEl, mount } = await runBoot(true);
+      expect(session.get(BOOTED_SESSION_KEY)).toBe("1");
+      expect(bootEl.classList.contains("hidden")).toBe(true);
+      expect(mount).toHaveBeenCalledTimes(1);
+    });
+
+    it("skips straight to the greeting when off", async () => {
+      const { bootEl, mount, ctx } = await runBoot(false);
+      expect(session.has(BOOTED_SESSION_KEY)).toBe(false);
+      expect(bootEl.classList.contains("hidden")).toBe(true);
+      expect(bootEl.textContent).toBe("> booting ..."); // never written to
+      expect(mount).toHaveBeenCalledTimes(1); // the intro still ran
+      expect(ctx.lines.join("\n")).toContain(profile.terminal.hostname); // neofetch printed
+    });
   });
 });

@@ -14,6 +14,7 @@ if (!process.env["SITE_URL"] && fromEnvFile) process.env["SITE_URL"] = fromEnvFi
 export default defineConfig({
   define: {
     __SITE_URL__: JSON.stringify((process.env["SITE_URL"] ?? "").replace(/\/$/, "")),
+    __BUILD_TIME__: JSON.stringify(new Date().toISOString()),
     __CV_BYTES__: JSON.stringify(profile.cv ? cvByteSize(profile, profile.terminal.defaultLocale) : 0),
   },
   test: {

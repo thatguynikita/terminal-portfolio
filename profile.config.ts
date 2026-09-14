@@ -34,6 +34,10 @@ export default defineProfile({
     defaultTheme: "random",
     // Background rain for a first-time visitor; `matrix on|off` is remembered.
     defaultMatrix: "on",
+    // The fake dmesg sequence before the terminal, once per session.
+    bootScreen: true,
+    // The tappable command chips under the terminal.
+    chips: true,
     // Extra topbar links. The CV link is added automatically when `cv` is
     // configured, so this is for anything else you want up there.
     links: [],
@@ -188,6 +192,9 @@ and SRE practices into reality.`,
     // visitor, who is terminal.handle, and the machine's owner — you.
     system: {
       owner: "nikita",
+      // When the machine came up: `uptime` counts from it, `uname -a` and
+      // `ls -l` stamp it. Omit to count from the build instead.
+      since: "2026-08-09T20:48:27+03:00",
     },
 
     game: {

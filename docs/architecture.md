@@ -46,7 +46,10 @@ commands that had already fallen out of sync with each other.
 Everything that could be a list now reads from one registry instead: `help`,
 completion, the chip bar, `alias` (which reads `.bashrc` from the fake
 filesystem rather than keeping a second copy), and the boot intro (which calls
-the real `neofetch` command).
+the real `neofetch` command). The fake dmesg screen before the intro and the
+chip bar are both switchable in config (`terminal.bootScreen`, `terminal.chips`);
+off means their markup is stripped at build *and* the runtime skips them, so a
+custom shell that keeps the elements still behaves.
 
 ## pages/ is Vite's root
 

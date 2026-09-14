@@ -129,6 +129,17 @@ export interface ProfileConfig {
      * `matrix on|off` is remembered and wins on later visits, on every page.
      */
     defaultMatrix: "on" | "off";
+    /**
+     * The fake dmesg boot sequence before the terminal, shown once per
+     * browser session. `false` goes straight to the greeting; `dmesg` still
+     * prints the lines.
+     */
+    bootScreen: boolean;
+    /**
+     * The tappable command chips under the terminal. `false` removes the
+     * bar; Tab completion and `help` are unaffected.
+     */
+    chips: boolean;
     /** Whitelist. When set, only these commands are registered. */
     enabledCommands?: string[];
     /** Blacklist, applied after the whitelist. */
@@ -211,6 +222,13 @@ export interface ProfileConfig {
        * Defaults to "root".
        */
       owner?: string;
+      /**
+       * When the machine came up — `uptime` counts from it, `uname -a` and
+       * `ls -l` stamp it. ISO 8601 with an offset, e.g.
+       * "2026-08-09T20:48:27+03:00". Omit to count from the moment the site
+       * was built.
+       */
+      since?: string;
     };
 
     /** The `game` command and its launcher script. Omit to remove both. */

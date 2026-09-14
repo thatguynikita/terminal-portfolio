@@ -3,7 +3,9 @@
 [← docs index](README.md)
 
 Drop a file in `src/commands/`. It registers itself — `help`, Tab-completion and
-the touch chip bar all read the same registry, so they can't drift apart.
+the touch chip bar all read the same registry, so they can't drift apart. (The
+chip bar itself is optional: `terminal.chips: false` removes it; completion and
+`help` are unaffected.)
 
 ```ts
 // src/commands/coffee.ts
@@ -65,6 +67,16 @@ an alias can behave differently — that's how `ll` becomes `ls -l`.
 A command can take over the input line. See `src/commands/top.ts` (a
 live-refreshing view) and `src/commands/ssh.ts` (a Q&A mini-shell). Implement
 `Mode` and call `ctx.enterMode(...)`.
+
+## The fake machine
+
+`ps`, `who`, `w` and `env` show two accounts — the visitor (`terminal.handle`)
+and the machine's owner (`commands.system.owner`). `uptime` counts from
+`commands.system.since`, and `uname -a` and `ls -l` stamp the same date, so the
+three can't disagree; leave it out and the machine came up when the site was
+last built. The boot sequence before the terminal is `terminal.bootScreen`;
+switching it off goes straight to the greeting, and `dmesg` still prints the
+lines.
 
 ## Animations
 
