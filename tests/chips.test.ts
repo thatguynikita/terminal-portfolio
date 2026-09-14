@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { isCompleteArgument, splitInput } from "../src/core/complete";
+import { firstWordCandidates, isCompleteArgument, scriptCandidates, splitInput } from "../src/core/complete";
 import { LOCALES, nextLocale } from "../src/i18n/locales";
 import { loadCommands } from "../src/core/registry";
 import { createFakeContext } from "./helpers";
@@ -56,6 +56,38 @@ describe("isCompleteArgument", () => {
 
   it("still opens the list for a genuine prefix of those candidates", () => {
     expect(isCompleteArgument(["en", "en-GB"], "e")).toBe(false);
+  });
+});
+
+describe("first-word completion", () => {
+  const files = [
+    { name: "about.txt" },
+    { name: "milk-quest.sh", exec: () => undefined },
+    { name: "deploy.sh", exec: () => undefined },
+    { name: ".bashrc" },
+  ];
+  const scripts = scriptCandidates(files);
+  const commands = ["cat", "clear", "cv", "help"];
+
+  it("spells executables the way the terminal runs them", () => {
+    expect(scripts).toEqual(["./milk-quest.sh", "./deploy.sh"]);
+  });
+
+  it("offers every executable for a bare dot", () => {
+    expect(firstWordCandidates(".", commands, scripts)).toEqual(["./milk-quest.sh", "./deploy.sh"]);
+  });
+
+  it("keeps narrowing through ./ and beyond", () => {
+    expect(firstWordCandidates("./", commands, scripts)).toEqual(["./milk-quest.sh", "./deploy.sh"]);
+    expect(firstWordCandidates("./d", commands, scripts)).toEqual(["./deploy.sh"]);
+    expect(firstWordCandidates("./x", commands, scripts)).toEqual([]);
+  });
+
+  it("never mixes scripts into command completion", () => {
+    expect(firstWordCandidates("c", commands, scripts)).toEqual(["cat", "clear", "cv"]);
+    expect(firstWordCandidates("", commands, scripts)).toEqual(commands);
+    // A dotfile isn't executable, so `.b` finds nothing rather than .bashrc.
+    expect(firstWordCandidates(".b", commands, scripts)).toEqual([]);
   });
 });
 

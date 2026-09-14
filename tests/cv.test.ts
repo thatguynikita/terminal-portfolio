@@ -1,4 +1,4 @@
-import { describe, expect, it } from "vitest";
+import { afterEach, describe, expect, it, vi } from "vitest";
 import { readFileSync } from "node:fs";
 import { join } from "node:path";
 import profile from "../profile.config";
@@ -7,6 +7,7 @@ import { renderCv, renderCvTopbar } from "../src/cv/render";
 import { buildCvJsonLd } from "../src/cv/jsonld";
 import { CV_LINK_LABEL, cvLocales, cvUrl } from "../src/cv/url";
 import { mailtoFor, renderCopyright, skillsFor, socialsFor } from "../src/core/profile";
+import { leaveForTerminalOnKey } from "../src/core/leave";
 
 /**
  * The CV is optional, so these suites skip when it isn't configured — a
@@ -600,5 +601,117 @@ describe("mailtoFor", () => {
 
   it("the shipped config has exactly one mailto: social", () => {
     expect(profile.socials.filter((s) => s.href.startsWith("mailto:"))).toHaveLength(1);
+  });
+});
+
+/**
+ * Esc or `q` on the CV page navigates to the terminal. The helper takes
+ * the navigation as a callback so the tests spy on it instead of fighting
+ * happy-dom's `location`. Each test's listener is torn down afterwards —
+ * a leftover one would claim the press and make the next test's yield.
+ */
+describe("esc / q return to the terminal", () => {
+  const teardowns: Array<() => void> = [];
+  const install = (go: () => void): void => {
+    teardowns.push(leaveForTerminalOnKey(go));
+  };
+  afterEach(() => {
+    for (const off of teardowns.splice(0)) off();
+  });
+
+  const press = (init: KeyboardEventInit, target: EventTarget = document): KeyboardEvent => {
+    const event = new KeyboardEvent("keydown", { cancelable: true, bubbles: true, ...init });
+    target.dispatchEvent(event);
+    return event;
+  };
+
+  it("navigates on a plain Escape", () => {
+    const go = vi.fn();
+    install(go);
+    press({ key: "Escape" });
+    expect(go).toHaveBeenCalledTimes(1);
+  });
+
+  it("navigates on q — the pager's quit key", () => {
+    const go = vi.fn();
+    install(go);
+    press({ key: "q", code: "KeyQ" });
+    expect(go).toHaveBeenCalledTimes(1);
+  });
+
+  it("matches the physical Q under a non-Latin layout", () => {
+    // A Russian layout types й on that key; the reflex is the same.
+    const go = vi.fn();
+    install(go);
+    press({ key: "й", code: "KeyQ" });
+    expect(go).toHaveBeenCalledTimes(1);
+  });
+
+  it("claims the press, so the browser's own Esc (Stop) can't cancel the navigation", () => {
+    // Chrome runs its Esc accelerator — Stop — after a page declines the
+    // key, which cancels the navigation this handler just started. Seen in
+    // the wild as "you have to press Esc twice".
+    install(vi.fn());
+    expect(press({ key: "Escape" }).defaultPrevented).toBe(true);
+    expect(press({ key: "q", code: "KeyQ" }).defaultPrevented).toBe(true);
+  });
+
+  it("ignores every other key and leaves its default action alone", () => {
+    const go = vi.fn();
+    install(go);
+    for (const key of ["Enter", "a", "Backspace", "Tab"]) {
+      expect(press({ key }).defaultPrevented, key).toBe(false);
+    }
+    expect(go).not.toHaveBeenCalled();
+  });
+
+  it("ignores a modifier held — including Shift, so Q is not q", () => {
+    const go = vi.fn();
+    install(go);
+    press({ key: "Escape", metaKey: true });
+    press({ key: "Escape", ctrlKey: true });
+    press({ key: "q", code: "KeyQ", altKey: true });
+    press({ key: "Q", code: "KeyQ", shiftKey: true });
+    expect(go).not.toHaveBeenCalled();
+  });
+
+  it("fires once for a held key, not on auto-repeat", () => {
+    const go = vi.fn();
+    install(go);
+    press({ key: "Escape", repeat: true });
+    press({ key: "q", code: "KeyQ", repeat: true });
+    expect(go).not.toHaveBeenCalled();
+  });
+
+  it("stays out of a field being typed in", () => {
+    // The CV has no inputs today; the guard is what lets one be added.
+    const go = vi.fn();
+    install(go);
+    const input = document.createElement("input");
+    document.body.append(input);
+    try {
+      press({ key: "q", code: "KeyQ" }, input);
+      press({ key: "Escape" }, input);
+      expect(go).not.toHaveBeenCalled();
+    } finally {
+      input.remove();
+    }
+  });
+
+  it("yields to a listener that already handled the press", () => {
+    // Anything on the page that later claims Esc for itself only has to
+    // preventDefault() — this is the guard that keeps the two from fighting.
+    const go = vi.fn();
+    const claim = (e: KeyboardEvent): void => {
+      if (e.key === "Escape") e.preventDefault();
+    };
+    document.addEventListener("keydown", claim);
+    try {
+      install(go);
+      press({ key: "Escape" });
+      expect(go).not.toHaveBeenCalled();
+    } finally {
+      document.removeEventListener("keydown", claim);
+    }
   });
 });

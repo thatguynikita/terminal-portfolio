@@ -292,3 +292,39 @@ describe("system owner", () => {
     expect(out).toContain("/home/ada/regrets");
   });
 });
+
+/**
+ * The title bar reads `guest@host — bash — 80×24` the moment the input
+ * controller exists — during the boot screen and the intro — not only once
+ * the intro ends and the prompt is mounted. It used to be the latter, which
+ * showed as an empty bar that filled in (and grew) after the greeting.
+ */
+describe("terminal title bar", () => {
+  it("is filled in before the prompt is mounted", async () => {
+    const { createInput } = await import("../src/core/input");
+    const ctx = createFakeContext("en");
+    const head = document.createElement("div");
+    head.className = "term-head";
+    head.innerHTML = `<span class="term-title"></span>`;
+    document.body.append(head, ctx.root);
+    try {
+      const terminal = {
+        ctx,
+        registry: commands,
+        prompt: () => "$",
+        title: () => "guest@example — bash — 80×24",
+        run: async () => {},
+        pushHistory: () => {},
+        historyIndex: 0,
+      } as unknown as import("../src/core/terminal").Terminal;
+
+      createInput(terminal); // deliberately no mount()
+
+      expect(head.querySelector(".term-title")?.textContent).toBe("guest@example — bash — 80×24");
+      expect(ctx.root.querySelector("input")).toBeNull(); // still not mounted
+    } finally {
+      head.remove();
+      ctx.root.remove();
+    }
+  });
+});

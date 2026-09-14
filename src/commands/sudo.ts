@@ -1,5 +1,6 @@
 import { defineCommand } from "../core/types";
 import type { CommandContext } from "../core/types";
+import { scriptCandidates } from "../core/complete";
 
 const DANGEROUS = new Set(["/", "/*", "~", "/home", "."]);
 
@@ -53,11 +54,7 @@ export default defineCommand({
   name: "sudo",
   hidden: true,
 
-  complete: (ctx) =>
-    ctx.fs
-      .list({ all: true })
-      .filter((f) => f.exec)
-      .map((f) => `./${f.name}`),
+  complete: (ctx) => scriptCandidates(ctx.fs.list({ all: true })),
 
   async run(ctx, args) {
     if (isCatastrophicRm(args.normalized)) {

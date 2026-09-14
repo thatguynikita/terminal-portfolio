@@ -6,11 +6,12 @@ import { createMatrixRain, initialMatrixEnabled } from "./core/matrix";
 import { createThemeController } from "./core/theme";
 import { StorageKey, writeStored } from "./core/storage";
 import { posterizeGray } from "./cv/portrait";
+import { leaveForTerminalOnKey } from "./core/leave";
 
 /**
  * The CV's only client-side JavaScript. Everything the page says is
  * already in the HTML — this adds the background, the theme the visitor
- * chose in the terminal, and the print button.
+ * chose in the terminal, the print button, and Esc / `q` as the way back.
  */
 const canvas = document.getElementById("matrix") as HTMLCanvasElement | null;
 if (canvas) {
@@ -20,6 +21,8 @@ if (canvas) {
 }
 
 document.getElementById("printBtn")?.addEventListener("click", () => window.print());
+
+leaveForTerminalOnKey();
 
 /**
  * The language chip is a real link to the other locale's page, so it works

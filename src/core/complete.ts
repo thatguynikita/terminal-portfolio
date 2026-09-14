@@ -37,3 +37,24 @@ export function isCompleteArgument(candidates: readonly string[], prefix: string
   if (candidates.includes(prefix)) return true;
   return !candidates.some((c) => c.startsWith(prefix) && c.length > prefix.length);
 }
+
+/** Executables spelled the way the shell runs them: `./name`. A node is
+ * executable when it carries an `exec` handler. */
+export function scriptCandidates(files: ReadonlyArray<{ name: string; exec?: unknown }>): string[] {
+  return files.filter((f) => f.exec).map((f) => `./${f.name}`);
+}
+
+/**
+ * Candidates for the first word. A fragment starting with `.` is a script
+ * being typed, not a command — `.`, `./` and `./mi` all complete against
+ * the executables, since `./name` is how the terminal runs them. Anything
+ * else completes against the command names.
+ */
+export function firstWordCandidates(
+  prefix: string,
+  commandNames: readonly string[],
+  scripts: readonly string[]
+): string[] {
+  const pool = prefix.startsWith(".") ? scripts : commandNames;
+  return pool.filter((c) => c.startsWith(prefix));
+}

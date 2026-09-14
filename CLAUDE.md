@@ -137,6 +137,15 @@ through to the terminal — which is exactly what the language chip links to.
 - **Headings carry real text**; the shell prompt is `aria-hidden` decoration.
   The predecessor's `<h2>` was entirely shell-speak (`guest@nikita.sh:~$ cat
   about.txt`), leaving no section names for crawlers or the document outline.
+- **Esc and `q` navigate to `/`** (`src/core/leave.ts`, wired in
+  `src/cv.ts`). The handler skips presses that are modified, auto-repeated,
+  typed into a field, or already `defaultPrevented` — so any later consumer
+  of those keys on the page (a lightbox, a menu) should `preventDefault()`
+  and needs no knowledge of it. **It must `preventDefault()` itself**: Esc
+  is Chrome's Stop accelerator, run after the page declines the key, and
+  Stop cancels the navigation just started — without it the first press
+  usually did nothing. **`q` is not decoration**: in fullscreen Chrome
+  consumes Esc before the page sees it, and no page can change that.
 - **The language chip is an `<a>`, not a button** — the other language is a
   different document. It also writes the locale to `localStorage` so the choice
   flows back to the terminal.
