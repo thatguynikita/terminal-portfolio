@@ -1,7 +1,7 @@
 import type { Terminal } from "./terminal";
 import { LOCALES, nextLocale as rotateLocale, type Locale } from "../i18n/locales";
 import { commonPrefix } from "./args";
-import { isCompleteArgument, splitInput } from "./complete";
+import { firstWordCandidates, isCompleteArgument, scriptCandidates, splitInput } from "./complete";
 import { el, escapeAttr, escapeHtml } from "./html";
 
 interface Chip {
@@ -44,7 +44,9 @@ export function createInput(terminal: Terminal): InputController {
     if (ctx.mode) {
       return (ctx.mode.complete?.(ctx, raw) ?? []).filter((c) => c.startsWith(raw.toLowerCase()));
     }
-    if (base === null) return registry.names().filter((c) => c.startsWith(prefix));
+    if (base === null) {
+      return firstWordCandidates(prefix, registry.names(), scriptCandidates(ctx.fs.list({ all: true })));
+    }
     const command = registry.get(base);
     return (command?.complete?.(ctx, prefix) ?? []).filter((c) => c.startsWith(prefix));
   }
@@ -316,6 +318,11 @@ export function createInput(terminal: Terminal): InputController {
     updatePromptUI();
     renderChips();
   };
+
+  // The title bar belongs to the window, not the prompt: it reads
+  // `guest@host — bash — 80×24` from the first frame, not from the moment
+  // the intro finishes and the input row is mounted.
+  updatePromptUI();
 
   return {
     mount,

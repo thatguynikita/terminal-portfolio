@@ -74,7 +74,8 @@ function renderChrome(): void {
   const gameHint = document.getElementById("gameHint");
   if (gameHint && profile.commands.game) {
     gameHint.innerHTML =
-      `press <span class="accent">ESC</span> or click <span class="accent">&times;</span> to exit &middot; ` +
+      `press <span class="accent">ESC</span> or click ` +
+      `<span class="dot r" aria-hidden="true"></span><span class="sr-only">the red light</span> to exit &middot; ` +
       `<a href="${ctx.escapeAttr(profile.commands.game.url)}" target="_blank" rel="noopener">open directly &#8599;</a>`;
   }
 }

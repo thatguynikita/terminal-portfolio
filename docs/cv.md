@@ -70,6 +70,18 @@ implementations in the wild contain an error.
 `sitemap.xml`, `robots.txt` and `llms.txt` are emitted from the same page list
 that produces the pages, so they can't list a page that doesn't exist.
 
+## Getting back
+
+Esc or `q` returns to the terminal — the same `/` the topbar link points at,
+`q` being what quits a pager like `less`. They're the only keyboard
+shortcuts on the page and they stay out of the way: a modified,
+auto-repeated or already-handled press is ignored, and nothing fires while
+a field is being typed in.
+
+`q` exists because Esc can't be relied on alone: in fullscreen, Chrome takes
+Esc to leave fullscreen *before* the page sees it, by design. Both keys
+match on the physical position too, so `q` works under a Russian layout.
+
 ## Printing
 
 Grayscale under every theme: `@media print` redefines the palette tokens and

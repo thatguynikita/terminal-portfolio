@@ -38,7 +38,10 @@ hint: (ctx) => ctx.t("cv.catHint"),   // cat: cv.html: not a text file — use `
 ```
 
 `ctx.runFile` is shared by `./name`, `sudo ./name` and the `game` shortcut, so
-an executable behaves the same however it's reached.
+an executable behaves the same however it's reached. Tab knows about them too:
+a first word starting with `.` completes against the executables as `./name`
+(so `.` Tab Tab lists them), and `sudo ` Tab offers the same list — both come
+from `scriptCandidates` in `src/core/complete.ts`.
 
 The game's own launcher is the one executable whose *name* comes from config:
 `commands.game.script` in `profile.config.ts` decides what `ls -a` lists and what
