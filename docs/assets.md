@@ -97,7 +97,8 @@ seo: {
 ```
 
 1200×630 is the size every platform expects. The build turns it into an absolute
-URL against `SITE_URL` for the `og:image` and `twitter:image` tags.
+URL against `SITE_URL` for the `og:image` tag — when `seo.enableSocialCards` is
+on; off removes every `og:` and `twitter:` tag and this field does nothing.
 
 **The shipped one is just a screenshot of the terminal itself**, which is the
 easiest possible card to make — it's your own site, already branded. Build,

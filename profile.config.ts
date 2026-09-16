@@ -52,26 +52,33 @@ export default defineProfile({
       en: "DevOps / SRE — Systems Engineer",
       ru: "DevOps / SRE — Системный инженер",
     },
-    location: {
-      en: "Saint Petersburg, Russia",
-      ru: "Санкт-Петербург, Россия",
-    },
-    tagline: {
-      en: "DevOps / SRE — Systems Engineer · 11y experience",
-      ru: "DevOps / SRE — Системный инженер · 11 лет опыта",
-    },
   },
 
   seo: {
-    title: {
-      en: "Nikita Chernozipunnikov — DevOps / SRE",
-      ru: "Никита Чернозипунников — DevOps / SRE",
-    },
     description: {
       en: "Interactive terminal portfolio of a DevOps/SRE engineer with 11 years of experience. Type `help` to explore.",
       ru: "Интерактивное терминальное портфолио DevOps/SRE-инженера с 11-летним опытом. Введите `help`, чтобы начать.",
     },
+    // For the CV's JSON-LD address and the no-JS fallback; not shown on a page.
+    location: {
+      en: "Saint Petersburg, Russia",
+      ru: "Санкт-Петербург, Россия",
+    },
     ogImage: "/assets/img/og-terminal.png",
+    // robots.txt: per-crawler rules, Content-Signal, and the sitemap line.
+    enableRobotsTxt: true,
+    // robots.txt Content-Signal: may the content be searched, train models, feed AI answers.
+    contentSignal: { search: true, aiTrain: true, aiInput: true },
+    // sitemap.xml: the home page and every CV page, with the portrait.
+    enableSitemap: true,
+    // llms.txt: the index for AI agents, per the llms.txt spec.
+    enableLlmsTxt: true,
+    // The Person JSON-LD on the terminal page and every CV page.
+    enableJsonLd: true,
+    // The terminal's <noscript> fallback for crawlers and no-JS visitors.
+    enableNoscript: true,
+    // The og:* and twitter:card share tags on every page; off makes ogImage inert.
+    enableSocialCards: true,
   },
 
   neofetch: {
@@ -265,6 +272,13 @@ and SRE practices into reality.`,
   // Delete this whole key and the CV disappears: no pages, no `cv` command,
   // no cv.html in `ls`, no sitemap rows — just the terminal.
   cv: {
+    // The line under your name on the CV — the role, plus how long you've
+    // been at it. CV page only.
+    tagline: {
+      en: "DevOps / SRE — Systems Engineer · 11y experience",
+      ru: "DevOps / SRE — Системный инженер · 11 лет опыта",
+    },
+
     photo: "/assets/img/portraits/nikita-photo.png",
     // Already a hand-made pixel render: just the theme tint, no re-pixelating.
     photoStyle: "tint",

@@ -76,8 +76,15 @@ Point the bucket's static-website **error document at `404.html`**.
 
 ## What the build emits
 
-Alongside the pages: `CNAME`, `.nojekyll`, `sitemap.xml`, `robots.txt`,
-`llms.txt` and a generated `site.webmanifest`. Everything in `public/` is copied
+Alongside the pages: `CNAME`, `.nojekyll`, a generated `site.webmanifest`, and
+— each behind its own switch in `seo` (`enableSitemap`, `enableRobotsTxt`,
+`enableLlmsTxt`) — `sitemap.xml`, `robots.txt` and `llms.txt`. A switched-off
+file is not emitted at all, and `robots.txt` stops pointing at a sitemap that
+isn't there. `robots.txt`'s `Content-Signal` line — may the content be searched,
+train models, feed AI answers — is `seo.contentSignal`, three booleans. Three more switches govern what goes into every page's `<head>`:
+`enableJsonLd` (the Person JSON-LD on the terminal and CV pages),
+`enableNoscript` (the terminal's no-JS fallback) and `enableSocialCards`
+(`og:*` and `twitter:card`). Everything in `public/` is copied
 verbatim.
 
 ---

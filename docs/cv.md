@@ -68,7 +68,8 @@ makes Google discard all of it — and roughly three quarters of hreflang
 implementations in the wild contain an error.
 
 `sitemap.xml`, `robots.txt` and `llms.txt` are emitted from the same page list
-that produces the pages, so they can't list a page that doesn't exist.
+that produces the pages, so they can't list a page that doesn't exist. Each is
+optional — `seo.enableSitemap`, `seo.enableRobotsTxt`, `seo.enableLlmsTxt`.
 
 ## Getting back
 

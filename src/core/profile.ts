@@ -48,6 +48,11 @@ export interface Job {
  */
 export interface CvConfig {
   /**
+   * The line under your name on the CV — typically `identity.role` plus
+   * how long you've been at it. CV page only; omit for no line.
+   */
+  tagline?: Localized;
+  /**
    * Portrait, root-absolute, under public/assets/img/portraits/ — only the
    * file named here survives the build. Shown on the CV, used as its
    * JSON-LD `image`, og:image and sitemap image. Omit for no portrait.
@@ -153,19 +158,54 @@ export interface ProfileConfig {
 
   identity: {
     name: Localized;
+    /**
+     * What you do, in one line. With `name` it makes the terminal page's
+     * `<title>` and og:title (`name — role`), the JSON-LD `jobTitle`, the
+     * no-JS fallback and llms.txt. The CV shows `cv.tagline` instead.
+     */
     role: Localized;
-    location: Localized;
-    /** One-line summary under the role, used by the noscript/SEO fallback. */
-    tagline: Localized;
   };
 
   seo: {
-    title: Localized;
+    /** The `<meta name="description">` and og:description on every page. */
     description: Localized;
-    /** Path under the site root, e.g. "/assets/img/og-terminal.png". */
+    /**
+     * Where you are, for the CV's JSON-LD address and the terminal's no-JS
+     * fallback. Not shown on any rendered page — the CV's visible line is
+     * `cv.metaLine`.
+     */
+    location: Localized;
+    /**
+     * Path under the site root, e.g. "/assets/img/og-terminal.png". The
+     * og:image of the terminal and 404 pages; inert with `enableSocialCards`
+     * off. The CV pages use `cv.photo` instead.
+     */
     ogImage?: string;
     /** Adds <meta name="robots" content="noindex"> to every page. */
     noindex?: boolean;
+    /** Emit robots.txt: per-crawler rules, Content-Signal, the sitemap line. */
+    enableRobotsTxt: boolean;
+    /**
+     * robots.txt's `Content-Signal`: what the content may be used for —
+     * search indexing, AI model training, inference-time input — as opposed
+     * to whether it may be fetched. Ignored by crawlers that don't support
+     * it. Rendered as `search=yes, ai-train=no, ai-input=yes`.
+     */
+    contentSignal: { search: boolean; aiTrain: boolean; aiInput: boolean };
+    /** Emit sitemap.xml: the home page and every CV page, with the portrait. */
+    enableSitemap: boolean;
+    /** Emit llms.txt, the index for AI agents (https://llmstxt.org). */
+    enableLlmsTxt: boolean;
+    /** The `Person` JSON-LD on the terminal page and every CV page. */
+    enableJsonLd: boolean;
+    /**
+     * The `<noscript>` block on the terminal page — role, location, about,
+     * skills and contact for crawlers and no-JS clients. The CV is static
+     * HTML already and has none.
+     */
+    enableNoscript: boolean;
+    /** The share-preview tags on every page: `og:*` and `twitter:card`. */
+    enableSocialCards: boolean;
   };
 
   neofetch: {
@@ -277,6 +317,13 @@ export function socialsFor(profile: ProfileConfig, context: Context): Social[] {
  * address a crawler reads is the one a visitor sees; the config used to
  * carry it twice and nothing kept them in step.
  */
+/** The `Content-Signal` line's value, from `seo.contentSignal`. */
+export function renderContentSignal(profile: ProfileConfig): string {
+  const { search, aiTrain, aiInput } = profile.seo.contentSignal;
+  const yn = (v: boolean): string => (v ? "yes" : "no");
+  return `search=${yn(search)}, ai-train=${yn(aiTrain)}, ai-input=${yn(aiInput)}`;
+}
+
 export function mailtoFor(profile: ProfileConfig): string | undefined {
   return profile.socials.find((s) => s.href.startsWith("mailto:"))?.href;
 }

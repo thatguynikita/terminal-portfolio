@@ -153,8 +153,12 @@ through to the terminal — which is exactly what the language chip links to.
   grayscale. The predecessor greyed out individual classes and would miss any
   token a newer theme introduced. A test asserts every token `green.css` defines
   is overridden.
-- **`identity.role` already contains an em dash**, so the page title is
-  `name — CV — hostname`, not `name — role`.
+- **The CV's title is `name — CV — hostname`**, not `name — role` like the
+  terminal page: it names the document, and `identity.role` already carries
+  an em dash. The visible line under the CV's `<h1>` is `cv.tagline`
+  (optional, CV-only); the terminal's no-JS fallback and `llms.txt` say
+  `identity.role` instead. There is no `seo.title` — the terminal page is
+  titled `identity.name — identity.role`.
 - **The portrait is served as uploaded unless `cv.photoStyle` opts in**
   — no filter, no tint, colour and all; only print greys it. `"tint"` is
   grayscale under the theme colour, pure CSS. `"pixel"` adds the canvas:
@@ -238,7 +242,10 @@ wrong directory. Changing this means changing `base` and the 404 page together.
 
 `vite.config.ts` injects `<title>`, meta, OG tags, JSON-LD and the `<noscript>`
 fallback from `profile.config.ts`. The noscript block matters: the terminal
-renders nothing without JavaScript.
+renders nothing without JavaScript. The last three are switches in `seo`
+(`enableSocialCards`, `enableJsonLd`, `enableNoscript`); off means the tags
+are absent, not stubbed, and `tests/discovery.test.ts` asserts every page both
+ways. `seo.ogImage` is inert with social cards off.
 
 `public/` is copied verbatim into `dist/` — with one exception.
 **`public/assets/img/portraits/` is pruned in `writeBundle`**: it holds every
@@ -248,7 +255,10 @@ touched. `dist/` is gitignored.
 
 `sitemap.xml`, `robots.txt` and `llms.txt` are generated from the same page list
 that produces the pages, so they cannot reference a page that was not built —
-a test asserts exactly that.
+a test asserts exactly that. Each is behind its own `seo.enable*` switch: off
+means not emitted, and `robots.txt` drops its `Sitemap:` line when the sitemap
+is off. The discovery suites in `tests/discovery.test.ts` skip per switch —
+and gate their file *reads* too, since `describe.skip` still evaluates the body.
 
 ## Conventions
 

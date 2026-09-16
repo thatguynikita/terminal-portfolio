@@ -76,7 +76,7 @@ export function renderCv(profile: ProfileConfig, locale: Locale): string {
   out.push(`<header class="profile">
   <div class="profile-text">
     <h1>${esc(identity.name[locale])}</h1>
-    <p class="tagline">${esc(identity.tagline[locale])}</p>
+    ${cv.tagline ? `<p class="tagline">${esc(cv.tagline[locale])}</p>` : ""}
     <p class="contact-row">${contacts}</p>
     ${cv.metaLine ? `<p class="meta dim">${esc(cv.metaLine[locale])}</p>` : ""}
   </div>${
