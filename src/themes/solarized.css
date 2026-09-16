@@ -2,7 +2,7 @@
    Ethan Schoonover's canonical palette (https://ethanschoonover.com/solarized/),
    used as-is. Deliberately muted/low-contrast by design — unlike the neon
    themes above, this one gets a minimal glow and no CRT flicker, same
-   treatment as sabbatical, since Solarized's whole identity is precision
+   treatment as the secret theme, since Solarized's whole identity is precision
    and readability, not a retro CRT look. */
 :root[data-theme="solarized"]{
   --bg:#002b36;

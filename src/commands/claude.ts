@@ -22,9 +22,11 @@ function tool(text: string, delay: number): SequenceStep {
 }
 
 async function lightTheme(ctx: CommandContext): Promise<void> {
-  const attempts = ((ctx.state["lightThemeAttempts"] as number) ?? 0) + 1;
-  ctx.state["lightThemeAttempts"] = attempts;
   const theme = ctx.theme.secretName;
+  // With no secret theme configured there is nothing to ship, so every
+  // attempt is the first: won't-fix, forever.
+  const attempts = theme ? ((ctx.state["lightThemeAttempts"] as number) ?? 0) + 1 : 1;
+  ctx.state["lightThemeAttempts"] = attempts;
 
   if (attempts === 1) {
     const [intro, found, flag, wontFix] = ctx.tList("claude.lightTheme1");
@@ -39,7 +41,7 @@ async function lightTheme(ctx: CommandContext): Promise<void> {
   }
 
   if (attempts === 2) {
-    const lines = ctx.tList("claude.lightTheme2", { theme });
+    const lines = ctx.tList("claude.lightTheme2", { theme: theme ?? "" });
     const tools = TOOL_LINES["lightTheme2"] ?? [];
     await ctx.sequence([
       typed(lines[0] ?? "", 600),
@@ -58,7 +60,7 @@ async function lightTheme(ctx: CommandContext): Promise<void> {
     return;
   }
 
-  const lines = ctx.tList("claude.lightTheme3", { theme });
+  const lines = ctx.tList("claude.lightTheme3", { theme: theme ?? "" });
   await ctx.sequence([typed(lines[0] ?? "", 500), typed(lines[1] ?? "", 400)]);
 }
 

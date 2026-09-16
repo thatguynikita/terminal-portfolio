@@ -18,7 +18,7 @@ const es: Messages = {
   boot: {
     lines: [
       "{host} secuencia de arranque — kernel 6.6.0-sre",
-      "[  OK  ] módulo cargado: eleven_years_of_uptime.ko",
+      "[  OK  ] módulo cargado: years_of_uptime.ko",
       `<span class="rm-line">[FALLO ] montado /dev/motivation: no encontrado</span>`,
       "[  OK  ] montado /dev/coffee en su lugar",
       "[  OK  ] iniciado ssh-agent.service",
@@ -34,7 +34,7 @@ const es: Messages = {
 
   /** One entry per registered command; `help` reads these. */
   commands: {
-    about: "quién es este tipo, en fin",
+    about: "quién es esta persona",
     skills: "stack técnico",
     contact: "cómo dar conmigo",
     cv: "abrir el CV completo",
@@ -42,7 +42,7 @@ const es: Messages = {
     whoami: "un poco demasiado sobre ti",
     ls: "listar archivos",
     cat: "mostrar un archivo",
-    fortune: "sabiduría aleatoria de sysadmin",
+    fortune: "sabiduría aleatoria",
     top: "monitor de procesos de mentira",
     kubectl: "asomarse a un clúster de pega",
     terraform: "aplicar optimismo, destruirlo todo",

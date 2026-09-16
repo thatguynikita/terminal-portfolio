@@ -6,7 +6,7 @@ import { LOCALES, type Localized } from "../src/i18n/locales";
 import { renderCv, renderCvTopbar } from "../src/cv/render";
 import { buildCvJsonLd } from "../src/cv/jsonld";
 import { CV_LINK_LABEL, cvLocales, cvUrl } from "../src/cv/url";
-import { mailtoFor, renderCopyright, skillsFor, socialsFor } from "../src/core/profile";
+import { mailtoFor, renderCopyright, renderFooter, skillsFor, socialsFor } from "../src/core/profile";
 import { leaveForTerminalOnKey } from "../src/core/leave";
 
 /**
@@ -112,6 +112,40 @@ withCv("cv locales", () => {
     const line = renderCopyright(p, profile.terminal.defaultLocale, "https://x.test");
     expect(line).toContain("A &lt;b&gt;&amp; B");
     expect(line).not.toContain("<b>");
+  });
+
+  /**
+   * `renderFooter` is what all three pages call: `[©] · [tail]` on one line,
+   * `terminal.footer.bottomText` beneath. The knobs are `terminal.footer`.
+   */
+  describe("renderFooter", () => {
+    const locale = profile.terminal.defaultLocale;
+    const withFooter = (footer: Partial<typeof profile.terminal.footer>) =>
+      ({ ...profile, terminal: { ...profile.terminal, footer: { copyright: true, backToTerminal: true, ...footer } } }) as typeof profile;
+
+    it("joins the copyright and the page's tail with a separator", () => {
+      const html = renderFooter(withFooter({ bottomText: undefined }), locale, "https://x.test", "<i>tail</i>");
+      expect(html).toContain(`>${profile.identity.name[locale]}</a> · <i>tail</i>`);
+      expect(html).not.toContain("footer-bottom");
+    });
+
+    it("drops the copyright and the separator when switched off", () => {
+      const html = renderFooter(withFooter({ copyright: false, bottomText: undefined }), locale, "https://x.test", "<i>tail</i>");
+      expect(html).toBe("<i>tail</i>");
+    });
+
+    it("is empty when every part is off", () => {
+      expect(renderFooter(withFooter({ copyright: false, bottomText: undefined }), locale, "", "")).toBe("");
+    });
+
+    it("renders bottomText verbatim, on its own line, the same in every locale", () => {
+      const credit = 'Made with ❤ using <a href="https://example.test">x</a>';
+      for (const l of locales) {
+        const html = renderFooter(withFooter({ bottomText: credit }), l, "https://x.test", "");
+        expect(html).toContain(`<div class="footer-bottom">${credit}</div>`);
+        expect(html, "no tail and a copyright: no stray separator").not.toContain(" · ");
+      }
+    });
   });
 
   it("labels the CV the same way on every page", () => {

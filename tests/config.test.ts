@@ -3,7 +3,7 @@ import { existsSync, readFileSync } from "node:fs";
 import { join } from "node:path";
 import profile, { MESSAGES } from "../profile.config";
 import { LOCALES, type Locale } from "../src/i18n/locales";
-import { THEME_NAMES } from "../src/themes";
+import { SECRET_ID, THEME_IDS } from "../src/themes";
 
 /**
  * `npm run check` — the preflight a fork runs before deploying.
@@ -81,9 +81,19 @@ describe("profile.config.ts", () => {
     expectValidSince(profile.commands.system?.since, "profile.config.ts");
   });
 
+  // The secret theme's visible name is free-form, but it must not shadow a
+  // public theme, and "secret" is the CSS id — a name would collide with it.
+  it("gives the secret theme a name no other theme has", () => {
+    const secret = profile.commands.system?.secretTheme;
+    if (secret === undefined) return;
+    expect(secret.trim(), "secretTheme is blank").not.toBe("");
+    expect(secret).not.toBe(SECRET_ID);
+    expect(THEME_IDS, `secretTheme "${secret}" shadows a public theme`).not.toContain(secret);
+  });
+
   it("names a theme that exists", () => {
     const theme = profile.terminal.defaultTheme;
-    if (theme !== "random") expect(THEME_NAMES).toContain(theme);
+    if (theme !== "random") expect(THEME_IDS).toContain(theme);
   });
 
   // SITE_URL is the one deployment fact that isn't in the config: the
@@ -254,6 +264,9 @@ describe.each([
     };
     expect(typeof terminal["bootScreen"], "terminal.bootScreen").toBe("boolean");
     expect(typeof terminal["chips"], "terminal.chips").toBe("boolean");
+    const footer = terminal["footer"] as Record<string, unknown> | undefined;
+    expect(typeof footer?.["copyright"], "terminal.footer.copyright").toBe("boolean");
+    expect(typeof footer?.["backToTerminal"], "terminal.footer.backToTerminal").toBe("boolean");
     for (const key of [
       "enableRobotsTxt", "enableSitemap", "enableLlmsTxt",
       "enableJsonLd", "enableNoscript", "enableSocialCards",
@@ -269,6 +282,15 @@ describe.each([
   it("dates the machine with an offset, when it dates it at all", () => {
     const { commands } = mod!.default as { commands: { system?: { since?: unknown } } };
     expectValidSince(commands.system?.since, file);
+  });
+
+  it("gives the secret theme a name no other theme has", () => {
+    const { commands } = mod!.default as { commands: { system?: { secretTheme?: unknown } } };
+    const secret = commands.system?.secretTheme;
+    if (secret === undefined) return;
+    expect(typeof secret, `${file}: secretTheme`).toBe("string");
+    expect(secret).not.toBe(SECRET_ID);
+    expect(THEME_IDS, `${file}: secretTheme shadows a public theme`).not.toContain(secret);
   });
 
   it("sends nobody into src/ to change languages", () => {

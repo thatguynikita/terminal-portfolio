@@ -17,7 +17,10 @@ const canvas = document.getElementById("matrix") as HTMLCanvasElement | null;
 if (canvas) {
   const matrix = createMatrixRain(canvas);
   matrix.setEnabled(initialMatrixEnabled(profile.terminal.defaultMatrix));
-  createThemeController(matrix, { defaultTheme: profile.terminal.defaultTheme });
+  createThemeController(matrix, {
+    defaultTheme: profile.terminal.defaultTheme,
+    secretTheme: profile.commands.system?.secretTheme,
+  });
 }
 
 document.getElementById("printBtn")?.addEventListener("click", () => window.print());

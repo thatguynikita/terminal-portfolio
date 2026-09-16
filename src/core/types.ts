@@ -113,7 +113,8 @@ export interface ThemeController {
   current(): string;
   /** False when the name isn't a known theme. Persists on success. */
   set(name: string): boolean;
-  readonly secretName: string;
+  /** The hidden theme's name, or undefined when none is configured. */
+  readonly secretName: string | undefined;
   secretUnlocked(): boolean;
   unlockSecret(): void;
   matrix: MatrixController;

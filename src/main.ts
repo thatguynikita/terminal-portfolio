@@ -7,7 +7,7 @@ import { createInput } from "./core/input";
 import { boot, intro } from "./core/boot";
 import { initGameOverlay } from "./core/game";
 import { CV_LINK_LABEL, cvUrl } from "./cv/url";
-import { renderCopyright } from "./core/profile";
+import { renderFooter } from "./core/profile";
 
 const body = document.getElementById("termBody");
 const canvas = document.getElementById("matrix") as HTMLCanvasElement | null;
@@ -63,7 +63,13 @@ function renderChrome(): void {
 
   const footer = document.getElementById("siteFooter");
   if (footer) {
-    footer.innerHTML = `${renderCopyright(profile, lang, __SITE_URL__)} · ${ctx.t("ui.footerHint")}`;
+    const hint = profile.terminal.footer.hint?.[lang];
+    footer.innerHTML = renderFooter(
+      profile,
+      lang,
+      __SITE_URL__,
+      hint ? ctx.escape(hint) : ctx.t("ui.footerHint")
+    );
   }
 
   const gameTitle = document.getElementById("gameTitle");

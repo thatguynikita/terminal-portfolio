@@ -5,7 +5,7 @@
    so unlike the other themes here --accent (the actual orange) carries
    the identity, not --fg — --game-filter's hue-rotate is calibrated
    against --accent for the same reason. Deliberately muted like
-   sabbatical/solarized (minimal glow, no CRT flicker) — 2004 GNOME
+   secret/solarized (minimal glow, no CRT flicker) — 2004 GNOME
    Terminal is a flat desktop look, not a CRT-phosphor one. */
 :root[data-theme="ubuntu"]{
   --bg:#300a24;

@@ -9,7 +9,7 @@ import { LOCALES, nextLocale, type Locale } from "./i18n/locales";
 import { StorageKey, readStored, writeStored } from "./core/storage";
 import { escapeHtml } from "./core/html";
 import { CV_LINK_LABEL, cvUrl } from "./cv/url";
-import { renderCopyright } from "./core/profile";
+import { renderFooter } from "./core/profile";
 
 const canvas = document.getElementById("matrix") as HTMLCanvasElement | null;
 if (canvas) {
@@ -17,7 +17,10 @@ if (canvas) {
   matrix.setEnabled(initialMatrixEnabled(profile.terminal.defaultMatrix));
   // Applies the persisted theme, so a preference set on the terminal
   // carries over to this page.
-  createThemeController(matrix, { defaultTheme: profile.terminal.defaultTheme });
+  createThemeController(matrix, {
+    defaultTheme: profile.terminal.defaultTheme,
+    secretTheme: profile.commands.system?.secretTheme,
+  });
 }
 
 const locales = LOCALES;
@@ -79,8 +82,10 @@ function render(): void {
 
   const footer = document.getElementById("pageFooter");
   if (footer) {
-    footer.innerHTML =
-      renderCopyright(profile, lang, __SITE_URL__) + ` · <a href="/">${escapeHtml(t("notFound.back"))}</a>`;
+    const back = profile.terminal.footer.backToTerminal
+      ? `<a href="/">${escapeHtml(t("notFound.back"))}</a>`
+      : "";
+    footer.innerHTML = renderFooter(profile, lang, __SITE_URL__, back);
   }
 }
 

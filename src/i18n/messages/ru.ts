@@ -18,7 +18,7 @@ const ru: Messages = {
   boot: {
     lines: [
       "{host} boot sequence — kernel 6.6.0-sre",
-      "[  OK  ] loaded module: eleven_years_of_uptime.ko",
+      "[  OK  ] loaded module: years_of_uptime.ko",
       `<span class="rm-line">[FAILED] mounted /dev/motivation: not found</span>`,
       "[  OK  ] mounted /dev/coffee instead",
       "[  OK  ] started ssh-agent.service",
@@ -33,7 +33,7 @@ const ru: Messages = {
   },
 
   commands: {
-    about: "кто такой вообще этот парень",
+    about: "кто вообще этот человек",
     skills: "технологический стек",
     contact: "как со мной связаться",
     cv: "открыть полное резюме",
@@ -41,7 +41,7 @@ const ru: Messages = {
     whoami: "узнать о себе немного больше",
     ls: "список файлов",
     cat: "вывести файл",
-    fortune: "случайная мудрость сисадмина",
+    fortune: "случайная мудрость",
     top: "фейковый монитор процессов",
     kubectl: "заглянуть в игрушечный кластер",
     terraform: "apply обещает, destroy исполняет",

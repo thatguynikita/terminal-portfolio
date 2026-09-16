@@ -45,6 +45,17 @@ export default defineProfile({
       { label: "blog", href: "https://blog.marina.example" },
       { label: "talks", href: "https://talks.marina.example" },
     ],
+    // The footer under the window, on every page.
+    footer: {
+      // The generated `© year name`, linked to the site root.
+      copyright: true,
+      // Terminal page only, plain text. Omit for the built-in "type help to explore".
+      hint: { en: "start with help, then wander" },
+      // The `back to terminal` link on the CV and 404 pages.
+      backToTerminal: true,
+      // A line under the rest, same in every language. Rendered as HTML — keep it short.
+      bottomText: 'Made with ❤ using <a href="https://github.com/thatguynikita/terminal-portfolio">terminal-portfolio</a>',
+    },
   },
 
   identity: {
@@ -185,6 +196,9 @@ before a dashboard lies, and documentation someone reads at 2am.`,
       // When the machine came up: `uptime` counts from it, `uname -a` and
       // `ls -l` stamp it. Omit to count from the build instead.
       since: "2026-03-14T09:15:00+01:00",
+      // What the secret light theme is called once `claude "add light theme"` is
+      // asked twice. Omit and it isn't offered at all.
+      secretTheme: "daylight",
     },
 
     game: {

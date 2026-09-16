@@ -154,6 +154,21 @@ export interface ProfileConfig {
      * added automatically when a CV is configured. Terminal page only.
      */
     links?: Array<{ label: string; href: string }>;
+    /** The footer under the window, on every page. */
+    footer: {
+      /** The generated `© year name`, linked to the site root. */
+      copyright: boolean;
+      /** Terminal page only; plain text. Omit for the built-in `type help to explore`. */
+      hint?: Localized;
+      /** The `back to terminal` link on the CV and 404 pages. */
+      backToTerminal: boolean;
+      /**
+       * A line under the rest, on every page, the same in every language.
+       * Rendered as HTML — the one field besides `neofetch.ascii` that is.
+       * Omit for none.
+       */
+      bottomText?: string;
+    };
   };
 
   identity: {
@@ -269,6 +284,13 @@ export interface ProfileConfig {
        * was built.
        */
       since?: string;
+      /**
+       * The name the secret theme (src/themes/secret.css, a light one) goes
+       * by once `claude "add light theme"` unlocks it on the second try —
+       * what `theme` lists and the visitor types. Omit and the secret theme
+       * isn't offered at all: the egg stays at won't-fix.
+       */
+      secretTheme?: string;
     };
 
     /** The `game` command and its launcher script. Omit to remove both. */
@@ -342,6 +364,22 @@ export function mailtoFor(profile: ProfileConfig): string | undefined {
 export function renderCopyright(profile: ProfileConfig, locale: Locale, origin: string): string {
   const year = new Date().getFullYear();
   return `© ${year} <a href="${escapeHtml(origin || "/")}">${escapeHtml(profile.identity.name[locale])}</a>`;
+}
+
+/**
+ * The footer's HTML, shared by the terminal, the 404 and the CV so the
+ * three can't drift: `[© year name] · [tail]`, then `bottomText` on its own
+ * line. `tail` is the page's own already-localised HTML — the terminal's
+ * hint or the back link — since this module can't reach the catalogues.
+ * Empty when every part is off; the callers can still set it blindly.
+ */
+export function renderFooter(profile: ProfileConfig, locale: Locale, origin: string, tail: string): string {
+  const { footer } = profile.terminal;
+  const line = [footer.copyright ? renderCopyright(profile, locale, origin) : "", tail]
+    .filter(Boolean)
+    .join(" · ");
+  const bottom = footer.bottomText ? `<div class="footer-bottom">${footer.bottomText}</div>` : "";
+  return line + bottom;
 }
 
 /** Identity helper — exists purely so editors typecheck profile.config.ts. */
