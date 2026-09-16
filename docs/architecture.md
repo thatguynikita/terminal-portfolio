@@ -104,7 +104,7 @@ never guard a defaulted field; they do guard the features that can be absent.
 | `terminal.hostname` | the host of `SITE_URL`; `localhost` in dev without one (read lazily, since `vite.config.ts` imports the config before it has computed `SITE_URL`) |
 | `terminal.defaultTheme` / `defaultMatrix` | `"green"` / `"on"` |
 | `terminal.bootScreen` / `chips` | `true` |
-| `terminal.footer` | `{ copyright: true, backToTerminal: true }` |
+| `terminal.footer` | `{ copyright: true, backToTerminal: true, bottomText: <the credit line> }` — `bottomText: ""` turns the credit off |
 | `seo.contentSignal` | all `yes` |
 | `seo.enable*` (six) | `true` |
 | `seo.role` | no JSON-LD `jobTitle`, no noscript/llms.txt role, plain portrait alt |

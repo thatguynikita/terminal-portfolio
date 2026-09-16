@@ -2,117 +2,31 @@ import { defineProfile } from "./src/core/profile";
 import en from "./src/i18n/messages/en";
 import ru from "./src/i18n/messages/ru";
 
-/**
- * The languages this site ships, in rotation order.
- *
- * This is the whole locale setup. Drop a language by deleting its import
- * and its entry below — its catalogue stays in the repo and stops being
- * built. Add one the same way; `Localized` then points at every field in
- * this file that still needs a translation, so a half-translated site
- * can't ship. The first entry is where the language toggle starts.
- */
 export const MESSAGES = { en, ru };
 
-/**
- * ─────────────────────────────────────────────────────────────────────
- *  This file, plus SITE_URL in .env, is everything you edit to make this
- *  site your own. Run `npm run check` afterwards. It ships with real data
- *  rather than placeholders, so the guard is consistency: the check fails
- *  when a field is missing a translation, when a social link isn't a URL,
- *  or when a referenced asset doesn't exist — and the build refuses to run
- *  without SITE_URL at all.
- * ─────────────────────────────────────────────────────────────────────
- */
 export default defineProfile(MESSAGES, {
-  // Your name, the way the site should say it — the CV's heading, every page
-  // title and share card, the © line, JSON-LD, llms.txt.
   author: {
     en: "Nikita Chernozipunnikov",
     ru: "Никита Чернозипунников",
   },
 
-  // The fake shell itself: who's logged in, where, what it looks like on a
-  // first visit, and the chrome around the window.
   terminal: {
-    // The visitor's account — the `guest` in guest@nikita.sh — used by the
-    // prompt, whoami, the boot greeting and the "logged in" half of who/w.
-    // Default "guest".
-    handle: "guest",
-    // Cosmetic — the prompt and `uname`. Defaults to the host of SITE_URL,
-    // which is where the site is published (every absolute URL, the CNAME).
-    hostname: "nikita.sh",
-    // Where the language toggle starts; the set is MESSAGES at the top of
-    // this file. Default: its first entry.
-    defaultLocale: "en",
-    // A theme name from src/themes/, or "random" to deal one per first visit. Default "green".
     defaultTheme: "random",
-    // Background rain for a first-time visitor (default "on"); `matrix on|off` is remembered.
-    defaultMatrix: "on",
-    // The fake dmesg sequence before the terminal, once per session. Default true.
-    bootScreen: true,
-    // The tappable command chips under the terminal. Default true.
-    chips: true,
-    // Commands to leave out entirely — gone from help, completion and chips.
-    // disabledCommands: ["terraform", "kubectl"],
-    // Extra topbar links. The CV link is added automatically when `cv` is
-    // configured, so this is for anything else you want up there.
-    links: [],
-    // The footer under the window, on every page. Omit the block for the defaults.
-    footer: {
-      // The generated `© year name`, linked to the site root. Default true.
-      copyright: true,
-      // Terminal page only, plain text. Omit for the built-in "type help to explore".
-      // hint: { en: "…", ru: "…" },
-      // The `back to terminal` link on the CV and 404 pages. Default true.
-      backToTerminal: true,
-      // A line under the rest, same in every language. Rendered as HTML — keep it short.
-      bottomText: 'Made with ❤ using <a href="https://github.com/thatguynikita/terminal-portfolio">terminal-portfolio</a>',
-    },
   },
 
-  // What machines see: descriptions, structured data, the discovery files,
-  // and a switch for each.
   seo: {
-    // What you do, in one line, for machines: JSON-LD jobTitle, the no-JS
-    // fallback, llms.txt. Not shown on a page — that's cv.tagline and neofetch.
-    // Omit and each of those leaves it out.
     role: {
       en: "DevOps / SRE — Systems Engineer",
       ru: "DevOps / SRE — Системный инженер",
     },
-    // The meta and share-card description of the terminal page, the manifest,
-    // and llms.txt. The CV pages use cv.description; the 404 describes itself.
-    // Omit and the tags are left out — `npm run check` warns.
     description: {
       en: "DevOps/SRE portfolio in a silly interactive terminal — with hidden commands and easter eggs. Type `help` to explore.",
       ru: "DevOps/SRE-портфолио в виде игрушечного интерактивного терминала — со скрытыми командами и пасхалками. Введите `help`, чтобы начать.",
     },
-    // Adds <meta name="robots" content="noindex"> to every page — for a staging deploy.
-    // noindex: true,
-    // Every switch below defaults to true; the whole seo block can be omitted.
-    // robots.txt: per-crawler rules, Content-Signal, and the sitemap line.
-    enableRobotsTxt: true,
-    // robots.txt Content-Signal: may the content be searched, train models, feed AI answers. Default all true.
-    contentSignal: { search: true, aiTrain: true, aiInput: true },
-    // sitemap.xml: the home page and every CV page, with the portrait.
-    enableSitemap: true,
-    // llms.txt: the index for AI agents, per the llms.txt spec.
-    enableLlmsTxt: true,
-    // The Person JSON-LD on the terminal page and every CV page.
-    enableJsonLd: true,
-    // The terminal's <noscript> fallback for crawlers and no-JS visitors.
-    enableNoscript: true,
-    // The og:* and twitter:card share tags on every page; off makes ogImage inert.
-    enableSocialCards: true,
-    // The share-card image for the terminal and 404 pages; the CV uses cv.photo.
     ogImage: "/assets/img/og-terminal.png",
   },
 
-  // The card the terminal prints on boot and on `neofetch`. Omit it and there
-  // is no card: no `neofetch` command, the intro is just the welcome lines.
   neofetch: {
-    // The art on the left. Raw HTML: the .outline/.eye/.nose spans take the
-    // theme's colours; plain text works too.
     ascii: `<span class="outline">     ░░░░░
   ░░▒▓▓▓▓▓▒░░
  ░▒▒▓▓▓</span><span class="nose">●</span><span class="outline">▓▓▓▒▒░
@@ -120,8 +34,6 @@ export default defineProfile(MESSAGES, {
  ░▒▒▓▓▓</span><span class="nose">●</span><span class="outline">▓▓▓▒▒░
   ░░▒▓▓▓▓▓▒░░
      ░░░░░</span>`,
-    // The rows on the right, top to bottom. Plain text; `highlight` paints a
-    // value amber.
     rows: [
       {
         key: { en: "Name", ru: "Имя" },
@@ -149,22 +61,12 @@ export default defineProfile(MESSAGES, {
         highlight: true,
       },
     ],
-
-    // The live "Playing" row in the neofetch card. Delete this whole block
-    // (or blank the endpoint) to turn the widget off: the row isn't rendered
-    // at all and no request is ever made — neofetch just ends at Status.
-    // An endpoint that's set but unreachable keeps the row and shows
-    // "spotify offline" instead.
     nowPlaying: {
-      // Returns JSON { is_playing, track, artist, url } — see src/core/nowplaying.ts.
       endpoint: "https://functions.yandexcloud.net/d4e5vur1qk4p911pcu58",
-      // How often to ask it, in milliseconds.
       pollMs: 20000,
     },
   },
 
-  // Line breaks matter: `about` types this out one line at a time. Omit for
-  // no `about` command and no about.txt.
   bio: {
     en: `DevOps/SRE with eleven years of experience in Application Support and Operations,
 gradually developing towards AI-driven Software Development.
@@ -182,8 +84,6 @@ and SRE practices into reality.`,
 практик DevOps и SRE в реальную жизнь.`,
   },
 
-  // `contexts` omitted means "everywhere". The CV shows the full table;
-  // the terminal shows the readable subset. Omit the list for no `skills` at all.
   skills: [
     { key: { en: "Languages", ru: "Языки программирования" }, value: "Python, Bash, PowerShell, Go (beginner)", contexts: ["cv"] },
     { key: { en: "Linux", ru: "Linux" }, value: "RHEL, CentOS, Ubuntu, RedOS" },
@@ -200,10 +100,6 @@ and SRE practices into reality.`,
     { key: { en: "Monitoring", ru: "Мониторинг" }, value: "Prometheus, Grafana, ELK Stack, Graylog, CloudWatch", contexts: ["cv"] },
   ],
 
-  // Contact links: `contact`, `cat contact.txt`, the CV's contact row, the
-  // no-JS fallback, llms.txt, and JSON-LD sameAs (http ones) / email (the
-  // first mailto:). `contexts` omitted means everywhere. Omit the list for no
-  // `contact` at all.
   socials: [
     { label: "Email", href: "mailto:me@nikita.sh", display: "me@nikita.sh" },
     { label: "Website", href: "https://nikita.sh", display: "nikita.sh", contexts: ["cv"] },
@@ -224,48 +120,24 @@ and SRE practices into reality.`,
     { contexts: ["terminal"], label: "Instagram", href: "https://www.instagram.com/thatguynikita", display: "@thatguynikita" },
   ],
 
-  // Per-command settings: help descriptions, the fake machine, the game, ssh.
-  // Omit the whole block for every default and no game / ssh personas.
   commands: {
-    // Overrides a command's one-line description in `help`. Anything not
-    // listed here falls back to `commands.<name>` in src/i18n/messages/.
-    // Use it for lines that carry your name or your voice.
     descriptions: {
       about: {
         en: "who is that guy nikita anyway",
         ru: "кто такой вообще этот никита",
       },
     },
-
-    // The fake-system commands (ps, who, w, env) show two accounts: the
-    // visitor, who is terminal.handle, and the machine's owner — you.
     system: {
-      // The account those commands show as the machine's owner. Not translated.
       owner: "nikita",
-      // When the machine came up: `uptime` counts from it, `uname -a` and
-      // `ls -l` stamp it. Omit to count from the build instead.
       since: "2026-08-09T20:48:27+03:00",
-      // What the secret light theme is called once `claude "add light theme"` is
-      // asked twice. Omit and it isn't offered at all.
       secretTheme: "sabbatical",
     },
-
-    // The hidden game: a page opened in a sandboxed CRT overlay. Omit the
-    // whole block to remove the `game` command and the launcher script.
     game: {
-      // What the overlay's iframe loads.
       url: "https://cat.nikita.sh/",
-      // Shown in the overlay's title bar and the "launching …" line.
       title: { en: "Condensed Milk Quest", ru: "Котик и Сгущенка" },
-      // The launcher: `ls -a` lists it, `sudo ./milk-quest.sh` opens the game.
       script: "milk-quest.sh",
     },
-
-    // `ssh <name>` connects to a persona that answers scripted questions —
-    // the recruiter screening call, without the call. Omit for none.
     ssh: {
-      // One entry per name: the host shown in the prompt, and cmd → q → a
-      // triples the visitor types `cmd` to ask.
       personas: {
         recruiter: {
           host: "recruiter@nikita.sh",
@@ -322,36 +194,21 @@ and SRE practices into reality.`,
     },
   },
 
-  // The CV. One page is generated per locale in MESSAGES, at the top.
-  // Delete this whole key and the CV disappears: no pages, no `cv` command,
-  // no cv.html in `ls`, no sitemap rows — just the terminal.
   cv: {
-    // The line under your name on the CV — the role, plus how long you've
-    // been at it. CV page only.
     tagline: {
       en: "DevOps / SRE — Systems Engineer · 11y experience",
       ru: "DevOps / SRE — Системный инженер · 11 лет опыта",
     },
-    // The CV pages' meta and share-card description; omit to reuse seo.description.
     description: {
       en: "DevOps / SRE — CV / résumé. AWS, OpenStack, Kubernetes, Docker, Linux.",
       ru: "DevOps / SRE — резюме. AWS, OpenStack, Kubernetes, Docker, Linux.",
     },
-
-    // Portrait, root-absolute, under public/assets/img/portraits/ — only the
-    // file named here survives the build; the example portraits are pruned.
-    // Also the CV's og:image, JSON-LD image and sitemap image.
     photo: "/assets/img/portraits/nikita-photo.png",
-    // Already a hand-made pixel render: just the theme tint, no re-pixelating.
     photoStyle: "tint",
-
-    // The line under the contact row on the CV.
     metaLine: {
       en: "Saint Petersburg, Russia · Citizenship: Russia · hybrid, full day · not available for relocation or business trips",
       ru: "Санкт-Петербург, Россия · Гражданство: Россия · гибридный график, полный день · не готов к переезду или командировкам",
     },
-
-    // Shown at the top of the CV, under the contact row.
     about: {
       en: `DevOps/SRE with eleven years of experience in Application Support and Operations, gradually
 developing towards AI-driven Software Development. Solid knowledge of how modern computer
@@ -368,9 +225,6 @@ Linux и сетей, крепкое понимание основ Computer Scien
 людьми, увлечёнными своим делом — и добавить все свои навыки, мудрость и рвение в общую
 копилку.`,
     },
-
-    // Experience, most recent first. `id` is a stable anchor; `bullets` are
-    // one line each per locale; `org.url` empty or omitted renders no link.
     jobs: [
       {
         id: "vk",
@@ -597,8 +451,6 @@ Linux и сетей, крепкое понимание основ Computer Scien
         },
       },
     ],
-
-    // One line on the CV: university — place, year / field.
     education: {
       university: {
         en: "Izhevsk Kalashnikov State Technical University",
@@ -611,9 +463,6 @@ Linux и сетей, крепкое понимание основ Computer Scien
         ru: "Радиотехника, средства беспроводной связи",
       },
     },
-
-    // Certifications, as printed — names aren't translated. Also JSON-LD
-    // hasCredential.
     certs: [
       { year: "2026", name: "Certified DevOps Engineer – Yandex Cloud" },
       { year: "2021", name: "AWS Certified DevOps Engineer – Professional" },
@@ -621,16 +470,12 @@ Linux и сетей, крепкое понимание основ Computer Scien
       { year: "2017", name: "Cisco Certified Network Associate – Routing and Switching (CCNA)" },
       { year: "2017", name: "Red Hat Certified Engineer (RHCE)" },
     ],
-
-    // `filled` is the 0–10 proficiency meter; `sub` is the text beside it.
     languages: [
       { name: { en: "Russian", ru: "Русский" }, filled: 10, sub: { en: "Native", ru: "Родной" } },
       { name: { en: "English", ru: "Английский" }, filled: 8, sub: { en: "C1 — Advanced", ru: "C1 — Продвинутый" } },
       { name: { en: "German", ru: "Немецкий" }, filled: 3, sub: { en: "A2 — Elementary", ru: "A2 — Начальный" } },
       { name: { en: "Spanish", ru: "Испанский" }, filled: 5, sub: { en: "B1 — Intermediate", ru: "B1 — Средний" } },
     ],
-
-    // The playful "notes.txt" list at the foot of the CV.
     traits: {
       en: [
         "English without a Slavic flavor",
@@ -655,8 +500,6 @@ Linux и сетей, крепкое понимание основ Computer Scien
         "прирождённый лидер и лапочка (по словам моей мамы)",
       ],
     },
-
-    // The closing line, plain text. Rendered as `$ echo "…"` with a blinking cursor.
     signOff: {
       en: "thanks for reading this far. let's build something reliable together.",
       ru: "спасибо, что дочитали до конца. давайте построим что-то надёжное вместе.",

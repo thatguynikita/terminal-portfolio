@@ -124,18 +124,18 @@ withCv("cv locales", () => {
       ({ ...profile, terminal: { ...profile.terminal, footer: { copyright: true, backToTerminal: true, ...footer } } }) as typeof profile;
 
     it("joins the copyright and the page's tail with a separator", () => {
-      const html = renderFooter(withFooter({ bottomText: undefined }), locale, "https://x.test", "<i>tail</i>");
+      const html = renderFooter(withFooter({ bottomText: "" }), locale, "https://x.test", "<i>tail</i>");
       expect(html).toContain(`>${profile.author[locale]}</a> · <i>tail</i>`);
       expect(html).not.toContain("footer-bottom");
     });
 
     it("drops the copyright and the separator when switched off", () => {
-      const html = renderFooter(withFooter({ copyright: false, bottomText: undefined }), locale, "https://x.test", "<i>tail</i>");
+      const html = renderFooter(withFooter({ copyright: false, bottomText: "" }), locale, "https://x.test", "<i>tail</i>");
       expect(html).toBe("<i>tail</i>");
     });
 
     it("is empty when every part is off", () => {
-      expect(renderFooter(withFooter({ copyright: false, bottomText: undefined }), locale, "", "")).toBe("");
+      expect(renderFooter(withFooter({ copyright: false, bottomText: "" }), locale, "", "")).toBe("");
     });
 
     it("renders bottomText verbatim, on its own line, the same in every locale", () => {

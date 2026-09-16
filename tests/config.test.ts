@@ -285,32 +285,35 @@ describe.each([
   });
 
   it("serves an unprefixed default that is one of its own locales", () => {
-    const fallback = /defaultLocale:\s*"([^"]+)"/.exec(example)?.[1] ?? "";
+    // Uncommented only: the examples show the default as a commented line.
+    const fallback = /^\s*defaultLocale:\s*"([^"]+)"/m.exec(example)?.[1] ?? locales[0];
     expect(locales, `defaultLocale "${fallback}" is not shipped`).toContain(fallback);
   });
 
-  // The examples aren't typechecked, so the switches `tsc` would insist on
-  // for the real config are checked here instead.
-  it("sets every switch explicitly", () => {
+  // The examples aren't typechecked, so the switch types `tsc` would insist
+  // on for the real config are checked here instead — for the switches an
+  // example sets. Each default is shown commented out, so most are absent.
+  it("types every switch it sets as a boolean", () => {
     const { terminal, seo } = mod!.default as {
-      terminal: Record<string, unknown>;
-      seo: Record<string, unknown>;
+      terminal?: Record<string, unknown>;
+      seo?: Record<string, unknown>;
     };
-    expect(typeof terminal["bootScreen"], "terminal.bootScreen").toBe("boolean");
-    expect(typeof terminal["chips"], "terminal.chips").toBe("boolean");
-    const footer = terminal["footer"] as Record<string, unknown> | undefined;
-    expect(typeof footer?.["copyright"], "terminal.footer.copyright").toBe("boolean");
-    expect(typeof footer?.["backToTerminal"], "terminal.footer.backToTerminal").toBe("boolean");
+    const bool = (v: unknown, name: string) => {
+      if (v !== undefined) expect(typeof v, name).toBe("boolean");
+    };
+    bool(terminal?.["bootScreen"], "terminal.bootScreen");
+    bool(terminal?.["chips"], "terminal.chips");
+    const footer = terminal?.["footer"] as Record<string, unknown> | undefined;
+    bool(footer?.["copyright"], "terminal.footer.copyright");
+    bool(footer?.["backToTerminal"], "terminal.footer.backToTerminal");
     for (const key of [
       "enableRobotsTxt", "enableSitemap", "enableLlmsTxt",
       "enableJsonLd", "enableNoscript", "enableSocialCards",
     ]) {
-      expect(typeof seo[key], `seo.${key}`).toBe("boolean");
+      bool(seo?.[key], `seo.${key}`);
     }
-    const signal = seo["contentSignal"] as Record<string, unknown> | undefined;
-    for (const key of ["search", "aiTrain", "aiInput"]) {
-      expect(typeof signal?.[key], `seo.contentSignal.${key}`).toBe("boolean");
-    }
+    const signal = seo?.["contentSignal"] as Record<string, unknown> | undefined;
+    for (const key of ["search", "aiTrain", "aiInput"]) bool(signal?.[key], `seo.contentSignal.${key}`);
   });
 
   it("dates the machine with an offset, when it dates it at all", () => {
