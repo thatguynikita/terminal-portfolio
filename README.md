@@ -31,9 +31,9 @@ Vite + TypeScript, no UI framework, no runtime dependencies.
 - **A real fake filesystem** — files show up in `ls` with their true byte sizes, and can be dynamic or executable. → [guide](docs/filesystem.md)
 - **A static CV**, prerendered per language, readable with JavaScript off and by AI crawlers that never run it. → [guide](docs/cv.md)
 - **Built to be read by machines.** The résumé is in the raw HTML; the build emits `sitemap.xml`, `robots.txt` (with per-crawler rules and `Content-Signal`) and `llms.txt` from the same page list, plus a self-canonical hreflang cluster and JSON-LD. Scan it yourself with [Lighthouse](https://pagespeed.web.dev/) or [isitagentready.com](https://isitagentready.com/).
-- **Four languages ship, and adding one is a single file.** You pick which ones build; the rest never reach the bundle. → [guide](docs/i18n.md)
+- **Thirteen languages ship, and adding one is a single file.** English, Russian, Ukrainian, Spanish, Portuguese, French, Italian, German, Polish, Turkish, Chinese, Japanese, Korean. You pick which ones build; the rest never reach the bundle. → [guide](docs/i18n.md)
 - **Everything about you lives in one file** — `profile.config.ts`. Name, bio, skills, socials, CV, personas, SEO.
-- **329 tests**, and a preflight that refuses to deploy a fork still carrying someone else's name.
+- **333 tests**, and a preflight that refuses to deploy a fork still carrying someone else's name.
 - **Deploys anywhere static** — GitHub Pages and S3-compatible hosts are one command each. → [guide](docs/deploy.md)
 
 ---
@@ -257,7 +257,7 @@ src/core/               engine: registry, output API, input loop, modes, theme
 src/commands/           one file per command — auto-registered
 src/cv/                 CV renderer, URLs, JSON-LD
 src/fs/                 the fake filesystem
-src/i18n/messages/      one file per language — en, ru, es, de
+src/i18n/messages/      one file per language — en, ru, uk, es, pt, fr, it, de, pl, tr, zh, ja, ko
 src/themes/             one CSS file per theme — auto-registered
 src/styles/             shared chrome and per-page layout
 public/                 copied verbatim into dist/
