@@ -350,6 +350,7 @@ const fr: Messages = {
 
   notFound: {
     message: "Aucun fichier ou dossier de ce type",
+    description: "404 — page introuvable.",
     quip: "Oups ! On dirait que le chat a mangé tout le lait concentré... et cette page avec.",
     catAlt: "Un chat roux couché sur le dos, fatigué, entouré de boîtes de lait concentré renversées.",
     back: "retour au terminal",

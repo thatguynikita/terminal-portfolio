@@ -350,6 +350,7 @@ const pl: Messages = {
 
   notFound: {
     message: "Nie ma takiego pliku ani katalogu",
+    description: "404 — nie znaleziono strony.",
     quip: "Ups! Wygląda na to, że kot zjadł całe mleko skondensowane... i tę stronę też.",
     catAlt: "Rudy kot leży na plecach, zmęczony, otoczony rozlanymi puszkami mleka skondensowanego.",
     back: "wróć do terminala",

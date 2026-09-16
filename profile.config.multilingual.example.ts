@@ -86,13 +86,7 @@ export default defineProfile({
       en: "Interactive terminal portfolio of an embedded systems engineer with 10 years in robotics. Type `help` to explore.",
       es: "Portfolio interactivo en terminal de una ingeniera de sistemas embebidos con 10 años en robótica. Escribe `help` para explorar.",
       de: "Interaktives Terminal-Portfolio einer Embedded-Systems-Entwicklerin mit 10 Jahren Robotik-Erfahrung. Tippe `help` zum Stöbern.",
-    },    // For the CV's JSON-LD address and the no-JS fallback; not shown on a page.
-    location: {
-      en: "Munich, Germany",
-      es: "Múnich, Alemania",
-      de: "München, Deutschland",
-    },
-    // robots.txt: per-crawler rules, Content-Signal, and the sitemap line.
+    },    // robots.txt: per-crawler rules, Content-Signal, and the sitemap line.
     enableRobotsTxt: true,
     // robots.txt Content-Signal: may the content be searched, train models, feed AI answers.
     contentSignal: { search: true, aiTrain: true, aiInput: true },
@@ -394,6 +388,12 @@ auftreten, und Prüfstände, die einen Defekt vor dem Lager bemerken.`,
       en: "Embedded Systems Engineer — Robotics · 10y experience",
       es: "Ingeniera de sistemas embebidos — Robótica · 10 años de experiencia",
       de: "Embedded-Systems-Entwicklerin — Robotik · 10 Jahre Erfahrung",
+    },
+    // The CV pages' meta and share-card description; omit to reuse seo.description.
+    description: {
+      en: "Embedded Systems Engineer — CV / résumé. C, Rust, RTOS, ROS 2, robotics.",
+      es: "Ingeniera de sistemas embebidos — CV. C, Rust, RTOS, ROS 2, robótica.",
+      de: "Embedded-Systems-Entwicklerin — Lebenslauf. C, Rust, RTOS, ROS 2, Robotik.",
     },
 
     photo: "/assets/img/portraits/beatriz-photo.png",

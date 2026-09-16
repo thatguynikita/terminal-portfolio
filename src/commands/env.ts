@@ -1,18 +1,6 @@
 import { defineCommand } from "../core/types";
 import { systemOwner } from "../core/describe";
-
-/**
- * The POSIX locale for a UI language — `ru_RU`, `pt_BR`, `zh_CN`. Every
- * shipped catalogue is listed; anything else gets the language doubled,
- * which is what most of them are anyway.
- */
-const REGIONS: Record<string, string> = {
-  en: "US", ru: "RU", es: "ES", de: "DE", pt: "BR", fr: "FR", zh: "CN",
-  ja: "JP", it: "IT", pl: "PL", uk: "UA", tr: "TR", ko: "KR",
-};
-export function posixLocale(lang: string): string {
-  return `${lang}_${REGIONS[lang] ?? lang.toUpperCase()}`;
-}
+import { posixLocale } from "../i18n/locales";
 
 export default defineCommand({
   name: "env",

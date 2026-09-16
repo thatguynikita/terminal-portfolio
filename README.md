@@ -33,7 +33,7 @@ Vite + TypeScript, no UI framework, no runtime dependencies.
 - **Built to be read by machines.** The résumé is in the raw HTML; the build emits `sitemap.xml`, `robots.txt` (with per-crawler rules and `Content-Signal`) and `llms.txt` from the same page list, plus a self-canonical hreflang cluster and JSON-LD. Scan it yourself with [Lighthouse](https://pagespeed.web.dev/) or [isitagentready.com](https://isitagentready.com/).
 - **Thirteen languages ship, and adding one is a single file.** English, Russian, Ukrainian, Spanish, Portuguese, French, Italian, German, Polish, Turkish, Chinese, Japanese, Korean. You pick which ones build; the rest never reach the bundle. → [guide](docs/i18n.md)
 - **Everything about you lives in one file** — `profile.config.ts`. Name, bio, skills, socials, CV, personas, SEO.
-- **333 tests**, and a preflight that refuses to deploy a fork still carrying someone else's name.
+- **344 tests**, and a preflight that refuses to deploy a fork still carrying someone else's name.
 - **Deploys anywhere static** — GitHub Pages and S3-compatible hosts are one command each. → [guide](docs/deploy.md)
 
 ---

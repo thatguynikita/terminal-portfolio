@@ -3,7 +3,9 @@ import { existsSync, readdirSync, readFileSync } from "node:fs";
 import { join } from "node:path";
 import profile, { MESSAGES } from "../profile.config";
 import { cvLocales, cvUrl } from "../src/cv/url";
-import { renderContentSignal, socialsFor } from "../src/core/profile";
+import { mailtoFor, renderContentSignal, socialsFor } from "../src/core/profile";
+import { languageName, posixLocale } from "../src/i18n/locales";
+import { translate } from "../src/i18n";
 import { escapeHtml } from "../src/core/html";
 
 // The same resolution vite.config.ts uses; vitest.config.ts loads .env into
@@ -49,6 +51,21 @@ suite("built output", () => {
     }
   });
 
+  // The tab title carries the host; the share card must not, because
+  // og:site_name already names it and the card would show it twice.
+  it("titles the CV tab with the host and the CV share card without it", () => {
+    if (!profile.seo.enableSocialCards) return;
+    for (const l of locales) {
+      const html = read(cvUrl(profile, l).replace(/^\//, ""));
+      const name = escapeHtml(profile.identity.name[l]);
+      const host = escapeHtml(profile.terminal.hostname);
+      expect(html).toContain(`<title>${name} — CV — ${host}</title>`);
+      expect(html).toContain(`<meta property="og:title" content="${name} — CV" />`);
+      expect(html).toContain(`<meta name="twitter:title" content="${name} — CV" />`);
+      expect(html).toContain(`<meta property="og:site_name" content="${host}" />`);
+    }
+  });
+
   /**
    * The three head injections are each a switch in `seo`. Every page is
    * checked both ways: present with the right content when on, absent when
@@ -63,7 +80,7 @@ suite("built output", () => {
       ...locales.map((l): [string, typeof lang] => [cvUrl(profile, l).replace(/^\//, ""), l]),
     ];
 
-    it("noscript fallback: on the terminal page only, saying role and location", () => {
+    it("noscript fallback: on the terminal page only, saying role, meta line and where the skills are", () => {
       const index = read("index.html");
       const noscript = /<noscript>([\s\S]*?)<\/noscript>/.exec(index)?.[1];
       if (!profile.seo.enableNoscript) {
@@ -73,7 +90,12 @@ suite("built output", () => {
       }
       expect(noscript, "no noscript block").toBeDefined();
       expect(noscript, "noscript should lead with the role").toContain(escapeHtml(profile.identity.role[lang]));
-      expect(noscript, "noscript should carry the location").toContain(escapeHtml(profile.seo.location[lang]));
+      if (profile.cv?.metaLine) {
+        expect(noscript, "noscript should carry the CV meta line").toContain(escapeHtml(profile.cv.metaLine[lang]));
+      }
+      if (profile.cv) {
+        expect(noscript, "noscript should point at the CV's skills").toContain(`href="${cvUrl(profile, lang)}#skills"`);
+      }
       if (profile.cv?.tagline) {
         expect(noscript, "the CV tagline is CV-only").not.toContain(escapeHtml(profile.cv.tagline[lang]));
       }
@@ -92,9 +114,15 @@ suite("built output", () => {
           continue;
         }
         expect(scripts.length, `${page} has no JSON-LD`).toBe(1);
-        const data = JSON.parse(scripts[0]![1]!) as { "@type": string; name: string };
-        expect(data["@type"]).toBe("Person");
-        expect(data.name).toBe(profile.identity.name[locale]);
+        // The terminal ships a graph (WebSite + Person); a CV page a ProfilePage
+        // whose mainEntity is the Person. Either way there is exactly one Person,
+        // named in the page's own locale.
+        const data = JSON.parse(scripts[0]![1]!) as Record<string, any>;
+        const person = page === "index.html"
+          ? (data["@graph"] as Array<Record<string, any>>).find((n) => n["@type"] === "Person")
+          : data["mainEntity"];
+        expect(person?.["@type"], `${page} has no Person node`).toBe("Person");
+        expect(person?.["name"]).toBe(profile.identity.name[locale]);
       }
     });
 
@@ -112,6 +140,71 @@ suite("built output", () => {
         expect(twitter, `${page} is missing twitter:card`).toBe(1);
       }
     });
+
+    /**
+     * The tags the rewrite had dropped, checked against the old site's
+     * head: site_name, locale, explicit twitter:* — and twitter:image
+     * exactly when there is an og:image, since that decides the card.
+     */
+    it("social cards: site name, locale, and explicit twitter tags on every page", () => {
+      if (!profile.seo.enableSocialCards) return;
+      for (const [page, locale] of pages()) {
+        const html = read(page);
+        expect(html, `${page} og:site_name`).toContain(`<meta property="og:site_name" content="${escapeHtml(profile.terminal.hostname)}" />`);
+        expect(html, `${page} og:locale`).toContain(`<meta property="og:locale" content="${posixLocale(locale)}" />`);
+        expect(html, `${page} twitter:title`).toMatch(/<meta name="twitter:title" content="[^"]+" \/>/);
+        expect(html, `${page} twitter:description`).toMatch(/<meta name="twitter:description" content="[^"]+" \/>/);
+        const hasOgImage = /<meta property="og:image"/.test(html);
+        expect(/<meta name="twitter:image"/.test(html), `${page} twitter:image vs og:image`).toBe(hasOgImage);
+      }
+    });
+
+    it("social cards: each CV page names its own locale and lists the others as alternates", () => {
+      if (!profile.seo.enableSocialCards || locales.length < 2) return;
+      for (const l of locales) {
+        const html = read(cvUrl(profile, l).replace(/^\//, ""));
+        expect(html).toContain(`<meta property="og:locale" content="${posixLocale(l)}" />`);
+        for (const other of locales.filter((o) => o !== l)) {
+          expect(html, `${l} page lacks alternate ${other}`).toContain(`<meta property="og:locale:alternate" content="${posixLocale(other)}" />`);
+        }
+        expect(html, `${l} page lists itself as an alternate`).not.toContain(`og:locale:alternate" content="${posixLocale(l)}"`);
+      }
+    });
+  });
+
+  it("gives every page the manifest's theme colour, the manifest, and the sized icons", () => {
+    const manifest = JSON.parse(read("site.webmanifest")) as { theme_color: string };
+    const allPages = ["index.html", "404.html", ...locales.map((l) => cvUrl(profile, l).replace(/^\//, ""))];
+    for (const page of allPages) {
+      const html = read(page);
+      expect(html, `${page} theme-color`).toContain(`<meta name="theme-color" content="${manifest.theme_color}" />`);
+      expect(html, `${page} manifest link`).toContain(`<link rel="manifest" href="/site.webmanifest" />`);
+      expect(html, `${page} touch icon size`).toContain(`<link rel="apple-touch-icon" sizes="180x180"`);
+      for (const size of ["16x16", "32x32", "120x120"]) {
+        expect(html, `${page} favicon ${size}`).toContain(`sizes="${size}" href="/assets/icons/favicon-${size}.png"`);
+        expect(existsSync(join(process.cwd(), "public/assets/icons", `favicon-${size}.png`)), `favicon-${size}.png missing from public/`).toBe(true);
+      }
+    }
+  });
+
+  /**
+   * One description per kind of page, as the old site had: the terminal's
+   * from seo.description, the CV's own (or the terminal's when unset), the
+   * 404 describing itself from the catalogue.
+   */
+  it("describes each kind of page in its own words", () => {
+    const lang = profile.terminal.defaultLocale;
+    const meta = (html: string) => /<meta name="description" content="([^"]*)" \/>/.exec(html)?.[1];
+    expect(meta(read("index.html"))).toBe(escapeHtml(profile.seo.description[lang]));
+    expect(meta(read("404.html"))).toBe(escapeHtml(translate(lang, "notFound.description")));
+    for (const l of locales) {
+      const html = read(cvUrl(profile, l).replace(/^\//, ""));
+      const expected = profile.cv?.description?.[l] ?? profile.seo.description[l];
+      expect(meta(html), `${l} CV description`).toBe(escapeHtml(expected));
+      if (profile.cv?.description) {
+        expect(meta(html), "the CV should not describe itself as the terminal").not.toBe(escapeHtml(profile.seo.description[l]));
+      }
+    }
   });
 
   // The three discovery files are each a switch in `seo`. Off means absent —
@@ -328,14 +421,39 @@ suite("built output", () => {
      * optional free-form detail containing no headings, then H2 sections
      * whose every list item is a markdown link.
      */
-    it("opens with an H1 and a blockquote summary", () => {
+    it("lists the key facts an agent would ask for, from config only", () => {
+      const lang = profile.terminal.defaultLocale;
+      expect(txt).toContain(`- Role: ${profile.identity.role[lang]}`);
+      const contact = /^- Contact: (.+)$/m.exec(txt)?.[1];
+      expect(contact, "no contact line").toBeTruthy();
+      const known = new Set([mailtoFor(profile)?.replace(/^mailto:/, ""), ...socialsFor(profile, "cv").map((s) => s.display)]);
+      expect(known.has(contact as string), `contact "${contact}" is not one of the socials`).toBe(true);
+      // No field states a curated stack, years of experience or availability,
+      // so none of those lines may appear — nothing gets invented.
+      expect(txt).not.toMatch(/^- (Core stack|Experience|Availability):/m);
+    });
+
+    it("has one section per shipped language, named in that language, linking its CV", () => {
+      for (const l of locales) {
+        const section = new RegExp(`^## ${languageName(l).replace(/[.*+?^${}()|[\]\\]/g, "\\$&")}$`, "m");
+        expect(txt, `no section for ${l}`).toMatch(section);
+        expect(txt).toContain(`${cvUrl(profile, l)}): ${profile.identity.role[l]}`);
+      }
+    });
+
+    it("opens with an H1 naming every spelling, and the site's description as the summary", () => {
       const lines = txt.split("\n");
       expect(lines[0], "first line is not an H1").toMatch(/^# \S/);
+      // Every selected locale's name is on the H1, once each.
+      const spellings = [...new Set(Object.keys(MESSAGES).map((l) => profile.identity.name[l as keyof typeof MESSAGES]))];
+      expect(lines[0]).toBe(`# ${spellings.join(" / ")}`);
       const quote = lines.slice(1).find((l) => l.trim() !== "");
       expect(quote, "no blockquote summary after the title").toMatch(/^> \S/);
-      // The summary is the role, not the CV's tagline.
+      // The summary is the bio — who this is; what the site is follows the facts.
       const lang = profile.terminal.defaultLocale;
-      expect(quote).toBe(`> ${profile.identity.role[lang]}`);
+      expect(quote).toBe(`> ${profile.bio[lang].replace(/\s+/g, " ").trim()}`);
+      const afterFacts = txt.slice(txt.indexOf("- Contact:"), txt.indexOf("## Pages"));
+      expect(afterFacts).toContain(profile.seo.description[lang]);
     });
 
     it("uses only H1 and H2 headings", () => {
@@ -345,8 +463,12 @@ suite("built output", () => {
       expect(headings.filter((h) => h === 1).length, "more than one H1").toBe(1);
     });
 
-    it("makes every list item a markdown link, as the spec requires", () => {
-      const items = [...txt.matchAll(/^-\s+(.*)$/gm)].map((m) => m[1] as string);
+    it("makes every list item under an H2 a markdown link, as the spec requires", () => {
+      // The spec constrains the H2 "file list" sections to links; the
+      // free-form detail above them may hold any markdown, which is where
+      // the key-facts list lives.
+      const sections = txt.slice(txt.indexOf("\n## "));
+      const items = [...sections.matchAll(/^-\s+(.*)$/gm)].map((m) => m[1] as string);
       expect(items.length).toBeGreaterThan(2);
       for (const item of items) {
         expect(

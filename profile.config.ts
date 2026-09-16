@@ -70,11 +70,6 @@ export default defineProfile({
       en: "Interactive terminal portfolio of a DevOps/SRE engineer with 11 years of experience. Type `help` to explore.",
       ru: "Интерактивное терминальное портфолио DevOps/SRE-инженера с 11-летним опытом. Введите `help`, чтобы начать.",
     },
-    // For the CV's JSON-LD address and the no-JS fallback; not shown on a page.
-    location: {
-      en: "Saint Petersburg, Russia",
-      ru: "Санкт-Петербург, Россия",
-    },
     ogImage: "/assets/img/og-terminal.png",
     // robots.txt: per-crawler rules, Content-Signal, and the sitemap line.
     enableRobotsTxt: true,
@@ -291,6 +286,11 @@ and SRE practices into reality.`,
     tagline: {
       en: "DevOps / SRE — Systems Engineer · 11y experience",
       ru: "DevOps / SRE — Системный инженер · 11 лет опыта",
+    },
+    // The CV pages' meta and share-card description; omit to reuse seo.description.
+    description: {
+      en: "DevOps / SRE — CV / résumé. AWS, OpenStack, Kubernetes, Docker, Linux.",
+      ru: "DevOps / SRE — резюме. AWS, OpenStack, Kubernetes, Docker, Linux.",
     },
 
     photo: "/assets/img/portraits/nikita-photo.png",

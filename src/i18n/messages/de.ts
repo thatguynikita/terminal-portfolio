@@ -353,6 +353,7 @@ const de: Messages = {
 
   notFound: {
     message: "Datei oder Verzeichnis nicht gefunden",
+    description: "404 — Seite nicht gefunden.",
     quip: "Hoppla! Sieht aus, als hätte die Katze die ganze Kondensmilch gefressen ... und diese Seite gleich mit.",
     catAlt: "Eine orange Katze liegt müde auf dem Rücken, umgeben von verschütteten Kondensmilchdosen.",
     back: "zurück zum Terminal",

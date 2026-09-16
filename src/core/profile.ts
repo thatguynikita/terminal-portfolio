@@ -53,6 +53,12 @@ export interface CvConfig {
    */
   tagline?: Localized;
   /**
+   * The CV pages' meta and share-card description. Omit to reuse
+   * `seo.description` — which describes the terminal, so a résumé usually
+   * wants its own line.
+   */
+  description?: Localized;
+  /**
    * Portrait, root-absolute, under public/assets/img/portraits/ — only the
    * file named here survives the build. Shown on the CV, used as its
    * JSON-LD `image`, og:image and sitemap image. Omit for no portrait.
@@ -184,12 +190,6 @@ export interface ProfileConfig {
   seo: {
     /** The `<meta name="description">` and og:description on every page. */
     description: Localized;
-    /**
-     * Where you are, for the CV's JSON-LD address and the terminal's no-JS
-     * fallback. Not shown on any rendered page — the CV's visible line is
-     * `cv.metaLine`.
-     */
-    location: Localized;
     /**
      * Path under the site root, e.g. "/assets/img/og-terminal.png". The
      * og:image of the terminal and 404 pages; inert with `enableSocialCards`

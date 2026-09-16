@@ -350,6 +350,7 @@ const tr: Messages = {
 
   notFound: {
     message: "Böyle bir dosya ya da dizin yok",
+    description: "404 — sayfa bulunamadı.",
     quip: "Hoop! Görünüşe göre kedi tüm yoğunlaştırılmış sütü yemiş... bu sayfayı da.",
     catAlt: "Sırtüstü yatan yorgun bir turuncu kedi, etrafında devrilmiş yoğunlaştırılmış süt kutuları.",
     back: "terminale dön",

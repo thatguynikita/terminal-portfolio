@@ -4,7 +4,7 @@ import { join } from "node:path";
 import profile from "../profile.config";
 import { LOCALES, type Localized } from "../src/i18n/locales";
 import { renderCv, renderCvTopbar } from "../src/cv/render";
-import { buildCvJsonLd } from "../src/cv/jsonld";
+import { buildCvJsonLd, buildIndexJsonLd } from "../src/core/jsonld";
 import { CV_LINK_LABEL, cvLocales, cvUrl } from "../src/cv/url";
 import { mailtoFor, renderCopyright, renderFooter, skillsFor, socialsFor } from "../src/core/profile";
 import { leaveForTerminalOnKey } from "../src/core/leave";
@@ -274,25 +274,108 @@ withCv("cv renders without JavaScript", () => {
   }
 });
 
+/**
+ * Structured data. Every property is derived from config, so each test
+ * pins a property to the config field that feeds it — the same guarantee
+ * the visible page has, applied to what only crawlers read.
+ */
 withCv("cv structured data", () => {
+  const person = (locale: (typeof locales)[number]): Record<string, any> =>
+    (buildCvJsonLd(profile, locale, "https://example.com") as Record<string, any>)["mainEntity"];
+
   for (const locale of locales) {
-    it(`${locale}: matches the profile config`, () => {
+    it(`${locale}: is a ProfilePage about a Person that matches the config`, () => {
       const data = buildCvJsonLd(profile, locale, "https://example.com") as Record<string, any>;
-      expect(data["@type"]).toBe("Person");
-      expect(data["name"]).toBe(profile.identity.name[locale]);
-      expect(data["jobTitle"]).toBe(profile.identity.role[locale]);
+      expect(data["@type"]).toBe("ProfilePage");
+      const p = person(locale);
+      expect(p["@type"]).toBe("Person");
+      expect(p["@id"]).toBe("https://example.com/#owner");
+      expect(p["name"]).toBe(profile.identity.name[locale]);
+      expect(p["jobTitle"]).toBe(profile.identity.role[locale]);
       // Derived from the socials, so the address a crawler reads is the one
       // a visitor sees; absent when there's no mailto: social at all.
-      expect(data["email"]).toBe(mailtoFor(profile));
-      expect(data["address"].addressLocality).toBe(profile.seo.location[locale]);
-      // Serialisable, since it is emitted as JSON in a script tag.
+      expect(p["email"]).toBe(mailtoFor(profile));
+      // Location was dropped from config; nothing may resurrect it.
+      expect("address" in p).toBe(false);
       expect(() => JSON.parse(JSON.stringify(data))).not.toThrow();
     });
   }
 
   it("lists only real URLs in sameAs", () => {
-    const data = buildCvJsonLd(profile, "en", "https://example.com") as Record<string, any>;
-    for (const url of data["sameAs"] as string[]) expect(url).toMatch(/^https?:\/\//);
+    for (const url of person("en" as never)["sameAs"] as string[]) expect(url).toMatch(/^https?:\/\//);
+  });
+
+  it("derives knowsAbout from the skills table, one technology per entry", () => {
+    const about = person(locales[0]!)["knowsAbout"] as string[];
+    expect(about.length).toBeGreaterThan(0);
+    for (const item of about) expect(item, "a comma-joined value leaked through").not.toContain(", ");
+    const firstSkill = profile.skills[0]!.value.split(",")[0]!.trim();
+    expect(about).toContain(firstSkill);
+    expect(new Set(about).size, "duplicates").toBe(about.length);
+  });
+
+  it("derives the CV-only sections from the CV config, in its locale", () => {
+    for (const locale of locales) {
+      const p = person(locale);
+      if (cv!.languages) {
+        expect(p["knowsLanguage"]).toEqual(cv!.languages.map((l) => l.name[locale]));
+      }
+      if (cv!.education) {
+        expect(p["alumniOf"]).toEqual({
+          "@type": "EducationalOrganization",
+          name: cv!.education.university[locale],
+        });
+      }
+      if (cv!.certs) {
+        expect(p["hasCredential"]).toHaveLength(cv!.certs.length);
+        expect(p["hasCredential"][0]).toMatchObject({ name: cv!.certs[0]!.name, dateCreated: cv!.certs[0]!.year });
+      }
+      if (cv!.jobs) {
+        // Present tense: only the current (first-listed) job is an occupation the person has.
+        expect(p["hasOccupation"]).toEqual({ "@type": "Occupation", name: cv!.jobs[0]!.title[locale] });
+        for (const past of cv!.jobs.slice(1)) {
+          expect(JSON.stringify(p["hasOccupation"]), "a past title in hasOccupation").not.toContain(past.title[locale]);
+        }
+        // Employers live on affiliation, deduped: Occupation has no employer
+        // property, and the validator flags hiringOrganization there.
+        const orgs = p["affiliation"] as Array<{ name: string }>;
+        expect(orgs.map((o) => o.name)).toEqual([...new Set(cv!.jobs.map((j) => j.org.name))]);
+        expect(JSON.stringify(p)).not.toContain("hiringOrganization");
+      }
+      if (cv!.photo) expect(p["image"]).toBe(`https://example.com${cv!.photo}`);
+    }
+  });
+
+  it("omits every CV-only section for an empty cv, rather than emitting it empty", () => {
+    const p = (buildCvJsonLd({ ...profile, cv: {} } as typeof profile, locales[0]!, "https://x.test") as Record<string, any>)["mainEntity"];
+    for (const key of ["alumniOf", "hasCredential", "hasOccupation", "affiliation", "knowsLanguage", "image"]) {
+      expect(key in p, `${key} present for an empty cv`).toBe(false);
+    }
+    expect(p["knowsAbout"], "skills live outside cv, so they survive").toBeTruthy();
+  });
+});
+
+describe("index structured data", () => {
+  const locale = profile.terminal.defaultLocale;
+  const graph = () => (buildIndexJsonLd(profile, locale, "https://example.com") as Record<string, any>)["@graph"] as Array<Record<string, any>>;
+
+  it("is a graph of the site and its owner, linked by @id", () => {
+    const [site, person] = graph();
+    expect(site!["@type"]).toBe("WebSite");
+    expect(site!["@id"]).toBe("https://example.com/#website");
+    expect(site!["name"]).toBe(profile.terminal.hostname);
+    expect(site!["inLanguage"]).toEqual([...LOCALES]);
+    expect(person!["@type"]).toBe("Person");
+    expect(person!["@id"]).toBe("https://example.com/#owner");
+  });
+
+  it("carries the owner's image and skills but not the CV-only sections", () => {
+    const [, person] = graph();
+    if (profile.cv?.photo) expect(person!["image"]).toBe(`https://example.com${profile.cv.photo}`);
+    expect(person!["knowsAbout"]).toBeTruthy();
+    for (const key of ["alumniOf", "hasCredential", "hasOccupation", "affiliation", "address"]) {
+      expect(key in person!, `${key} on the terminal page`).toBe(false);
+    }
   });
 });
 
@@ -630,8 +713,8 @@ describe("mailtoFor", () => {
   it("is undefined with no mailto: social, and JSON-LD then omits email", () => {
     const p = withSocials([{ label: "Web", href: "https://a.example", display: "a" }]);
     expect(mailtoFor(p)).toBeUndefined();
-    const data = buildCvJsonLd(p, profile.terminal.defaultLocale, "https://example.com") as Record<string, unknown>;
-    expect("email" in data).toBe(false);
+    const data = buildCvJsonLd(p, profile.terminal.defaultLocale, "https://example.com") as Record<string, any>;
+    expect("email" in data["mainEntity"]).toBe(false);
   });
 
   it("the shipped config has exactly one mailto: social", () => {

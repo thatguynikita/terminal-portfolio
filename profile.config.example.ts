@@ -70,11 +70,7 @@ export default defineProfile({
   seo: {
     description: {
       en: "Interactive terminal portfolio of a data engineer with 10 years of experience. Type `help` to explore.",
-    },    // For the CV's JSON-LD address and the no-JS fallback; not shown on a page.
-    location: {
-      en: "Belgrade, Serbia",
-    },
-    // robots.txt: per-crawler rules, Content-Signal, and the sitemap line.
+    },    // robots.txt: per-crawler rules, Content-Signal, and the sitemap line.
     enableRobotsTxt: true,
     // robots.txt Content-Signal: may the content be searched, train models, feed AI answers.
     contentSignal: { search: true, aiTrain: true, aiInput: true },
@@ -266,6 +262,10 @@ before a dashboard lies, and documentation someone reads at 2am.`,
     // been at it. CV page only.
     tagline: {
       en: "Data Engineer — Analytics Platform · 10y experience",
+    },
+    // The CV pages' meta and share-card description; omit to reuse seo.description.
+    description: {
+      en: "Data Engineer — CV / résumé. Spark, Airflow, dbt, Kafka, Snowflake.",
     },
 
     photo: "/assets/img/portraits/marina-photo.png",
