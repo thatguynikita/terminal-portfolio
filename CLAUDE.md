@@ -11,8 +11,9 @@ changes lives in `profile.config.ts`.
 
 It was rebuilt from `nikita.sh`, where the whole terminal was a single
 1,890-line inline `<script>` in `public/index.html` whose `runCommand()` was a
-550-line `switch`. That repo is untouched and still live; this is a separate
-codebase, not a migration of it.
+550-line `switch`. That repo is archived, and nikita.sh is now deployed from
+this one (S3, `npm run deploy:s3`); this is a separate codebase, not a
+migration of it.
 
 ## Commands
 
@@ -23,7 +24,7 @@ npm run preview        # serve the built dist/
 npm test               # vitest, all suites
 npm run check          # config preflight only
 npm run deploy         # gh-pages
-npm run deploy:s3      # aws s3 sync (AWS or Yandex; see .env.example)
+npm run deploy:s3      # scripts/deploy-s3.sh → S3-compatible bucket (see .env.example)
 ```
 
 ## Architecture
@@ -276,6 +277,16 @@ clean at validator.schema.org; keep it that way when adding a property.
 `cv.description` (optional, falls back) the CV's, `notFound.description` in
 the catalogue the 404's. Share-card tags come from one `socialCardTags()` so
 the three pages can't drift; `theme-color` is the manifest's colour.
+
+**Two deploy paths, both kept.** `npm run deploy` is GitHub Pages
+(`gh-pages` branch, needs the `CNAME` the build emits). `npm run deploy:s3` is
+`scripts/deploy-s3.sh` — not a bare `aws s3 sync`, because sync guesses
+content types and never adds a charset (llms.txt in Cyrillic rendered garbled
+on the old site): every object's type comes from the script's table, one sync
+pass per extension, an unknown extension fails the deploy, hashed assets get
+immutable cache headers, a `--delete --size-only` pass removes stale keys, and `S3_KEEP` patterns (search-engine verification files that
+live in the bucket, not the repo) are excluded from every pass. Nikita's own
+site is the S3 one; the Pages path exists for forks.
 
 `public/` is copied verbatim into `dist/` — with one exception.
 **`public/assets/img/portraits/` is pruned in `writeBundle`**: it holds every

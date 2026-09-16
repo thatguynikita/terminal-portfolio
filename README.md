@@ -10,11 +10,11 @@ Vite + TypeScript, no UI framework, no runtime dependencies.
 [![Node](https://img.shields.io/badge/node-%3E%3D20-brightgreen)](package.json)
 [![TypeScript](https://img.shields.io/badge/TypeScript-5.7-3178c6?logo=typescript&logoColor=white)](tsconfig.json)
 [![Vite](https://img.shields.io/badge/Vite-6-646cff?logo=vite&logoColor=white)](vite.config.ts)
-[![Live Demo](https://img.shields.io/badge/demo-terminal.nikita.sh-0a7)](https://terminal.nikita.sh)
+[![Live Demo](https://img.shields.io/badge/demo-nikita.sh-0a7)](https://nikita.sh)
 
 <img src="docs/demo.gif" width="800" alt="A recorded session: the boot sequence and neofetch card, help, a fake top, switching to the ubuntu theme, then ls -lah revealing milk-quest.sh and running it with sudo">
 
-**[Try it live →](https://terminal.nikita.sh)**
+**[Try it live →](https://nikita.sh)**
 
 </div>
 
@@ -33,8 +33,8 @@ Vite + TypeScript, no UI framework, no runtime dependencies.
 - **Built to be read by machines.** The résumé is in the raw HTML; the build emits `sitemap.xml`, `robots.txt` (with per-crawler rules and `Content-Signal`) and `llms.txt` from the same page list, plus a self-canonical hreflang cluster and JSON-LD. Scan it yourself with [Lighthouse](https://pagespeed.web.dev/) or [isitagentready.com](https://isitagentready.com/).
 - **Thirteen languages ship, and adding one is a single file.** English, Russian, Ukrainian, Spanish, Portuguese, French, Italian, German, Polish, Turkish, Chinese, Japanese, Korean. You pick which ones build; the rest never reach the bundle. → [guide](docs/i18n.md)
 - **Everything about you lives in one file** — `profile.config.ts`. Name, bio, skills, socials, CV, personas, SEO.
-- **344 tests**, and a preflight that refuses to deploy a fork still carrying someone else's name.
-- **Deploys anywhere static** — GitHub Pages and S3-compatible hosts are one command each. → [guide](docs/deploy.md)
+- **351 tests**, and a preflight that refuses to deploy a fork still carrying someone else's name.
+- **Deploys anywhere static** — GitHub Pages and S3-compatible hosts (AWS, Yandex Object Storage) are one command each; the S3 path sets every object's content type explicitly, with a dry run that shows the full plan first. → [guide](docs/deploy.md)
 
 ---
 
@@ -55,7 +55,8 @@ $EDITOR profile.config.ts                        # your name, bio, CV, socials
 cp .env.example .env                             # then set SITE_URL to where it'll live
 npm run check                                    # preflight — catches a half-done rebrand
 npm run build                                    # typecheck, then build to dist/
-npm run deploy                                   # publish to GitHub Pages
+npm run deploy                                   # publish to GitHub Pages…
+npm run deploy:s3                                # …or to an S3 bucket (AWS, Yandex)
 ```
 
 That's the whole loop. Everything below is detail.
@@ -290,8 +291,8 @@ several published palettes don't pass.
 
 Rebuilt from [thatguynikita/nikita.sh](https://github.com/thatguynikita/nikita.sh),
 where the whole terminal was a single 1,890-line inline `<script>` and
-`runCommand()` was a 550-line `switch`. That repo is untouched and
-[still live](https://nikita.sh).
+`runCommand()` was a 550-line `switch`. That repo is archived;
+[nikita.sh](https://nikita.sh) is deployed from this one.
 
 Shaped by three terminal portfolios worth reading:
 

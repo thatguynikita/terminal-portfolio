@@ -17,7 +17,8 @@
     "test:watch": "vitest",
     "check": "vitest run tests/config.test.ts",
     "deploy": "npm test && npm run build && gh-pages -d dist --dotfiles -m 'deploy'",
-    "deploy:s3": "npm test && npm run build && dotenv -e .env -- sh -c 'aws s3 sync dist/ s3://$S3_BUCKET --endpoint-url $S3_ENDPOINT --delete'"
+    "deploy:s3": "npm test && npm run build && dotenv -e .env -- sh scripts/deploy-s3.sh",
+    "deploy:s3:dry-run": "npm run build && dotenv -e .env -- env DRY_RUN=1 sh scripts/deploy-s3.sh"
   },
   "devDependencies": {
     "@types/node": "^26.5.0",
