@@ -43,7 +43,10 @@ function renderChrome(): void {
   if (brand) brand.textContent = profile.terminal.hostname;
 
   const heading = document.getElementById("pageHeading");
-  if (heading) heading.textContent = `${profile.identity.name[lang]} — ${profile.identity.role[lang]}`;
+  if (heading) {
+    const role = profile.seo.role?.[lang];
+    heading.textContent = role ? `${profile.author[lang]} — ${role}` : profile.author[lang];
+  }
 
   const links = document.getElementById("topbarLinks");
   if (links) {
@@ -73,15 +76,15 @@ function renderChrome(): void {
   }
 
   const gameTitle = document.getElementById("gameTitle");
-  if (gameTitle && profile.commands.game) {
-    gameTitle.textContent = `${profile.terminal.handle}@${profile.terminal.hostname} — ${profile.commands.game.title}`;
+  if (gameTitle && profile.commands?.game) {
+    gameTitle.textContent = `${profile.terminal.handle}@${profile.terminal.hostname} — ${profile.commands?.game.title[lang]}`;
   }
 
   const gameHint = document.getElementById("gameHint");
-  if (gameHint && profile.commands.game) {
+  if (gameHint && profile.commands?.game) {
     gameHint.innerHTML =
       `press <span class="accent">ESC</span> or click ` +
       `<span class="dot r" aria-hidden="true"></span><span class="sr-only">the red light</span> to exit &middot; ` +
-      `<a href="${ctx.escapeAttr(profile.commands.game.url)}" target="_blank" rel="noopener">open directly &#8599;</a>`;
+      `<a href="${ctx.escapeAttr(profile.commands?.game.url)}" target="_blank" rel="noopener">open directly &#8599;</a>`;
   }
 }

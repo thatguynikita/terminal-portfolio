@@ -33,62 +33,82 @@ export const MESSAGES = { en, es, de };
  *  See profile.config.example.ts for the single-language version.
  * ─────────────────────────────────────────────────────────────────────
  */
-export default defineProfile({
+export default defineProfile(MESSAGES, {
+  // Your name, the way the site should say it — the CV's heading, every page
+  // title and share card, the © line, JSON-LD, llms.txt.
+  author: {
+    en: "Beatriz Ocaña Ruiz",
+    es: "Beatriz Ocaña Ruiz",
+    de: "Beatriz Ocaña Ruiz",
+  },
+
+  // The fake shell itself: who's logged in, where, what it looks like on a
+  // first visit, and the chrome around the window.
   terminal: {
+    // The visitor's account — the `guest` in guest@beatriz.example — used by the
+    // prompt, whoami, the boot greeting and the "logged in" half of who/w.
+    // Default "guest".
     handle: "guest",
-    // Cosmetic — the prompt and `uname`. Where the site is published is
-    // SITE_URL in .env, which drives every absolute URL and the CNAME.
+    // Cosmetic — the prompt and `uname`. Defaults to the host of SITE_URL,
+    // which is where the site is published (every absolute URL, the CNAME).
     hostname: "beatriz.example",
     // Which languages this site ships is MESSAGES, at the top of this file.
     // The chip rotates in that order; this one is served unprefixed.
     defaultLocale: "en",
+    // A theme name from src/themes/, or "random" to deal one per first visit. Default "green".
     defaultTheme: "random",
-    // Background rain for a first-time visitor; `matrix on|off` is remembered.
+    // Background rain for a first-time visitor (default "on"); `matrix on|off` is remembered.
     defaultMatrix: "on",
-    // The fake dmesg sequence before the terminal, once per session.
+    // The fake dmesg sequence before the terminal, once per session. Default true.
     bootScreen: true,
-    // The tappable command chips under the terminal.
+    // The tappable command chips under the terminal. Default true.
     chips: true,
+    // Commands to leave out entirely — gone from help, completion and chips.
+    // disabledCommands: ["terraform", "kubectl"],
     // Extra topbar links. The CV link is added automatically when `cv` is
     // configured, so this is for anything else you want up there.
     links: [
       { label: "lab", href: "https://lab.beatriz.example" },
       { label: "talks", href: "https://talks.beatriz.example" },
     ],
-    // The footer under the window, on every page.
+    // The footer under the window, on every page. Omit the block for the defaults.
     footer: {
-      // The generated `© year name`, linked to the site root.
+      // The generated `© year name`, linked to the site root. Default true.
       copyright: true,
       // Terminal page only, plain text. Omit for the built-in "type help to explore".
       // hint: { en: "…", es: "…", de: "…" },
-      // The `back to terminal` link on the CV and 404 pages.
+      // The `back to terminal` link on the CV and 404 pages. Default true.
       backToTerminal: true,
       // A line under the rest, same in every language. Rendered as HTML — keep it short.
       bottomText: 'Made with ❤ using <a href="https://github.com/thatguynikita/terminal-portfolio">terminal-portfolio</a>',
     },
   },
 
-  identity: {
-    name: {
-      en: "Beatriz Ocaña Ruiz",
-      es: "Beatriz Ocaña Ruiz",
-      de: "Beatriz Ocaña Ruiz",
-    },
+  // What machines see: descriptions, structured data, the discovery files,
+  // and a switch for each.
+  seo: {
+    // What you do, in one line, for machines: JSON-LD jobTitle, the no-JS
+    // fallback, llms.txt. Not shown on a page — that's cv.tagline and neofetch.
+    // Omit and each of those leaves it out.
     role: {
       en: "Embedded Systems Engineer — Robotics",
       es: "Ingeniera de sistemas embebidos — Robótica",
       de: "Embedded-Systems-Entwicklerin — Robotik",
     },
-  },
-
-  seo: {
+    // The meta and share-card description of the terminal page, the manifest,
+    // and llms.txt. The CV pages use cv.description; the 404 describes itself.
+    // Omit and the tags are left out — `npm run check` warns.
     description: {
       en: "Interactive terminal portfolio of an embedded systems engineer with 10 years in robotics. Type `help` to explore.",
       es: "Portfolio interactivo en terminal de una ingeniera de sistemas embebidos con 10 años en robótica. Escribe `help` para explorar.",
       de: "Interaktives Terminal-Portfolio einer Embedded-Systems-Entwicklerin mit 10 Jahren Robotik-Erfahrung. Tippe `help` zum Stöbern.",
-    },    // robots.txt: per-crawler rules, Content-Signal, and the sitemap line.
+    },
+    // Adds <meta name="robots" content="noindex"> to every page — for a staging deploy.
+    // noindex: true,
+    // Every switch below defaults to true; the whole seo block can be omitted.
+    // robots.txt: per-crawler rules, Content-Signal, and the sitemap line.
     enableRobotsTxt: true,
-    // robots.txt Content-Signal: may the content be searched, train models, feed AI answers.
+    // robots.txt Content-Signal: may the content be searched, train models, feed AI answers. Default all true.
     contentSignal: { search: true, aiTrain: true, aiInput: true },
     // sitemap.xml: the home page and every CV page, with the portrait.
     enableSitemap: true,
@@ -100,9 +120,15 @@ export default defineProfile({
     enableNoscript: true,
     // The og:* and twitter:card share tags on every page; off makes ogImage inert.
     enableSocialCards: true,
+    // The share-card image for the terminal and 404 pages; the CV uses cv.photo.
+    // ogImage: "/assets/img/og-terminal.png",
   },
 
+  // The card the terminal prints on boot and on `neofetch`. Omit it and there
+  // is no card: no `neofetch` command, the intro is just the welcome lines.
   neofetch: {
+    // The art on the left. Raw HTML: the .outline/.eye/.nose spans take the
+    // theme's colours; plain text works too.
     ascii: `<span class="outline">  ╭───────────╮
   │ </span><span class="eye">▪ ▪ ▪ ▪ ▪</span><span class="outline"> │
   ├───────────┤
@@ -110,6 +136,8 @@ export default defineProfile({
   ├───────────┤
   │ ░░░░░░░░░ │
   ╰───────────╯</span>`,
+    // The rows on the right, top to bottom. Plain text; `highlight` paints a
+    // value amber.
     rows: [
       {
         key: { en: "Name", es: "Nombre", de: "Name" },
@@ -164,12 +192,15 @@ export default defineProfile({
     // An endpoint that's set but unreachable keeps the row and shows
     // "spotify offline" instead.
     nowPlaying: {
+      // Returns JSON { is_playing, track, artist, url } — see src/core/nowplaying.ts.
       endpoint: "https://api.beatriz.example/now-playing",
+      // How often to ask it, in milliseconds.
       pollMs: 20000,
     },
   },
 
-  // Line breaks matter: `about` types this out one line at a time.
+  // Line breaks matter: `about` types this out one line at a time. Omit for
+  // no `about` command and no about.txt.
   bio: {
     en: `Embedded engineer with ten years spent making machines move
 predictably.
@@ -196,7 +227,7 @@ auftreten, und Prüfstände, die einen Defekt vor dem Lager bemerken.`,
   },
 
   // `contexts` omitted means "everywhere". The CV shows the full table;
-  // the terminal shows the readable subset.
+  // the terminal shows the readable subset. Omit the list for no `skills` at all.
   skills: [
     {
       key: { en: "Languages", es: "Lenguajes", de: "Sprachen" },
@@ -245,6 +276,10 @@ auftreten, und Prüfstände, die einen Defekt vor dem Lager bemerken.`,
     },
   ],
 
+  // Contact links: `contact`, `cat contact.txt`, the CV's contact row, the
+  // no-JS fallback, llms.txt, and JSON-LD sameAs (http ones) / email (the
+  // first mailto:). `contexts` omitted means everywhere. Omit the list for no
+  // `contact` at all.
   socials: [
     { label: "Email", href: "mailto:hola@beatriz.example", display: "hola@beatriz.example" },
     {
@@ -271,6 +306,8 @@ auftreten, und Prüfstände, die einen Defekt vor dem Lager bemerken.`,
     },
   ],
 
+  // Per-command settings: help descriptions, the fake machine, the game, ssh.
+  // Omit the whole block for every default and no game / ssh personas.
   commands: {
     // Overrides a command's one-line description in `help`. Anything not
     // listed here falls back to `commands.<name>` in src/i18n/messages/.
@@ -286,6 +323,7 @@ auftreten, und Prüfstände, die einen Defekt vor dem Lager bemerken.`,
     // The fake-system commands (ps, who, w, env) show two accounts: the
     // visitor, who is terminal.handle, and the machine's owner — you.
     system: {
+      // The account those commands show as the machine's owner. Not translated.
       owner: "beatriz",
       // When the machine came up: `uptime` counts from it, `uname -a` and
       // `ls -l` stamp it. Omit to count from the build instead.
@@ -295,14 +333,22 @@ auftreten, und Prüfstände, die einen Defekt vor dem Lager bemerken.`,
       secretTheme: "sunrise",
     },
 
+    // The hidden game: a page opened in a sandboxed CRT overlay. Omit the
+    // whole block to remove the `game` command and the launcher script.
     game: {
+      // What the overlay's iframe loads.
       url: "https://game.beatriz.example/",
-      title: "Servo Rush",
+      // Shown in the overlay's title bar and the "launching …" line.
+      title: { en: "Servo Rush", es: "Servo Rush", de: "Servo Rush" },
       // The launcher: `ls -a` lists it, `sudo ./flash-firmware.sh` opens the game.
       script: "flash-firmware.sh",
     },
 
+    // `ssh <name>` connects to a persona that answers scripted questions —
+    // the recruiter screening call, without the call. Omit for none.
     ssh: {
+      // One entry per name: the host shown in the prompt, and cmd → q → a
+      // triples the visitor types `cmd` to ask.
       personas: {
         recruiter: {
           host: "recruiter@beatriz.example",
@@ -396,6 +442,9 @@ auftreten, und Prüfstände, die einen Defekt vor dem Lager bemerken.`,
       de: "Embedded-Systems-Entwicklerin — Lebenslauf. C, Rust, RTOS, ROS 2, Robotik.",
     },
 
+    // Portrait, root-absolute, under public/assets/img/portraits/ — only the
+    // file named here survives the build; the example portraits are pruned.
+    // Also the CV's og:image, JSON-LD image and sitemap image.
     photo: "/assets/img/portraits/beatriz-photo.png",
     // "pixel": a posterized pixel render under the theme tint. "tint": just the
     // grayscale + tint. Leave it out and the photo is served exactly as uploaded.
@@ -415,6 +464,8 @@ auftreten, und Prüfstände, die einen Defekt vor dem Lager bemerken.`,
       de: "Embedded-Entwicklerin mit zehn Jahren Erfahrung darin, Maschinen vorhersagbar zu bewegen. Ich schreibe Firmware für Roboter, die sich den Boden mit Menschen teilen — von der Platinen-Inbetriebnahme über die Sicherheitsabnahme bis zu Updates im Feld. Mir liegen die unglamourösen Teile am Herzen: Timing, Thermik und Prüfstände, die einen Defekt vor dem Lager bemerken. Ich suche ein Team, das Firmware als Produkt mit Lebenszyklus begreift und nicht als Binary, das einmal ausgeliefert wird.",
     },
 
+    // Experience, most recent first. `id` is a stable anchor; `bullets` are
+    // one line each per locale; `org.url` empty or omitted renders no link.
     jobs: [
       {
         id: "halcyon",
@@ -581,6 +632,7 @@ auftreten, und Prüfstände, die einen Defekt vor dem Lager bemerken.`,
       },
     ],
 
+    // One line on the CV: university — place, year / field.
     education: {
       university: {
         en: "Universitat Politècnica de València",
@@ -596,6 +648,8 @@ auftreten, und Prüfstände, die einen Defekt vor dem Lager bemerken.`,
       },
     },
 
+    // Certifications, as printed — names aren't translated. Also JSON-LD
+    // hasCredential.
     certs: [
       { year: "2025", name: "Zephyr RTOS Certified Developer" },
       { year: "2024", name: "ROS 2 Industrial Developer" },

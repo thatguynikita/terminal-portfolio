@@ -87,9 +87,9 @@ describe("commands", () => {
       for (const l of LOCALES) out[l] = text;
       return out;
     };
-    const render = async (rows: NonNullable<typeof profile.neofetch.rows>): Promise<string> => {
+    const render = async (rows: NonNullable<typeof profile.neofetch>["rows"]): Promise<string> => {
       const ctx = createFakeContext("en", {
-        neofetch: { ...profile.neofetch, rows, nowPlaying: undefined },
+        neofetch: { ...profile.neofetch!, rows, nowPlaying: undefined },
       });
       await neofetch().run(ctx, args("", "neofetch"));
       return ctx.root.innerHTML;
@@ -115,8 +115,8 @@ describe("commands", () => {
 
     it("the shipped config highlights exactly one row, and none carry markup", () => {
       const first = LOCALES[0]!;
-      expect(profile.neofetch.rows.filter((r) => r.highlight)).toHaveLength(1);
-      for (const r of profile.neofetch.rows) {
+      expect(profile.neofetch!.rows.filter((r) => r.highlight)).toHaveLength(1);
+      for (const r of profile.neofetch!.rows) {
         for (const l of LOCALES) expect(r.value[l], `${r.key[first]} (${l}) carries markup`).not.toMatch(/<\w+/);
       }
     });
@@ -489,6 +489,25 @@ describe("terminal switches", () => {
       expect(bootEl.textContent).toBe("> booting ..."); // never written to
       expect(mount).toHaveBeenCalledTimes(1); // the intro still ran
       expect(ctx.lines.join("\n")).toContain(profile.terminal.hostname); // neofetch printed
+    });
+
+    // No card configured: the intro is the welcome lines and nothing else.
+    // The registry does the unregistering; here the stub simply lacks it.
+    it("prints only the welcome when there is no neofetch to print", async () => {
+      const { boot } = await import("../src/core/boot");
+      const ctx = createFakeContext("en", { terminal: { ...profile.terminal, bootScreen: false } });
+      document.body.append(ctx.root);
+      const mount = vi.fn();
+      const terminal = { ...stubTerminal(ctx), registry: { get: () => undefined, names: () => [], visible: () => [] } };
+      try {
+        await boot(terminal as never, { mount } as never);
+        const text = ctx.lines.join("\n");
+        expect(text).toContain(ctx.t("ui.welcome"));
+        expect(text, "neofetch content printed with no card").not.toContain(profile.terminal.hostname);
+        expect(mount).toHaveBeenCalledTimes(1);
+      } finally {
+        ctx.root.remove();
+      }
     });
   });
 });

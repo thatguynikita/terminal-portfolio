@@ -80,7 +80,7 @@ Two things the effect deliberately does *not* touch:
   be processed — canvas security — and falls back to the plain image.
 
 It also becomes an `<image:image>` entry in `sitemap.xml`, with a title
-generated from `identity.name` and `identity.role` — so a broken path leaves a
+generated from `author` and `seo.role` — so a broken path leaves a
 dead image URL in your sitemap, not just a gap on the page.
 
 **Omit `photo` entirely** and the CV renders without a portrait, and nothing

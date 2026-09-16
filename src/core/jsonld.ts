@@ -39,12 +39,12 @@ function personNode(
   origin: string,
   withCv: boolean
 ): Record<string, unknown> {
-  const { identity, cv } = profile;
+  const { cv } = profile;
   const person: Record<string, unknown> = {
     "@type": "Person",
     "@id": `${origin}/#owner`,
-    name: identity.name[locale],
-    jobTitle: identity.role[locale],
+    name: profile.author[locale],
+    ...(profile.seo.role ? { jobTitle: profile.seo.role[locale] } : {}),
     ...(mailtoFor(profile) ? { email: mailtoFor(profile) } : {}),
     url: `${origin}/`,
   };

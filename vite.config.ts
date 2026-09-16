@@ -19,7 +19,7 @@ import { LOCALES, languageName, posixLocale, type Locale } from "./src/i18n/loca
 import { StorageKey } from "./src/core/storage";
 import { cvByteSize, renderCv, renderCvTopbar } from "./src/cv/render";
 import { buildCvJsonLd, buildIndexJsonLd } from "./src/core/jsonld";
-import { cvLocales, cvUrl } from "./src/cv/url";
+import { cvLocales, cvUrl, photoAltFor } from "./src/cv/url";
 import { translate } from "./src/i18n";
 
 /**
@@ -39,6 +39,9 @@ import { translate } from "./src/i18n";
 const SITE_URL = (
   process.env["SITE_URL"] ?? loadEnv("production", process.cwd(), "")["SITE_URL"] ?? ""
 ).replace(/\/$/, "");
+// profile.config.ts is imported above, before this line ran; its default
+// hostname is a getter reading process.env.SITE_URL, so publish it here.
+if (SITE_URL && !process.env["SITE_URL"]) process.env["SITE_URL"] = SITE_URL;
 const DEFAULT_LOCALE = profile.terminal.defaultLocale;
 
 function escapeHtml(s: string): string {
@@ -90,20 +93,30 @@ function noscriptHtml(lang: Locale): string {
   const skillsLink = profile.cv
     ? `\n  <p>Full skill breakdown: <a href="${cvUrl(profile, lang)}#skills">${escapeHtml(cvUrl(profile, lang))}#skills</a></p>`
     : "";
-  return `<noscript>
-  <p>${escapeHtml(profile.identity.role[lang])}</p>${metaLine ? `\n  <p>${escapeHtml(metaLine)}</p>` : ""}
-  <h2>About</h2>
-  <p>${escapeHtml(profile.bio[lang].replace(/\s+/g, " ").trim())}</p>
-  <h2>Skills</h2>
-  ${rows(skillsFor(profile, "terminal").map((s) => [escapeHtml(s.key[lang]), escapeHtml(s.value)]))}${skillsLink}
-  <h2>Contact</h2>
-  ${rows(
-    socialsFor(profile, "terminal").map((s) => [
-      escapeHtml(s.label),
-      `<a href="${escapeHtml(s.href)}" rel="me noopener noreferrer">${escapeHtml(s.display)}</a>`,
-    ])
-  )}
-</noscript>`;
+  // Every part is optional; a missing one leaves no heading behind.
+  const role = profile.seo.role?.[lang];
+  const bio = profile.bio?.[lang];
+  const skills = skillsFor(profile, "terminal");
+  const socials = socialsFor(profile, "terminal");
+  const parts = [
+    role ? `<p>${escapeHtml(role)}</p>` : "",
+    metaLine ? `<p>${escapeHtml(metaLine)}</p>` : "",
+    bio ? `<h2>About</h2>\n  <p>${escapeHtml(bio.replace(/\s+/g, " ").trim())}</p>` : "",
+    skills.length
+      ? `<h2>Skills</h2>\n  ${rows(skills.map((s) => [escapeHtml(s.key[lang]), escapeHtml(s.value)]))}${skillsLink}`
+      : "",
+    socials.length
+      ? `<h2>Contact</h2>\n  ${rows(
+          socials.map((s) => [
+            escapeHtml(s.label),
+            `<a href="${escapeHtml(s.href)}" rel="me noopener noreferrer">${escapeHtml(s.display)}</a>`,
+          ])
+        )}`
+      : "",
+  ].filter(Boolean);
+  // Nothing to say without JS either: no empty block.
+  if (parts.length === 0) return "";
+  return `<noscript>\n  ${parts.join("\n  ")}\n</noscript>`;
 }
 
 function personJsonLd(lang: Locale): string {
@@ -119,7 +132,7 @@ function personJsonLd(lang: Locale): string {
 function socialCardTags(opts: {
   type: "website" | "profile";
   title: string;
-  description: string;
+  description: string | undefined;
   url: string;
   image: string;
   locale: Locale;
@@ -127,7 +140,7 @@ function socialCardTags(opts: {
   twitterCard: "summary" | "summary_large_image";
 }): string[] {
   const t = escapeHtml(opts.title);
-  const d = escapeHtml(opts.description);
+  const d = opts.description ? escapeHtml(opts.description) : "";
   const img = opts.image ? escapeHtml(opts.image) : "";
   return [
     `<meta property="og:type" content="${opts.type}" />`,
@@ -137,12 +150,12 @@ function socialCardTags(opts: {
       .filter((l) => l !== opts.locale)
       .map((l) => `<meta property="og:locale:alternate" content="${posixLocale(l)}" />`),
     `<meta property="og:title" content="${t}" />`,
-    `<meta property="og:description" content="${d}" />`,
+    d ? `<meta property="og:description" content="${d}" />` : "",
     `<meta property="og:url" content="${opts.url}" />`,
     img ? `<meta property="og:image" content="${img}" />` : "",
     `<meta name="twitter:card" content="${opts.twitterCard}" />`,
     `<meta name="twitter:title" content="${t}" />`,
-    `<meta name="twitter:description" content="${d}" />`,
+    d ? `<meta name="twitter:description" content="${d}" />` : "",
     img ? `<meta name="twitter:image" content="${img}" />` : "",
   ];
 }
@@ -172,20 +185,20 @@ function hreflangCluster(locales: Locale[]): string {
 
 /** Head tags unique to one CV locale. */
 function cvHead(locale: Locale): string {
-  const name = profile.identity.name[locale];
+  const name = profile.author[locale];
   // Not "name — role": role already contains an em dash of its own. The
   // tab title carries the host; the share card doesn't, since og:site_name
   // already says it and a card would show the host twice.
   const title = `${name} — CV — ${profile.terminal.hostname}`;
   const cardTitle = `${name} — CV`;
-  // The CV's own description when it has one; the terminal's otherwise.
-  const description = profile.cv?.description?.[locale] ?? profile.seo.description[locale];
+  // The CV's own description when it has one; the terminal's otherwise; none if neither.
+  const description = profile.cv?.description?.[locale] ?? profile.seo.description?.[locale];
   const ogImage = profile.cv?.photo ? `${SITE_URL}${profile.cv?.photo}` : "";
 
   const { enableSocialCards, enableJsonLd } = profile.seo;
   return [
     `<title>${escapeHtml(title)}</title>`,
-    `<meta name="description" content="${escapeHtml(description)}" />`,
+    description ? `<meta name="description" content="${escapeHtml(description)}" />` : "",
     profile.seo.noindex ? `<meta name="robots" content="noindex" />` : "",
     themeColorTag(),
     `<link rel="canonical" href="${SITE_URL}${cvUrl(profile, locale)}" />`,
@@ -227,12 +240,23 @@ function localeFromUrl(url: string | undefined): Locale | null {
  * renderer, naming neither the locale nor the field.
  */
 function assertLocaleReady(locale: Locale): void {
-  const required: Array<[string, unknown]> = [
-    ["identity.name", profile.identity.name[locale]],
-    ["identity.role", profile.identity.role[locale]],
-    ["seo.description", profile.seo.description[locale]],
-  ];
+  // A skills/socials row tagged only for the CV, with no CV, can never
+  // render: a half-removed résumé. Loud, like a missing translation.
+  if (!profile.cv) {
+    for (const [list, rows] of [["skills", profile.skills], ["socials", profile.socials]] as const) {
+      rows.forEach((row, i) => {
+        if (row.contexts?.length && row.contexts.every((c) => c === "cv")) {
+          throw new Error(`profile.config.ts: ${list}[${i}] is tagged for the CV, but no cv is configured.`);
+        }
+      });
+    }
+  }
+  const required: Array<[string, unknown]> = [["author", profile.author[locale]]];
+  if (profile.seo.role) required.push(["seo.role", profile.seo.role[locale]]);
+  if (profile.seo.description) required.push(["seo.description", profile.seo.description[locale]]);
+  if (profile.bio) required.push(["bio", profile.bio[locale]]);
   if (profile.cv?.description) required.push(["cv.description", profile.cv.description[locale]]);
+  if (profile.commands?.game) required.push(["commands.game.title", profile.commands.game.title[locale]]);
   // Optional sections are only checked when the author supplied them.
   if (profile.terminal.footer.hint) required.push(["terminal.footer.hint", profile.terminal.footer.hint[locale]]);
   if (profile.cv?.tagline) required.push(["cv.tagline", profile.cv.tagline[locale]]);
@@ -301,10 +325,7 @@ function sitemapXml(): string {
   const imageBlock = (locale: Locale): string => {
     if (!photo) return "";
     // Same description as the portrait's alt text — one string, one image.
-    const title = translate(locale, "cv.photoAlt", {
-      name: profile.identity.name[locale],
-      role: profile.identity.role[locale],
-    });
+    const title = photoAltFor(profile, locale, (k, v) => translate(locale, k, v));
     return (
       `\n    <image:image>` +
       `\n      <image:loc>${SITE_URL}${photo}</image:loc>` +
@@ -395,9 +416,9 @@ function siteWebmanifest(): string {
   const background = defaultThemeBackground();
   return JSON.stringify(
     {
-      name: profile.identity.name[DEFAULT_LOCALE],
+      name: profile.author[DEFAULT_LOCALE],
       short_name: profile.terminal.hostname,
-      description: profile.seo.description[DEFAULT_LOCALE],
+      ...(profile.seo.description ? { description: profile.seo.description[DEFAULT_LOCALE] } : {}),
       start_url: "/",
       display: "standalone",
       icons: [
@@ -456,10 +477,8 @@ function llmsTxt(): string {
 
   // Key facts, one line each — only what the config actually states.
   const primary = mailtoFor(profile)?.replace(/^mailto:/, "") ?? socialsFor(profile, "cv")[0]?.display;
-  const facts = [
-    `- Role: ${profile.identity.role[lang]}`,
-    primary ? `- Contact: ${primary}` : "",
-  ].filter(Boolean);
+  const role = profile.seo.role?.[lang];
+  const facts = [role ? `- Role: ${role}` : "", primary ? `- Contact: ${primary}` : ""].filter(Boolean);
 
   // One section per shipped language, named in itself, pointing at that
   // language's CV — an agent reading in Russian finds the Russian résumé.
@@ -467,23 +486,26 @@ function llmsTxt(): string {
     "",
     `## ${languageName(l)}`,
     "",
-    `- [CV](${SITE_URL}${cvUrl(profile, l)}): ${profile.identity.role[l]}`,
+    `- [CV](${SITE_URL}${cvUrl(profile, l)})${profile.seo.role ? `: ${profile.seo.role[l]}` : ""}`,
   ]);
 
   // The H1 carries every spelling of the name the site ships, deduped —
   // an agent searching in Russian finds Никита on the first line. The
   // summary is the bio: who this is, in the owner's words. What the site
   // is comes after the key facts.
-  const names = [...new Set(LOCALES.map((l) => profile.identity.name[l]))].join(" / ");
+  const names = [...new Set(LOCALES.map((l) => profile.author[l]))].join(" / ");
+  // The summary is the bio when there is one, else the description, else
+  // the role — the spec wants a blockquote, and the name alone isn't one.
+  const summary =
+    profile.bio?.[lang].replace(/\s+/g, " ").trim() ?? profile.seo.description?.[lang] ?? role ?? "";
+  const description = profile.bio && profile.seo.description ? profile.seo.description[lang] : "";
   const lines = [
     `# ${names}`,
     "",
-    `> ${profile.bio[lang].replace(/\s+/g, " ").trim()}`,
-    "",
+    ...(summary ? [`> ${summary}`, ""] : []),
     ...facts,
-    "",
-    profile.seo.description[lang],
-    "",
+    ...(facts.length ? [""] : []),
+    ...(description ? [description, ""] : []),
     "## Pages",
     "",
     ...pages,
@@ -546,26 +568,30 @@ function profileHtmlPlugin(): Plugin {
         }
 
         const isIndex = ctx.filename.endsWith("index.html");
-        const title = isIndex
-          ? `${profile.identity.name[lang]} — ${profile.identity.role[lang]}`
-          : `404 — ${profile.terminal.hostname}`;
+        // Every page is titled `what — hostname`, the two pages about a person
+        // `name — what — hostname`: the CV is "— CV —", the terminal is
+        // "— terminal —" (ui.pageTitle, localized). The share card drops the
+        // hostname: og:site_name already carries it.
+        const what = isIndex ? translate(lang, "ui.pageTitle") : "404";
+        const cardTitle = isIndex ? `${profile.author[lang]} — ${what}` : `${what} — ${profile.terminal.hostname}`;
+        const title = isIndex ? `${cardTitle} — ${profile.terminal.hostname}` : cardTitle;
         // The 404 describes itself; the terminal's description is about the terminal.
         const description = isIndex
-          ? profile.seo.description[lang]
+          ? profile.seo.description?.[lang]
           : translate(lang, "notFound.description");
         const ogImage = profile.seo.ogImage ? `${SITE_URL}${profile.seo.ogImage}` : "";
 
         const { enableSocialCards, enableJsonLd, enableNoscript } = profile.seo;
         const head = [
           `<title>${escapeHtml(title)}</title>`,
-          `<meta name="description" content="${escapeHtml(description)}" />`,
+          description ? `<meta name="description" content="${escapeHtml(description)}" />` : "",
           profile.seo.noindex ? `<meta name="robots" content="noindex" />` : "",
           themeColorTag(),
           isIndex ? `<link rel="canonical" href="${SITE_URL}/" />` : "",
           ...(enableSocialCards
             ? socialCardTags({
                 type: "website",
-                title,
+                title: cardTitle,
                 description,
                 url: `${SITE_URL}/`,
                 image: ogImage,

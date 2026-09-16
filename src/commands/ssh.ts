@@ -5,7 +5,7 @@ import type { Persona } from "../core/profile";
 /** Accepts either the bare key (`recruiter`) or the full host. */
 function resolvePersona(ctx: CommandContext, target: string): string | null {
   const wanted = target.trim().toLowerCase();
-  for (const [key, persona] of Object.entries((ctx.profile.commands.ssh?.personas ?? {}))) {
+  for (const [key, persona] of Object.entries((ctx.profile.commands?.ssh?.personas ?? {}))) {
     if (wanted === key.toLowerCase() || wanted === persona.host.toLowerCase()) return key;
   }
   return null;
@@ -85,11 +85,11 @@ export default defineCommand({
   usage: "<user@host>",
   order: 120,
 
-  complete: (ctx) => Object.values((ctx.profile.commands.ssh?.personas ?? {})).map((p) => p.host),
+  complete: (ctx) => Object.values((ctx.profile.commands?.ssh?.personas ?? {})).map((p) => p.host),
 
   async run(ctx, args) {
     const target = args.raw.trim();
-    const personas = (ctx.profile.commands.ssh?.personas ?? {});
+    const personas = (ctx.profile.commands?.ssh?.personas ?? {});
 
     if (!target) {
       ctx.print(ctx.t("ssh.usage"));

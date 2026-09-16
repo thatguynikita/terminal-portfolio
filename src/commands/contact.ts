@@ -1,9 +1,12 @@
 import { defineCommand } from "../core/types";
 import { socialsFor } from "../core/profile";
+import profile from "../../profile.config";
 
 export default defineCommand({
   name: "contact",
   order: 30,
+  // Nothing to list for the terminal, no command.
+  enabled: socialsFor(profile, "terminal").length > 0,
   run(ctx) {
     const links = socialsFor(ctx.profile, "terminal")
       .map(

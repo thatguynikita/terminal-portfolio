@@ -19,7 +19,7 @@ if (canvas) {
   matrix.setEnabled(initialMatrixEnabled(profile.terminal.defaultMatrix));
   createThemeController(matrix, {
     defaultTheme: profile.terminal.defaultTheme,
-    secretTheme: profile.commands.system?.secretTheme,
+    secretTheme: profile.commands?.system?.secretTheme,
   });
 }
 

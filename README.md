@@ -33,7 +33,7 @@ Vite + TypeScript, no UI framework, no runtime dependencies.
 - **Built to be read by machines.** The résumé is in the raw HTML; the build emits `sitemap.xml`, `robots.txt` (with per-crawler rules and `Content-Signal`) and `llms.txt` from the same page list, plus a self-canonical hreflang cluster and JSON-LD. Scan it yourself with [Lighthouse](https://pagespeed.web.dev/) or [isitagentready.com](https://isitagentready.com/).
 - **Thirteen languages ship, and adding one is a single file.** English, Russian, Ukrainian, Spanish, Portuguese, French, Italian, German, Polish, Turkish, Chinese, Japanese, Korean. You pick which ones build; the rest never reach the bundle. → [guide](docs/i18n.md)
 - **Everything about you lives in one file** — `profile.config.ts`. Name, bio, skills, socials, CV, personas, SEO.
-- **351 tests**, and a preflight that refuses to deploy a fork still carrying someone else's name.
+- **377 tests**, and a preflight that refuses to deploy a fork still carrying someone else's name.
 - **Deploys anywhere static** — GitHub Pages and S3-compatible hosts (AWS, Yandex Object Storage) are one command each; the S3 path sets every object's content type explicitly, with a dry run that shows the full plan first. → [guide](docs/deploy.md)
 
 ---
@@ -89,6 +89,31 @@ cp profile.config.multilingual.example.ts profile.config.ts
 The only structural difference between them is how many catalogues `MESSAGES`
 imports. The trilingual one builds `/cv.html`, `/es/cv.html` and `/de/cv.html`
 with a matching hreflang cluster, and its language chip cycles all three.
+
+### The smallest config that builds
+
+Only your name is required. Everything else either has a default or is a
+feature that's simply absent when you leave it out:
+
+```ts
+// profile.config.ts
+import { defineProfile } from "./src/core/profile";
+import en from "./src/i18n/messages/en";
+
+export const MESSAGES = { en };
+
+export default defineProfile(MESSAGES, {
+  author: { en: "Ada Example" },
+});
+```
+
+That builds a green terminal at `guest@<your SITE_URL host>` with the boot
+screen, the chip bar, the hidden commands and the ssh egg — and no `about`,
+`skills`, `contact`, `neofetch` or `cv`, since there's nothing to show. `npm
+run check` will warn that `seo.description` is unset (search engines then
+write their own snippet); everything else is quiet. The examples set every
+knob explicitly, with its default in the comment, so you can see what to
+change.
 
 ### Replace the images
 

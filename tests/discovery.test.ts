@@ -41,13 +41,19 @@ suite("built output", () => {
    * already says about you, so there's no fourth spelling of name + role.
    * The CV keeps its own `name — CV — hostname`, the 404 its `404 — host`.
    */
-  it("titles the terminal page name — role", () => {
+  // One rule for every page: `what — hostname`, and `name — what — hostname`
+  // for the two pages about a person. The share card drops the hostname.
+  it("titles the terminal page name — terminal — hostname, and its card without the host", () => {
     const lang = profile.terminal.defaultLocale;
     const index = read("index.html");
-    const expected = escapeHtml(`${profile.identity.name[lang]} — ${profile.identity.role[lang]}`);
-    expect(index).toContain(`<title>${expected}</title>`);
+    const name = escapeHtml(profile.author[lang]);
+    const host = escapeHtml(profile.terminal.hostname);
+    const what = escapeHtml(translate(lang, "ui.pageTitle"));
+    expect(index).toContain(`<title>${name} — ${what} — ${host}</title>`);
+    expect(read("404.html")).toContain(`<title>404 — ${host}</title>`);
     if (profile.seo.enableSocialCards) {
-      expect(index).toContain(`<meta property="og:title" content="${expected}" />`);
+      expect(index).toContain(`<meta property="og:title" content="${name} — ${what}" />`);
+      expect(index).toContain(`<meta name="twitter:title" content="${name} — ${what}" />`);
     }
   });
 
@@ -57,7 +63,7 @@ suite("built output", () => {
     if (!profile.seo.enableSocialCards) return;
     for (const l of locales) {
       const html = read(cvUrl(profile, l).replace(/^\//, ""));
-      const name = escapeHtml(profile.identity.name[l]);
+      const name = escapeHtml(profile.author[l]);
       const host = escapeHtml(profile.terminal.hostname);
       expect(html).toContain(`<title>${name} — CV — ${host}</title>`);
       expect(html).toContain(`<meta property="og:title" content="${name} — CV" />`);
@@ -89,7 +95,7 @@ suite("built output", () => {
         return;
       }
       expect(noscript, "no noscript block").toBeDefined();
-      expect(noscript, "noscript should lead with the role").toContain(escapeHtml(profile.identity.role[lang]));
+      expect(noscript, "noscript should lead with the role").toContain(escapeHtml(profile.seo.role![lang]));
       if (profile.cv?.metaLine) {
         expect(noscript, "noscript should carry the CV meta line").toContain(escapeHtml(profile.cv.metaLine[lang]));
       }
@@ -122,7 +128,7 @@ suite("built output", () => {
           ? (data["@graph"] as Array<Record<string, any>>).find((n) => n["@type"] === "Person")
           : data["mainEntity"];
         expect(person?.["@type"], `${page} has no Person node`).toBe("Person");
-        expect(person?.["name"]).toBe(profile.identity.name[locale]);
+        expect(person?.["name"]).toBe(profile.author[locale]);
       }
     });
 
@@ -195,14 +201,14 @@ suite("built output", () => {
   it("describes each kind of page in its own words", () => {
     const lang = profile.terminal.defaultLocale;
     const meta = (html: string) => /<meta name="description" content="([^"]*)" \/>/.exec(html)?.[1];
-    expect(meta(read("index.html"))).toBe(escapeHtml(profile.seo.description[lang]));
+    expect(meta(read("index.html"))).toBe(escapeHtml(profile.seo.description![lang]));
     expect(meta(read("404.html"))).toBe(escapeHtml(translate(lang, "notFound.description")));
     for (const l of locales) {
       const html = read(cvUrl(profile, l).replace(/^\//, ""));
-      const expected = profile.cv?.description?.[l] ?? profile.seo.description[l];
+      const expected = profile.cv?.description?.[l] ?? profile.seo.description![l];
       expect(meta(html), `${l} CV description`).toBe(escapeHtml(expected));
       if (profile.cv?.description) {
-        expect(meta(html), "the CV should not describe itself as the terminal").not.toBe(escapeHtml(profile.seo.description[l]));
+        expect(meta(html), "the CV should not describe itself as the terminal").not.toBe(escapeHtml(profile.seo.description![l]));
       }
     }
   });
@@ -423,7 +429,7 @@ suite("built output", () => {
      */
     it("lists the key facts an agent would ask for, from config only", () => {
       const lang = profile.terminal.defaultLocale;
-      expect(txt).toContain(`- Role: ${profile.identity.role[lang]}`);
+      expect(txt).toContain(`- Role: ${profile.seo.role![lang]}`);
       const contact = /^- Contact: (.+)$/m.exec(txt)?.[1];
       expect(contact, "no contact line").toBeTruthy();
       const known = new Set([mailtoFor(profile)?.replace(/^mailto:/, ""), ...socialsFor(profile, "cv").map((s) => s.display)]);
@@ -437,7 +443,7 @@ suite("built output", () => {
       for (const l of locales) {
         const section = new RegExp(`^## ${languageName(l).replace(/[.*+?^${}()|[\]\\]/g, "\\$&")}$`, "m");
         expect(txt, `no section for ${l}`).toMatch(section);
-        expect(txt).toContain(`${cvUrl(profile, l)}): ${profile.identity.role[l]}`);
+        expect(txt).toContain(`${cvUrl(profile, l)}): ${profile.seo.role![l]}`);
       }
     });
 
@@ -445,15 +451,15 @@ suite("built output", () => {
       const lines = txt.split("\n");
       expect(lines[0], "first line is not an H1").toMatch(/^# \S/);
       // Every selected locale's name is on the H1, once each.
-      const spellings = [...new Set(Object.keys(MESSAGES).map((l) => profile.identity.name[l as keyof typeof MESSAGES]))];
+      const spellings = [...new Set(Object.keys(MESSAGES).map((l) => profile.author[l as keyof typeof MESSAGES]))];
       expect(lines[0]).toBe(`# ${spellings.join(" / ")}`);
       const quote = lines.slice(1).find((l) => l.trim() !== "");
       expect(quote, "no blockquote summary after the title").toMatch(/^> \S/);
       // The summary is the bio — who this is; what the site is follows the facts.
       const lang = profile.terminal.defaultLocale;
-      expect(quote).toBe(`> ${profile.bio[lang].replace(/\s+/g, " ").trim()}`);
+      expect(quote).toBe(`> ${profile.bio![lang].replace(/\s+/g, " ").trim()}`);
       const afterFacts = txt.slice(txt.indexOf("- Contact:"), txt.indexOf("## Pages"));
-      expect(afterFacts).toContain(profile.seo.description[lang]);
+      expect(afterFacts).toContain(profile.seo.description![lang]);
     });
 
     it("uses only H1 and H2 headings", () => {
@@ -513,7 +519,7 @@ suite("built output", () => {
     const manifest = built ? JSON.parse(read("site.webmanifest")) : {};
 
     it("takes its identity from the config", () => {
-      expect(manifest.name).toBe(profile.identity.name[profile.terminal.defaultLocale]);
+      expect(manifest.name).toBe(profile.author[profile.terminal.defaultLocale]);
       expect(manifest.short_name).toBe(profile.terminal.hostname);
     });
 

@@ -12,20 +12,20 @@ import profile from "../../profile.config";
  * this same node. Absent entirely when no `game` is configured.
  */
 export default defineFile({
-  enabled: Boolean(profile.commands.game),
-  name: profile.commands.game?.script ?? "game.sh",
+  enabled: Boolean(profile.commands?.game),
+  name: profile.commands?.game?.script ?? "game.sh",
   html: true,
   accent: true,
   read: (ctx) =>
     ctx
       .tList("files.game", {
-        url: ctx.profile.commands.game?.url ?? "",
-        script: ctx.profile.commands.game?.script ?? "",
+        url: ctx.profile.commands?.game?.url ?? "",
+        script: ctx.profile.commands?.game?.script ?? "",
       })
       .map((line) => `<span class="dim">${line}</span>`),
   requiresSudo: true,
   exec: (ctx) => {
-    ctx.print(ctx.t("exec.launchingGame", { title: ctx.profile.commands.game?.title ?? "" }));
+    ctx.print(ctx.t("exec.launchingGame", { title: ctx.profile.commands?.game?.title[ctx.lang] ?? "" }));
     openGame();
   },
 });
