@@ -1,6 +1,7 @@
 import { afterEach, describe, expect, it, vi } from "vitest";
 import { MESSAGES } from "../profile.config";
 import {
+  CREDIT_LINE,
   defineProfile,
   renderContentSignal,
   renderFooter,
@@ -32,7 +33,7 @@ describe("defineProfile defaults", () => {
     expect(t.defaultMatrix).toBe("on");
     expect(t.bootScreen).toBe(true);
     expect(t.chips).toBe(true);
-    expect(t.footer).toEqual({ copyright: true, backToTerminal: true });
+    expect(t.footer).toEqual({ copyright: true, backToTerminal: true, bottomText: CREDIT_LINE });
     expect("links" in t).toBe(false);
     expect("disabledCommands" in t).toBe(false);
   });
@@ -59,14 +60,15 @@ describe("defineProfile defaults", () => {
   it("lets an explicit value win over every default", () => {
     const custom = defineProfile(MESSAGES, {
       author,
-      terminal: { handle: "visitor", defaultTheme: "amber", chips: false, footer: { copyright: false } },
+      terminal: { handle: "visitor", defaultTheme: "amber", chips: false, footer: { copyright: false, bottomText: "" } },
       seo: { enableSitemap: false, contentSignal: { search: true, aiTrain: false, aiInput: true } },
     });
     expect(custom.terminal.handle).toBe("visitor");
     expect(custom.terminal.defaultTheme).toBe("amber");
     expect(custom.terminal.chips).toBe(false);
     expect(custom.terminal.bootScreen).toBe(true); // untouched default beside an override
-    expect(custom.terminal.footer).toEqual({ copyright: false, backToTerminal: true });
+    // "" is the off switch for the credit line, and must survive as "".
+    expect(custom.terminal.footer).toEqual({ copyright: false, backToTerminal: true, bottomText: "" });
     expect(custom.seo.enableSitemap).toBe(false);
     expect(renderContentSignal(custom)).toBe("search=yes, ai-train=no, ai-input=yes");
   });

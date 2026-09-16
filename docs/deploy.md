@@ -133,7 +133,7 @@ file is not emitted at all, and `robots.txt` stops pointing at a sitemap that
 isn't there. `robots.txt`'s `Content-Signal` line — may the content be searched,
 train models, feed AI answers — is `seo.contentSignal`, three booleans. The footer under the window on every page is `terminal.footer`: the
 generated copyright, the terminal's hint, the CV/404 back link, and a raw-HTML
-`bottomText` credit line. Three more switches govern what goes into every
+`bottomText` line — the terminal-portfolio credit unless you set it, `""` for none. Three more switches govern what goes into every
 page's `<head>`:
 `enableJsonLd` (the Person JSON-LD on the terminal and CV pages),
 `enableNoscript` (the terminal's no-JS fallback) and `enableSocialCards`

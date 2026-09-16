@@ -48,21 +48,21 @@ export default defineProfile(MESSAGES, {
     // The visitor's account — the `guest` in guest@beatriz.example — used by the
     // prompt, whoami, the boot greeting and the "logged in" half of who/w.
     // Default "guest".
-    handle: "guest",
+    // handle: "guest",
     // Cosmetic — the prompt and `uname`. Defaults to the host of SITE_URL,
     // which is where the site is published (every absolute URL, the CNAME).
     hostname: "beatriz.example",
     // Which languages this site ships is MESSAGES, at the top of this file.
     // The chip rotates in that order; this one is served unprefixed.
-    defaultLocale: "en",
+    // defaultLocale: "en",
     // A theme name from src/themes/, or "random" to deal one per first visit. Default "green".
     defaultTheme: "random",
     // Background rain for a first-time visitor (default "on"); `matrix on|off` is remembered.
-    defaultMatrix: "on",
+    // defaultMatrix: "on",
     // The fake dmesg sequence before the terminal, once per session. Default true.
-    bootScreen: true,
+    // bootScreen: true,
     // The tappable command chips under the terminal. Default true.
-    chips: true,
+    // chips: true,
     // Commands to leave out entirely — gone from help, completion and chips.
     // disabledCommands: ["terraform", "kubectl"],
     // Extra topbar links. The CV link is added automatically when `cv` is
@@ -74,13 +74,14 @@ export default defineProfile(MESSAGES, {
     // The footer under the window, on every page. Omit the block for the defaults.
     footer: {
       // The generated `© year name`, linked to the site root. Default true.
-      copyright: true,
+      // copyright: true,
       // Terminal page only, plain text. Omit for the built-in "type help to explore".
       // hint: { en: "…", es: "…", de: "…" },
       // The `back to terminal` link on the CV and 404 pages. Default true.
-      backToTerminal: true,
-      // A line under the rest, same in every language. Rendered as HTML — keep it short.
-      bottomText: 'Made with ❤ using <a href="https://github.com/thatguynikita/terminal-portfolio">terminal-portfolio</a>',
+      // backToTerminal: true,
+      // A line under the rest, same in every language. Rendered as HTML — keep it
+      // short. Default: the terminal-portfolio credit line; "" turns it off.
+      // bottomText: "",
     },
   },
 
@@ -107,19 +108,19 @@ export default defineProfile(MESSAGES, {
     // noindex: true,
     // Every switch below defaults to true; the whole seo block can be omitted.
     // robots.txt: per-crawler rules, Content-Signal, and the sitemap line.
-    enableRobotsTxt: true,
+    // enableRobotsTxt: true,
     // robots.txt Content-Signal: may the content be searched, train models, feed AI answers. Default all true.
-    contentSignal: { search: true, aiTrain: true, aiInput: true },
+    // contentSignal: { search: true, aiTrain: true, aiInput: true },
     // sitemap.xml: the home page and every CV page, with the portrait.
-    enableSitemap: true,
+    // enableSitemap: true,
     // llms.txt: the index for AI agents, per the llms.txt spec.
-    enableLlmsTxt: true,
+    // enableLlmsTxt: true,
     // The Person JSON-LD on the terminal page and every CV page.
-    enableJsonLd: true,
+    // enableJsonLd: true,
     // The terminal's <noscript> fallback for crawlers and no-JS visitors.
-    enableNoscript: true,
+    // enableNoscript: true,
     // The og:* and twitter:card share tags on every page; off makes ogImage inert.
-    enableSocialCards: true,
+    // enableSocialCards: true,
     // The share-card image for the terminal and 404 pages; the CV uses cv.photo.
     // ogImage: "/assets/img/og-terminal.png",
   },

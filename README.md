@@ -111,9 +111,9 @@ That builds a green terminal at `guest@<your SITE_URL host>` with the boot
 screen, the chip bar, the hidden commands and the ssh egg — and no `about`,
 `skills`, `contact`, `neofetch` or `cv`, since there's nothing to show. `npm
 run check` will warn that `seo.description` is unset (search engines then
-write their own snippet); everything else is quiet. The examples set every
-knob explicitly, with its default in the comment, so you can see what to
-change.
+write their own snippet); everything else is quiet. The examples show every
+knob: the ones at their default are commented out with the default in the
+comment, so uncommenting one is how you change it.
 
 ### Replace the images
 

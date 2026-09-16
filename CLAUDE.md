@@ -312,7 +312,8 @@ and gate their file *reads* too, since `describe.skip` still evaluates the body.
   localised tail. Its knobs are `terminal.footer` (`copyright`, `hint`,
   `backToTerminal`, `bottomText`). Two config fields are raw HTML on purpose
   and say so: `neofetch.ascii` and `terminal.footer.bottomText` (not
-  localised — one credit line for every language). Everything else is plain
+  localised — one credit line for every language; defaults to `CREDIT_LINE`,
+  and `""` is the off switch, since omitting it now means the default). Everything else is plain
   text escaped by the renderer.
 - **Defaults live in `defineProfile()` and nowhere else.** It takes
   `ProfileInput` (what the author writes; only `author` is required) and

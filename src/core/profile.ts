@@ -188,7 +188,7 @@ export interface ProfileInput {
       /**
        * A line under the rest, on every page, the same in every language.
        * Rendered as HTML — the one field besides `neofetch.ascii` that is.
-       * Omit for none.
+       * Default: the terminal-portfolio credit line. `""` for none.
        */
       bottomText?: string;
     };
@@ -357,7 +357,7 @@ export interface ProfileConfig {
   author: Localized;
   terminal: Required<Pick<Terminal, "handle" | "hostname" | "defaultLocale" | "defaultTheme" | "defaultMatrix" | "bootScreen" | "chips">> &
     Pick<Terminal, "disabledCommands" | "links"> & {
-      footer: Required<Pick<Footer, "copyright" | "backToTerminal">> & Pick<Footer, "hint" | "bottomText">;
+      footer: Required<Pick<Footer, "copyright" | "backToTerminal" | "bottomText">> & Pick<Footer, "hint">;
     };
   seo: Required<
     Pick<Seo, "enableRobotsTxt" | "contentSignal" | "enableSitemap" | "enableLlmsTxt" | "enableJsonLd" | "enableNoscript" | "enableSocialCards">
@@ -460,6 +460,10 @@ function siteHost(): string {
  * (which imports profile.config.ts: that would be the runtime cycle the
  * types-only rule exists to prevent).
  */
+/** The default `terminal.footer.bottomText`; `""` in the config turns it off. */
+export const CREDIT_LINE =
+  'Made with ❤ using <a href="https://github.com/thatguynikita/terminal-portfolio">terminal-portfolio</a>';
+
 export function defineProfile<M extends Record<string, unknown>>(
   messages: M,
   input: ProfileInput
@@ -482,7 +486,7 @@ export function defineProfile<M extends Record<string, unknown>>(
       copyright: f.copyright ?? true,
       backToTerminal: f.backToTerminal ?? true,
       ...(f.hint ? { hint: f.hint } : {}),
-      ...(f.bottomText ? { bottomText: f.bottomText } : {}),
+      bottomText: f.bottomText ?? CREDIT_LINE,
     },
   };
   if (t.hostname === undefined) {
