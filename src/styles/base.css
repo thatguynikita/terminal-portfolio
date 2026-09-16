@@ -117,4 +117,5 @@ footer{
 }
 footer a{color:var(--fg-dim); text-decoration:underline;}
 footer a:hover{color:var(--fg);}
+.footer-bottom{margin-top:4px;}
 

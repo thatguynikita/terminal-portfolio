@@ -21,7 +21,7 @@ const en = {
   boot: {
     lines: [
       "{host} boot sequence — kernel 6.6.0-sre",
-      "[  OK  ] loaded module: eleven_years_of_uptime.ko",
+      "[  OK  ] loaded module: years_of_uptime.ko",
       `<span class="rm-line">[FAILED] mounted /dev/motivation: not found</span>`,
       "[  OK  ] mounted /dev/coffee instead",
       "[  OK  ] started ssh-agent.service",
@@ -37,7 +37,7 @@ const en = {
 
   /** One entry per registered command; `help` reads these. */
   commands: {
-    about: "who is that guy anyway",
+    about: "who is this person",
     skills: "tech stack",
     contact: "ways to reach me",
     cv: "open the full CV",
@@ -45,7 +45,7 @@ const en = {
     whoami: "a little too much about you",
     ls: "list files",
     cat: "print a file",
-    fortune: "random sysadmin wisdom",
+    fortune: "random wisdom",
     top: "fake process monitor",
     kubectl: "peek at a pretend cluster",
     terraform: "apply optimism, destroy everything",

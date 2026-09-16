@@ -1,7 +1,8 @@
 import { describe, expect, it } from "vitest";
 import { readFileSync, readdirSync } from "node:fs";
 import { join } from "node:path";
-import { PUBLIC_THEMES, SECRET_THEMES, THEME_NAMES } from "../src/themes";
+import { SECRET_ID, THEME_IDS } from "../src/themes";
+import { publicThemes, themeId, themeNames } from "../src/core/theme";
 
 const DIR = join(process.cwd(), "src/themes");
 const files = readdirSync(DIR).filter((f) => f.endsWith(".css"));
@@ -15,14 +16,48 @@ const reference = tokensIn(readFileSync(join(DIR, "green.css"), "utf8"));
 
 describe("themes", () => {
   it("registers one theme per CSS file", () => {
-    expect(THEME_NAMES.sort()).toEqual(files.map((f) => f.replace(/\.css$/, "")).sort());
-    expect(THEME_NAMES.length).toBeGreaterThan(1);
+    expect(THEME_IDS.sort()).toEqual(files.map((f) => f.replace(/\.css$/, "")).sort());
+    expect(THEME_IDS.length).toBeGreaterThan(1);
+    expect(THEME_IDS, "the secret theme file is missing").toContain(SECRET_ID);
   });
 
-  it("keeps secret themes out of the public list but in the full list", () => {
-    for (const secret of SECRET_THEMES) {
-      expect(THEME_NAMES).toContain(secret);
-      expect(PUBLIC_THEMES).not.toContain(secret);
+  /**
+   * `secret.css` is addressed by id but shown under the configured name.
+   * The mapping is what lets a fork rename the egg without touching CSS.
+   */
+  it("shows the secret theme under its configured name, hidden until unlocked", () => {
+    const names = themeNames("sabbatical");
+    expect(names).toContain("sabbatical");
+    expect(names, "the id leaked into the visible list").not.toContain(SECRET_ID);
+    expect(names.length).toBe(THEME_IDS.length);
+    expect(publicThemes("sabbatical")).not.toContain("sabbatical");
+    expect(publicThemes("sabbatical").length).toBe(THEME_IDS.length - 1);
+  });
+
+  it("maps the visible name to the id, and never accepts the id as a name", () => {
+    expect(themeId("sabbatical", "sabbatical")).toBe(SECRET_ID);
+    expect(themeId("green", "sabbatical")).toBe("green");
+    expect(themeId(SECRET_ID, "sabbatical")).toBeUndefined();
+    expect(themeId("sabbatical", undefined)).toBeUndefined();
+    expect(themeId("no-such-theme", "sabbatical")).toBeUndefined();
+  });
+
+  it("does not offer the secret theme at all when it has no name", () => {
+    expect(themeNames(undefined)).toEqual(THEME_IDS.filter((id) => id !== SECRET_ID));
+    expect(publicThemes(undefined)).toEqual(themeNames(undefined));
+  });
+
+  // A theme's per-theme overrides (the CRT flicker, most often) live in the
+  // same file under a second `[data-theme=…]` selector. If that selector
+  // names anything but the file, the override silently stops applying —
+  // which is how the secret theme's flicker came back after a rename.
+  it("keys every selector in a theme file to that file's own name", () => {
+    for (const file of files) {
+      const id = file.replace(/\.css$/, "");
+      const css = readFileSync(join(DIR, file), "utf8");
+      const named = [...css.matchAll(/data-theme="([^"]+)"/g)].map((m) => m[1]);
+      expect(named.length, `${file} has no [data-theme] selector`).toBeGreaterThan(0);
+      expect(new Set(named), `${file} addresses a theme other than itself`).toEqual(new Set([id]));
     }
   });
 

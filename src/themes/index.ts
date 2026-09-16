@@ -6,16 +6,17 @@
  * matrix-rain colours (`--matrix-color` / `--matrix-fade`) and any
  * per-theme overrides all live inside that one file.
  *
- * The only thing declared here is which themes are hidden easter eggs.
+ * One file is special: `secret.css` is the easter-egg theme, unlocked by
+ * `claude "add light theme"`. Its CSS is addressed as "secret", but the name
+ * visitors see and type is `commands.system.secretTheme` — the controller
+ * maps between the two, so renaming the egg is a config edit.
  */
 const modules = import.meta.glob("./*.css", { eager: true });
 
-/** Hidden from `theme` completions and the `help` list until unlocked. */
-export const SECRET_THEMES = new Set(["sabbatical"]);
+/** The id the secret theme's CSS answers to; never shown to a visitor. */
+export const SECRET_ID = "secret";
 
-/** Every theme name, secret ones included — derived from the filenames. */
-export const THEME_NAMES: string[] = Object.keys(modules)
+/** Every theme id, the secret one included — derived from the filenames. */
+export const THEME_IDS: string[] = Object.keys(modules)
   .map((path) => path.replace(/^\.\//, "").replace(/\.css$/, ""))
   .sort();
-
-export const PUBLIC_THEMES: string[] = THEME_NAMES.filter((n) => !SECRET_THEMES.has(n));

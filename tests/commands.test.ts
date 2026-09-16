@@ -492,3 +492,41 @@ describe("terminal switches", () => {
     });
   });
 });
+
+/**
+ * The secret theme is `commands.system.secretTheme`. The `claude "add light
+ * theme"` egg ships it on the second ask — and with none configured there
+ * is nothing to ship, so the egg stays at won't-fix however often it's asked.
+ */
+describe("secret theme easter egg", () => {
+  const ask = async (ctx: ReturnType<typeof createFakeContext>): Promise<string> => {
+    const claude = commands.find((c) => c.name === "claude")!;
+    const before = ctx.lines.length;
+    await claude.run(ctx, args('"add light theme"', "claude"));
+    return ctx.lines.slice(before).join("\n");
+  };
+
+  it("unlocks the configured secret on the second ask", async () => {
+    const ctx = createFakeContext("en");
+    const unlock = vi.fn();
+    ctx.theme = { ...ctx.theme, secretName: "sabbatical", unlockSecret: unlock };
+    await ask(ctx);
+    expect(unlock).not.toHaveBeenCalled();
+    const second = await ask(ctx);
+    expect(unlock).toHaveBeenCalledTimes(1);
+    expect(second).toContain("theme sabbatical");
+  });
+
+  it("never gets past won't-fix when no secret theme is configured", async () => {
+    const ctx = createFakeContext("en");
+    const unlock = vi.fn();
+    ctx.theme = { ...ctx.theme, secretName: undefined, unlockSecret: unlock };
+    const first = await ask(ctx);
+    const second = await ask(ctx);
+    const third = await ask(ctx);
+    expect(unlock).not.toHaveBeenCalled();
+    expect(second).toBe(first);
+    expect(third).toBe(first);
+    expect(second).not.toMatch(/theme\s*$/m); // no "type theme " with an empty name
+  });
+});

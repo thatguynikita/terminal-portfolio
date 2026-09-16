@@ -229,8 +229,12 @@ purely because of that confusion.)
   theme whose `--bg` isn't near-black must disable it (`animation:none`), or the
   `multiply` blend's periodic dip reads as a flash every ~6s. Five of the seven
   themes need this.
-- `sabbatical` is a secret theme, hidden from completions until unlocked by
-  `claude "add light theme"` (twice). Declared in `src/themes/index.ts`.
+- **`secret.css` is the one secret theme**, unlocked by `claude "add light
+  theme"` on the second ask. Its CSS and storage id is `secret`; the name
+  visitors see is `commands.system.secretTheme` (the shipped config says
+  `sabbatical`). `src/core/theme.ts` maps between the two — `themeId()` /
+  `themeNames()` — and nothing else may see the id. Omit the field and the
+  theme isn't offered at all; the egg stays at won't-fix.
 
 ## Build and deploy
 
@@ -265,6 +269,13 @@ and gate their file *reads* too, since `describe.skip` still evaluates the body.
 - The language toggle is load-bearing: any new visible text needs every
   enabled locale. Command *logic* lives in `src/commands/`; command *copy*
   lives in `src/i18n/messages/`; personal *data* lives in `profile.config.ts`.
+- **The footer is one function, `renderFooter()` in `src/core/profile.ts`**,
+  called by the terminal, the 404 and the CV build with each page's own
+  localised tail. Its knobs are `terminal.footer` (`copyright`, `hint`,
+  `backToTerminal`, `bottomText`). Two config fields are raw HTML on purpose
+  and say so: `neofetch.ascii` and `terminal.footer.bottomText` (not
+  localised — one credit line for every language). Everything else is plain
+  text escaped by the renderer.
 - `profile.config.ts` ships with real personal data, so `npm run check` guards
   the rebrand. **`SITE_URL` is the one deployment fact that lives outside the
   config** — in `.env`, the shell, or CI's `vars.SITE_URL`, shell winning.

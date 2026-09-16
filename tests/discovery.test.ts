@@ -127,6 +127,20 @@ suite("built output", () => {
     }
   });
 
+  // The CV footer is the build-time instance of the shared renderFooter;
+  // the terminal and 404 footers are the same function at runtime.
+  it("builds the CV footer from terminal.footer", () => {
+    const { footer } = profile.terminal;
+    for (const locale of locales) {
+      const html = read(cvUrl(profile, locale).replace(/^\//, ""));
+      const block = /<footer>([\s\S]*?)<\/footer>/.exec(html)?.[1] ?? "";
+      expect(block.includes("©"), `${locale}: © vs footer.copyright`).toBe(footer.copyright);
+      expect(block.includes('<a href="/">'), `${locale}: back link vs footer.backToTerminal`).toBe(footer.backToTerminal);
+      if (footer.bottomText) expect(block).toContain(`<div class="footer-bottom">${footer.bottomText}</div>`);
+      else expect(block).not.toContain("footer-bottom");
+    }
+  });
+
   it("emits one CV page per configured locale", () => {
     // No `cv` in the config means no pages, which is a valid setup.
     for (const locale of locales) {

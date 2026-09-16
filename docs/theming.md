@@ -45,11 +45,16 @@ greying out individual classes, so **every theme prints identically grayscale �
 including themes added later.** A test asserts every token `green.css` defines is
 overridden. You don't need to do anything per-theme for print.
 
-## Secret themes
+## The secret theme
 
-A theme can be hidden from completions until unlocked. `sabbatical` is declared
-secret in `src/themes/index.ts` and appears only after `claude "add light theme"`
-is run twice.
+`src/themes/secret.css` is the easter egg: a light theme, hidden from
+completions until `claude "add light theme"` is run twice. Its CSS is
+addressed as `secret`, but the name visitors see and type is
+`commands.system.secretTheme` — so renaming the egg is a config edit, and the
+shipped config calls it `sabbatical`. Omit the field and the secret theme
+isn't offered at all (not listed, not dealt at random); the egg then stays at
+won't-fix however often it's asked. The name must not be `secret` or the
+name of a public theme — `npm run check` refuses both.
 
 ---
 

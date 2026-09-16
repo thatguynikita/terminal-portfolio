@@ -14,7 +14,7 @@ const HERE = dirname(fileURLToPath(import.meta.url));
 const PAGES = resolve(HERE, "pages");
 const page = (name: string): string => resolve(PAGES, name);
 import profile from "./profile.config";
-import { mailtoFor, renderContentSignal, renderCopyright, skillsFor, socialsFor } from "./src/core/profile";
+import { mailtoFor, renderContentSignal, renderFooter, skillsFor, socialsFor } from "./src/core/profile";
 import type { Locale } from "./src/i18n/locales";
 import { StorageKey } from "./src/core/storage";
 import { cvByteSize, renderCv, renderCvTopbar } from "./src/cv/render";
@@ -191,6 +191,7 @@ function assertLocaleReady(locale: Locale): void {
     ["seo.description", profile.seo.description[locale]],
   ];
   // Optional sections are only checked when the author supplied them.
+  if (profile.terminal.footer.hint) required.push(["terminal.footer.hint", profile.terminal.footer.hint[locale]]);
   if (profile.cv?.tagline) required.push(["cv.tagline", profile.cv.tagline[locale]]);
   if (profile.cv?.about) required.push(["cv.about", profile.cv.about[locale]]);
   if (profile.cv?.metaLine) required.push(["cv.metaLine", profile.cv.metaLine[locale]]);
@@ -214,9 +215,10 @@ function assertLocaleReady(locale: Locale): void {
 /** Fills a processed cv.html shell with one locale's content. */
 function fillCv(html: string, locale: Locale): string {
   assertLocaleReady(locale);
-  const footer =
-    `${renderCopyright(profile, locale, SITE_URL)} · ` +
-    `<a href="/">${escapeHtml(translate(locale, "cv.backToTerminal"))}</a>`;
+  const back = profile.terminal.footer.backToTerminal
+    ? `<a href="/">${escapeHtml(translate(locale, "cv.backToTerminal"))}</a>`
+    : "";
+  const footer = renderFooter(profile, locale, SITE_URL, back);
 
   return html
     .replace(/<html lang="[^"]*"/, `<html lang="${locale}"`)

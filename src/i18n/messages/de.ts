@@ -26,7 +26,7 @@ const de: Messages = {
   boot: {
     lines: [
       "{host} Startvorgang — Kernel 6.6.0-sre",
-      "[  OK  ] Modul geladen: eleven_years_of_uptime.ko",
+      "[  OK  ] Modul geladen: years_of_uptime.ko",
       `<span class="rm-line">[FEHLER] /dev/motivation eingehängt: nicht gefunden</span>`,
       "[  OK  ] stattdessen /dev/coffee eingehängt",
       "[  OK  ] ssh-agent.service gestartet",
@@ -42,7 +42,7 @@ const de: Messages = {
 
   /** One entry per registered command; `help` reads these. */
   commands: {
-    about: "wer ist dieser Typ überhaupt",
+    about: "wer ist diese Person überhaupt",
     skills: "Tech-Stack",
     contact: "so erreichst du mich",
     cv: "den vollständigen Lebenslauf öffnen",
@@ -50,7 +50,7 @@ const de: Messages = {
     whoami: "ein bisschen zu viel über dich",
     ls: "Dateien auflisten",
     cat: "eine Datei ausgeben",
-    fortune: "zufällige Sysadmin-Weisheit",
+    fortune: "zufällige Weisheit",
     top: "unechter Prozessmonitor",
     kubectl: "einen Blick in einen Pseudo-Cluster werfen",
     terraform: "Optimismus ausrollen, alles zerstören",
