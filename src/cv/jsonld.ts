@@ -25,7 +25,7 @@ export function buildCvJsonLd(
     url: `${origin}/`,
     address: {
       "@type": "PostalAddress",
-      addressLocality: identity.location[locale],
+      addressLocality: profile.seo.location[locale],
     },
     sameAs: profile.socials.filter((s) => s.href.startsWith("http")).map((s) => s.href),
   };

@@ -68,29 +68,33 @@ export default defineProfile({
       es: "Ingeniera de sistemas embebidos — Robótica",
       de: "Embedded-Systems-Entwicklerin — Robotik",
     },
+  },
+
+  seo: {
+    description: {
+      en: "Interactive terminal portfolio of an embedded systems engineer with 10 years in robotics. Type `help` to explore.",
+      es: "Portfolio interactivo en terminal de una ingeniera de sistemas embebidos con 10 años en robótica. Escribe `help` para explorar.",
+      de: "Interaktives Terminal-Portfolio einer Embedded-Systems-Entwicklerin mit 10 Jahren Robotik-Erfahrung. Tippe `help` zum Stöbern.",
+    },    // For the CV's JSON-LD address and the no-JS fallback; not shown on a page.
     location: {
       en: "Munich, Germany",
       es: "Múnich, Alemania",
       de: "München, Deutschland",
     },
-    tagline: {
-      en: "Embedded Systems Engineer — Robotics · 10y experience",
-      es: "Ingeniera de sistemas embebidos — Robótica · 10 años de experiencia",
-      de: "Embedded-Systems-Entwicklerin — Robotik · 10 Jahre Erfahrung",
-    },
-  },
-
-  seo: {
-    title: {
-      en: "Beatriz Ocaña Ruiz — Embedded Systems Engineer",
-      es: "Beatriz Ocaña Ruiz — Ingeniera de sistemas embebidos",
-      de: "Beatriz Ocaña Ruiz — Embedded-Systems-Entwicklerin",
-    },
-    description: {
-      en: "Interactive terminal portfolio of an embedded systems engineer with 10 years in robotics. Type `help` to explore.",
-      es: "Portfolio interactivo en terminal de una ingeniera de sistemas embebidos con 10 años en robótica. Escribe `help` para explorar.",
-      de: "Interaktives Terminal-Portfolio einer Embedded-Systems-Entwicklerin mit 10 Jahren Robotik-Erfahrung. Tippe `help` zum Stöbern.",
-    },
+    // robots.txt: per-crawler rules, Content-Signal, and the sitemap line.
+    enableRobotsTxt: true,
+    // robots.txt Content-Signal: may the content be searched, train models, feed AI answers.
+    contentSignal: { search: true, aiTrain: true, aiInput: true },
+    // sitemap.xml: the home page and every CV page, with the portrait.
+    enableSitemap: true,
+    // llms.txt: the index for AI agents, per the llms.txt spec.
+    enableLlmsTxt: true,
+    // The Person JSON-LD on the terminal page and every CV page.
+    enableJsonLd: true,
+    // The terminal's <noscript> fallback for crawlers and no-JS visitors.
+    enableNoscript: true,
+    // The og:* and twitter:card share tags on every page; off makes ogImage inert.
+    enableSocialCards: true,
   },
 
   neofetch: {
@@ -370,6 +374,14 @@ auftreten, und Prüfstände, die einen Defekt vor dem Lager bemerken.`,
   // Delete this whole key and the CV disappears: no pages, no `cv` command,
   // no cv.html in `ls`, no sitemap rows — just the terminal.
   cv: {
+    // The line under your name on the CV — the role, plus how long you've
+    // been at it. CV page only.
+    tagline: {
+      en: "Embedded Systems Engineer — Robotics · 10y experience",
+      es: "Ingeniera de sistemas embebidos — Robótica · 10 años de experiencia",
+      de: "Embedded-Systems-Entwicklerin — Robotik · 10 Jahre Erfahrung",
+    },
+
     photo: "/assets/img/portraits/beatriz-photo.png",
     // "pixel": a posterized pixel render under the theme tint. "tint": just the
     // grayscale + tint. Leave it out and the photo is served exactly as uploaded.

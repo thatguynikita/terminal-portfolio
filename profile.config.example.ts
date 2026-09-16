@@ -54,21 +54,29 @@ export default defineProfile({
     role: {
       en: "Data Engineer — Analytics Platform",
     },
-    location: {
-      en: "Belgrade, Serbia",
-    },
-    tagline: {
-      en: "Data Engineer — Analytics Platform · 10y experience",
-    },
   },
 
   seo: {
-    title: {
-      en: "Marina Volkova — Data Engineer",
-    },
     description: {
       en: "Interactive terminal portfolio of a data engineer with 10 years of experience. Type `help` to explore.",
+    },    // For the CV's JSON-LD address and the no-JS fallback; not shown on a page.
+    location: {
+      en: "Belgrade, Serbia",
     },
+    // robots.txt: per-crawler rules, Content-Signal, and the sitemap line.
+    enableRobotsTxt: true,
+    // robots.txt Content-Signal: may the content be searched, train models, feed AI answers.
+    contentSignal: { search: true, aiTrain: true, aiInput: true },
+    // sitemap.xml: the home page and every CV page, with the portrait.
+    enableSitemap: true,
+    // llms.txt: the index for AI agents, per the llms.txt spec.
+    enableLlmsTxt: true,
+    // The Person JSON-LD on the terminal page and every CV page.
+    enableJsonLd: true,
+    // The terminal's <noscript> fallback for crawlers and no-JS visitors.
+    enableNoscript: true,
+    // The og:* and twitter:card share tags on every page; off makes ogImage inert.
+    enableSocialCards: true,
   },
 
   neofetch: {
@@ -240,6 +248,12 @@ before a dashboard lies, and documentation someone reads at 2am.`,
   // Delete this whole key and the CV disappears: no pages, no `cv` command,
   // no cv.html in `ls`, no sitemap rows — just the terminal.
   cv: {
+    // The line under your name on the CV — the role, plus how long you've
+    // been at it. CV page only.
+    tagline: {
+      en: "Data Engineer — Analytics Platform · 10y experience",
+    },
+
     photo: "/assets/img/portraits/marina-photo.png",
     // "pixel": a posterized pixel render under the theme tint. "tint": just the
     // grayscale + tint. Leave it out and the photo is served exactly as uploaded.

@@ -247,10 +247,23 @@ describe.each([
 
   // The examples aren't typechecked, so the switches `tsc` would insist on
   // for the real config are checked here instead.
-  it("sets both terminal switches explicitly", () => {
-    const { terminal } = mod!.default as { terminal: Record<string, unknown> };
+  it("sets every switch explicitly", () => {
+    const { terminal, seo } = mod!.default as {
+      terminal: Record<string, unknown>;
+      seo: Record<string, unknown>;
+    };
     expect(typeof terminal["bootScreen"], "terminal.bootScreen").toBe("boolean");
     expect(typeof terminal["chips"], "terminal.chips").toBe("boolean");
+    for (const key of [
+      "enableRobotsTxt", "enableSitemap", "enableLlmsTxt",
+      "enableJsonLd", "enableNoscript", "enableSocialCards",
+    ]) {
+      expect(typeof seo[key], `seo.${key}`).toBe("boolean");
+    }
+    const signal = seo["contentSignal"] as Record<string, unknown> | undefined;
+    for (const key of ["search", "aiTrain", "aiInput"]) {
+      expect(typeof signal?.[key], `seo.contentSignal.${key}`).toBe("boolean");
+    }
   });
 
   it("dates the machine with an offset, when it dates it at all", () => {

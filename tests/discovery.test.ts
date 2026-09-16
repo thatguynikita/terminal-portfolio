@@ -3,7 +3,8 @@ import { existsSync, readdirSync, readFileSync } from "node:fs";
 import { join } from "node:path";
 import profile, { MESSAGES } from "../profile.config";
 import { cvLocales, cvUrl } from "../src/cv/url";
-import { socialsFor } from "../src/core/profile";
+import { renderContentSignal, socialsFor } from "../src/core/profile";
+import { escapeHtml } from "../src/core/html";
 
 // The same resolution vite.config.ts uses; vitest.config.ts loads .env into
 // process.env so a local dist/ and this suite agree on the origin.
@@ -31,6 +32,99 @@ suite("built output", () => {
     const index = read("index.html");
     expect(index.includes('id="boot"'), "#boot vs terminal.bootScreen").toBe(profile.terminal.bootScreen);
     expect(index.includes('id="chips"'), "#chips vs terminal.chips").toBe(profile.terminal.chips);
+  });
+
+  /**
+   * `seo.title` is gone: the terminal page is titled from what the config
+   * already says about you, so there's no fourth spelling of name + role.
+   * The CV keeps its own `name — CV — hostname`, the 404 its `404 — host`.
+   */
+  it("titles the terminal page name — role", () => {
+    const lang = profile.terminal.defaultLocale;
+    const index = read("index.html");
+    const expected = escapeHtml(`${profile.identity.name[lang]} — ${profile.identity.role[lang]}`);
+    expect(index).toContain(`<title>${expected}</title>`);
+    if (profile.seo.enableSocialCards) {
+      expect(index).toContain(`<meta property="og:title" content="${expected}" />`);
+    }
+  });
+
+  /**
+   * The three head injections are each a switch in `seo`. Every page is
+   * checked both ways: present with the right content when on, absent when
+   * off — so a fork that turns one off gets a clean head, not a stub.
+   */
+  describe("head switches", () => {
+    const lang = profile.terminal.defaultLocale;
+    // Each page with the locale its content is in; index and 404 are the default's.
+    const pages = (): Array<[string, typeof lang]> => [
+      ["index.html", lang],
+      ["404.html", lang],
+      ...locales.map((l): [string, typeof lang] => [cvUrl(profile, l).replace(/^\//, ""), l]),
+    ];
+
+    it("noscript fallback: on the terminal page only, saying role and location", () => {
+      const index = read("index.html");
+      const noscript = /<noscript>([\s\S]*?)<\/noscript>/.exec(index)?.[1];
+      if (!profile.seo.enableNoscript) {
+        expect(noscript, "noscript emitted while switched off").toBeUndefined();
+        expect(index, "the placeholder should be consumed either way").not.toContain("<!--NOSCRIPT-->");
+        return;
+      }
+      expect(noscript, "no noscript block").toBeDefined();
+      expect(noscript, "noscript should lead with the role").toContain(escapeHtml(profile.identity.role[lang]));
+      expect(noscript, "noscript should carry the location").toContain(escapeHtml(profile.seo.location[lang]));
+      if (profile.cv?.tagline) {
+        expect(noscript, "the CV tagline is CV-only").not.toContain(escapeHtml(profile.cv.tagline[lang]));
+      }
+      for (const [page] of pages().filter(([p]) => p !== "index.html")) {
+        expect(read(page), `${page} has a noscript block`).not.toContain("<noscript>");
+      }
+    });
+
+    it("JSON-LD: a Person on the terminal page and every CV page, or nowhere", () => {
+      const { enableJsonLd } = profile.seo;
+      for (const [page, locale] of pages()) {
+        const html = read(page);
+        const scripts = [...html.matchAll(/<script type="application\/ld\+json">([\s\S]*?)<\/script>/g)];
+        if (!enableJsonLd || page === "404.html") {
+          expect(scripts.length, `${page} carries JSON-LD`).toBe(0);
+          continue;
+        }
+        expect(scripts.length, `${page} has no JSON-LD`).toBe(1);
+        const data = JSON.parse(scripts[0]![1]!) as { "@type": string; name: string };
+        expect(data["@type"]).toBe("Person");
+        expect(data.name).toBe(profile.identity.name[locale]);
+      }
+    });
+
+    it("social cards: og:* and twitter:card on every page, or on none", () => {
+      const { enableSocialCards } = profile.seo;
+      for (const [page] of pages()) {
+        const html = read(page);
+        const og = (html.match(/<meta property="og:/g) ?? []).length;
+        const twitter = (html.match(/<meta name="twitter:card"/g) ?? []).length;
+        if (!enableSocialCards) {
+          expect(og + twitter, `${page} has share tags while switched off`).toBe(0);
+          continue;
+        }
+        expect(og, `${page} is missing og: tags`).toBeGreaterThanOrEqual(4);
+        expect(twitter, `${page} is missing twitter:card`).toBe(1);
+      }
+    });
+  });
+
+  // The three discovery files are each a switch in `seo`. Off means absent —
+  // not empty, not a stub — so a fork that turns one off ships nothing for it.
+  it("emits each discovery file exactly when its switch is on", () => {
+    const files: Array<[string, boolean]> = [
+      ["robots.txt", profile.seo.enableRobotsTxt],
+      ["sitemap.xml", profile.seo.enableSitemap],
+      ["llms.txt", profile.seo.enableLlmsTxt],
+    ];
+    for (const [file, enabled] of files) {
+      expect(existsSync(join(DIST, file)), `${file} vs its seo switch`).toBe(enabled);
+    }
   });
 
   it("emits one CV page per configured locale", () => {
@@ -143,8 +237,9 @@ suite("built output", () => {
     }
   });
 
-  describe("sitemap.xml", () => {
-    const xml = built ? read("sitemap.xml") : "";
+  (profile.seo.enableSitemap ? describe : describe.skip)("sitemap.xml", () => {
+    // describe.skip still evaluates this body, so the read is gated too.
+    const xml = built && profile.seo.enableSitemap ? read("sitemap.xml") : "";
 
     it("lists the home page and every CV page", () => {
       expect(xml).toContain("<loc>");
@@ -210,8 +305,9 @@ suite("built output", () => {
     });
   });
 
-  describe("llms.txt", () => {
-    const txt = built ? read("llms.txt") : "";
+  (profile.seo.enableLlmsTxt ? describe : describe.skip)("llms.txt", () => {
+    // describe.skip still evaluates this body, so the read is gated too.
+    const txt = built && profile.seo.enableLlmsTxt ? read("llms.txt") : "";
 
     /**
      * Structure per https://llmstxt.org: an H1 name, a blockquote summary,
@@ -223,6 +319,9 @@ suite("built output", () => {
       expect(lines[0], "first line is not an H1").toMatch(/^# \S/);
       const quote = lines.slice(1).find((l) => l.trim() !== "");
       expect(quote, "no blockquote summary after the title").toMatch(/^> \S/);
+      // The summary is the role, not the CV's tagline.
+      const lang = profile.terminal.defaultLocale;
+      expect(quote).toBe(`> ${profile.identity.role[lang]}`);
     });
 
     it("uses only H1 and H2 headings", () => {
@@ -310,10 +409,15 @@ suite("built output", () => {
     });
   });
 
-  describe("robots.txt", () => {
-    const robots = built ? read("robots.txt") : "";
+  (profile.seo.enableRobotsTxt ? describe : describe.skip)("robots.txt", () => {
+    // describe.skip still evaluates this body, so the read is gated too.
+    const robots = built && profile.seo.enableRobotsTxt ? read("robots.txt") : "";
 
-    it("points at the sitemap that exists", () => {
+    it("points at the sitemap only when one is emitted", () => {
+      if (!profile.seo.enableSitemap) {
+        expect(robots, "robots.txt points at a sitemap that is switched off").not.toContain("Sitemap:");
+        return;
+      }
       expect(robots).toContain("Sitemap:");
       const sitemap = /Sitemap:\s*(\S+)/.exec(robots)?.[1] ?? "";
       expect(existsSync(join(DIST, new URL(sitemap).pathname.replace(/^\//, "")))).toBe(true);
@@ -330,9 +434,9 @@ suite("built output", () => {
       expect(namedGroup, "the named group has no Allow").toContain("Allow: /");
     });
 
-    it("declares a content signal on the wildcard group", () => {
+    it("declares the configured content signal on the wildcard group", () => {
       const wildcard = robots.slice(robots.indexOf("User-agent: *"));
-      expect(wildcard).toMatch(/Content-Signal:.*search=/);
+      expect(wildcard).toContain(`Content-Signal: ${renderContentSignal(profile)}`);
       expect(wildcard).toContain("Allow: /");
     });
 
@@ -352,5 +456,23 @@ suite("built output", () => {
       expect(agents.filter((a) => a === ""), "empty User-agent line").toEqual([]);
       expect(new Set(agents).size, "a crawler is listed twice").toBe(agents.length);
     });
+  });
+});
+
+/** The Content-Signal value is three booleans rendered yes/no in a fixed order. */
+describe("renderContentSignal", () => {
+  const withSignal = (contentSignal: { search: boolean; aiTrain: boolean; aiInput: boolean }) =>
+    ({ ...profile, seo: { ...profile.seo, contentSignal } }) as typeof profile;
+
+  it("renders every combination in the spec's spelling", () => {
+    expect(renderContentSignal(withSignal({ search: true, aiTrain: true, aiInput: true }))).toBe(
+      "search=yes, ai-train=yes, ai-input=yes"
+    );
+    expect(renderContentSignal(withSignal({ search: true, aiTrain: false, aiInput: true }))).toBe(
+      "search=yes, ai-train=no, ai-input=yes"
+    );
+    expect(renderContentSignal(withSignal({ search: false, aiTrain: false, aiInput: false }))).toBe(
+      "search=no, ai-train=no, ai-input=no"
+    );
   });
 });

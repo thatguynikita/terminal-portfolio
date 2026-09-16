@@ -14,7 +14,7 @@ const HERE = dirname(fileURLToPath(import.meta.url));
 const PAGES = resolve(HERE, "pages");
 const page = (name: string): string => resolve(PAGES, name);
 import profile from "./profile.config";
-import { mailtoFor, renderCopyright, skillsFor, socialsFor } from "./src/core/profile";
+import { mailtoFor, renderContentSignal, renderCopyright, skillsFor, socialsFor } from "./src/core/profile";
 import type { Locale } from "./src/i18n/locales";
 import { StorageKey } from "./src/core/storage";
 import { cvByteSize, renderCv, renderCvTopbar } from "./src/cv/render";
@@ -87,8 +87,8 @@ function noscriptHtml(lang: Locale): string {
     `<table>${pairs.map(([k, v]) => `<tr><th>${k}</th><td>${v}</td></tr>`).join("")}</table>`;
 
   return `<noscript>
-  <p>${escapeHtml(profile.identity.tagline[lang])}</p>
-  <p>${escapeHtml(profile.identity.location[lang])}</p>
+  <p>${escapeHtml(profile.identity.role[lang])}</p>
+  <p>${escapeHtml(profile.seo.location[lang])}</p>
   <h2>About</h2>
   <p>${escapeHtml(profile.bio[lang].replace(/\s+/g, " ").trim())}</p>
   <h2>Skills</h2>
@@ -142,19 +142,26 @@ function cvHead(locale: Locale): string {
   const description = profile.seo.description[locale];
   const ogImage = profile.cv?.photo ? `${SITE_URL}${profile.cv?.photo}` : "";
 
+  const { enableSocialCards, enableJsonLd } = profile.seo;
   return [
     `<title>${escapeHtml(title)}</title>`,
     `<meta name="description" content="${escapeHtml(description)}" />`,
     profile.seo.noindex ? `<meta name="robots" content="noindex" />` : "",
     `<link rel="canonical" href="${SITE_URL}${cvUrl(profile, locale)}" />`,
     hreflangCluster(cvLocales(profile)),
-    `<meta property="og:type" content="profile" />`,
-    `<meta property="og:title" content="${escapeHtml(title)}" />`,
-    `<meta property="og:description" content="${escapeHtml(description)}" />`,
-    `<meta property="og:url" content="${SITE_URL}${cvUrl(profile, locale)}" />`,
-    ogImage ? `<meta property="og:image" content="${escapeHtml(ogImage)}" />` : "",
-    `<meta name="twitter:card" content="summary" />`,
-    `<script type="application/ld+json">${JSON.stringify(buildCvJsonLd(profile, locale, SITE_URL), null, 2)}</script>`,
+    ...(enableSocialCards
+      ? [
+          `<meta property="og:type" content="profile" />`,
+          `<meta property="og:title" content="${escapeHtml(title)}" />`,
+          `<meta property="og:description" content="${escapeHtml(description)}" />`,
+          `<meta property="og:url" content="${SITE_URL}${cvUrl(profile, locale)}" />`,
+          ogImage ? `<meta property="og:image" content="${escapeHtml(ogImage)}" />` : "",
+          `<meta name="twitter:card" content="summary" />`,
+        ]
+      : []),
+    enableJsonLd
+      ? `<script type="application/ld+json">${JSON.stringify(buildCvJsonLd(profile, locale, SITE_URL), null, 2)}</script>`
+      : "",
   ]
     .filter(Boolean)
     .join("\n  ");
@@ -180,10 +187,11 @@ function assertLocaleReady(locale: Locale): void {
   const required: Array<[string, unknown]> = [
     ["identity.name", profile.identity.name[locale]],
     ["identity.role", profile.identity.role[locale]],
-    ["identity.location", profile.identity.location[locale]],
+    ["seo.location", profile.seo.location[locale]],
     ["seo.description", profile.seo.description[locale]],
   ];
   // Optional sections are only checked when the author supplied them.
+  if (profile.cv?.tagline) required.push(["cv.tagline", profile.cv.tagline[locale]]);
   if (profile.cv?.about) required.push(["cv.about", profile.cv.about[locale]]);
   if (profile.cv?.metaLine) required.push(["cv.metaLine", profile.cv.metaLine[locale]]);
   if (profile.cv?.signOff) required.push(["cv.signOff", profile.cv.signOff[locale]]);
@@ -312,13 +320,6 @@ const NAMED_CRAWLERS = [
 ];
 
 /**
- * `Content-Signal` states what the content may be used for — search
- * indexing, model training, inference-time input — rather than merely
- * whether it may be fetched. Ignored by crawlers that don't support it.
- */
-const CONTENT_SIGNAL = "search=yes, ai-train=yes, ai-input=yes";
-
-/**
  * Generated rather than shipped in public/, which had the author's name
  * and host baked in — a fork would have inherited them silently, since
  * nothing renders the manifest where you'd notice.
@@ -373,11 +374,12 @@ function robotsTxt(): string {
     "Allow: /",
     "",
     "User-agent: *",
-    `Content-Signal: ${CONTENT_SIGNAL}`,
+    // What the content may be used for, not merely whether it may be fetched.
+    `Content-Signal: ${renderContentSignal(profile)}`,
     "Allow: /",
     "",
-    `Sitemap: ${SITE_URL}/sitemap.xml`,
-    "",
+    // Only point at a sitemap that is actually emitted.
+    ...(profile.seo.enableSitemap ? [`Sitemap: ${SITE_URL}/sitemap.xml`, ""] : []),
   ].join("\n");
 }
 
@@ -410,7 +412,7 @@ function llmsTxt(): string {
   const lines = [
     `# ${profile.identity.name[lang]}`,
     "",
-    `> ${profile.identity.tagline[lang]}`,
+    `> ${profile.identity.role[lang]}`,
     "",
     profile.bio[lang].replace(/\s+/g, " ").trim(),
     "",
@@ -475,29 +477,36 @@ function profileHtmlPlugin(): Plugin {
         }
 
         const isIndex = ctx.filename.endsWith("index.html");
-        const title = isIndex ? profile.seo.title[lang] : `404 — ${profile.terminal.hostname}`;
+        const title = isIndex
+          ? `${profile.identity.name[lang]} — ${profile.identity.role[lang]}`
+          : `404 — ${profile.terminal.hostname}`;
         const description = profile.seo.description[lang];
         const ogImage = profile.seo.ogImage ? `${SITE_URL}${profile.seo.ogImage}` : "";
 
+        const { enableSocialCards, enableJsonLd, enableNoscript } = profile.seo;
         const head = [
           `<title>${escapeHtml(title)}</title>`,
           `<meta name="description" content="${escapeHtml(description)}" />`,
           profile.seo.noindex ? `<meta name="robots" content="noindex" />` : "",
           isIndex ? `<link rel="canonical" href="${SITE_URL}/" />` : "",
-          `<meta property="og:type" content="website" />`,
-          `<meta property="og:title" content="${escapeHtml(title)}" />`,
-          `<meta property="og:description" content="${escapeHtml(description)}" />`,
-          `<meta property="og:url" content="${SITE_URL}/" />`,
-          ogImage ? `<meta property="og:image" content="${escapeHtml(ogImage)}" />` : "",
-          `<meta name="twitter:card" content="summary_large_image" />`,
-          isIndex ? personJsonLd(lang) : "",
+          ...(enableSocialCards
+            ? [
+                `<meta property="og:type" content="website" />`,
+                `<meta property="og:title" content="${escapeHtml(title)}" />`,
+                `<meta property="og:description" content="${escapeHtml(description)}" />`,
+                `<meta property="og:url" content="${SITE_URL}/" />`,
+                ogImage ? `<meta property="og:image" content="${escapeHtml(ogImage)}" />` : "",
+                `<meta name="twitter:card" content="summary_large_image" />`,
+              ]
+            : []),
+          isIndex && enableJsonLd ? personJsonLd(lang) : "",
         ]
           .filter(Boolean)
           .join("\n  ");
 
         return stripDisabledChrome(withBootstrap, isIndex)
           .replace("</head>", `  ${head}\n</head>`)
-          .replace("<!--NOSCRIPT-->", isIndex ? noscriptHtml(lang) : "");
+          .replace("<!--NOSCRIPT-->", isIndex && enableNoscript ? noscriptHtml(lang) : "");
       },
 
       /**
@@ -527,9 +536,12 @@ function profileHtmlPlugin(): Plugin {
         // root-absolute paths resolve at any URL depth.
         this.emitFile({ type: "asset", fileName: "CNAME", source: `${new URL(SITE_URL).hostname}\n` });
 
-        this.emitFile({ type: "asset", fileName: "sitemap.xml", source: sitemapXml() });
-        this.emitFile({ type: "asset", fileName: "robots.txt", source: robotsTxt() });
-        this.emitFile({ type: "asset", fileName: "llms.txt", source: llmsTxt() });
+        // Each discovery file is its own switch in `seo`; off means the file
+        // is simply not emitted (and robots.txt stops pointing at the sitemap).
+        const { enableSitemap, enableRobotsTxt, enableLlmsTxt } = profile.seo;
+        if (enableSitemap) this.emitFile({ type: "asset", fileName: "sitemap.xml", source: sitemapXml() });
+        if (enableRobotsTxt) this.emitFile({ type: "asset", fileName: "robots.txt", source: robotsTxt() });
+        if (enableLlmsTxt) this.emitFile({ type: "asset", fileName: "llms.txt", source: llmsTxt() });
         this.emitFile({ type: "asset", fileName: "site.webmanifest", source: siteWebmanifest() });
       },
 

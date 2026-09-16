@@ -189,7 +189,7 @@ withCv("cv renders without JavaScript", () => {
       });
 
       it("uses the tagline, the configured meta line and the sign-off", () => {
-        expect(text).toContain(profile.identity.tagline[locale]);
+        expect(text).toContain(cv!.tagline![locale]);
         expect(text).toContain(cv!.metaLine![locale]);
         expect(html, "sign-off is missing").toContain("sign-off");
       });
@@ -250,7 +250,7 @@ withCv("cv structured data", () => {
       // Derived from the socials, so the address a crawler reads is the one
       // a visitor sees; absent when there's no mailto: social at all.
       expect(data["email"]).toBe(mailtoFor(profile));
-      expect(data["address"].addressLocality).toBe(profile.identity.location[locale]);
+      expect(data["address"].addressLocality).toBe(profile.seo.location[locale]);
       // Serialisable, since it is emitted as JSON in a script tag.
       expect(() => JSON.parse(JSON.stringify(data))).not.toThrow();
     });
@@ -521,7 +521,8 @@ withCv("partial configs", () => {
   it("renders an empty cv — the header, plus skills if any are marked for it", () => {
     const html = renderCv({ ...profile, cv: {} } as typeof profile, locale);
     expect(html).toContain(profile.identity.name[locale]);
-    expect(html).toContain(profile.identity.tagline[locale]);
+    // The tagline lives in `cv` now, so an empty cv has no line under the name.
+    expect(html).not.toContain('class="tagline"');
     // Skills come from profile.skills, not from `cv`, so they survive.
     for (const heading of ["about.txt", "experience.log", "education.txt",
       "certifications.txt", "languages.txt", "notes.txt"]) {
