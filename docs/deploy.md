@@ -69,10 +69,60 @@ you dry-run before the remote branch exists, the next one fails with
 
 ## S3 (AWS or Yandex Object Storage)
 
-One command covers both — they differ only by `--endpoint-url`, which is blank
-for AWS. Needs `aws-cli` installed and `.env` filled in from `.env.example`.
+```bash
+npm run deploy:s3:dry-run   # the full upload and delete plan, nothing written
+npm run deploy:s3           # tests, build, publish
+```
 
-Point the bucket's static-website **error document at `404.html`**.
+Needs `aws-cli` (credentials in `~/.aws/credentials` or `AWS_*` variables)
+and these in `.env`:
+
+| variable | |
+|---|---|
+| `S3_BUCKET` | the bucket |
+| `S3_ENDPOINT` | `https://storage.yandexcloud.net` for Yandex; blank for AWS — that's the only difference |
+| `S3_REGION` | e.g. `ru-central1` |
+| `S3_KEEP` | optional: space-separated key patterns the deploy leaves untouched (see below) |
+
+The bucket needs static-website hosting with **`index.html` as the index
+document and `404.html` as the error document**, and public read. The 404 page
+is served at arbitrary URL depths, which is why `base` is `/`.
+
+### What `scripts/deploy-s3.sh` does, and why it isn't one `aws s3 sync`
+
+`aws s3 sync` guesses each object's `Content-Type` from its extension and never
+adds a charset. S3-compatible storage then serves `llms.txt` — half Cyrillic —
+as `text/plain` with no encoding, and browsers render it garbled; and `sync`
+doesn't know `.webmanifest` at all. So:
+
+1. **Every object's type comes from a table** in the script (`.html` →
+   `text/html; charset=utf-8`, `.js` → `text/javascript; charset=utf-8`,
+   `.webmanifest` → `application/manifest+json; charset=utf-8`, images,
+   fonts…), one sync pass per extension. A file whose extension isn't in the
+   table **fails the deploy** naming the file — nothing ships as
+   `application/octet-stream`. Add the extension to the table to allow it.
+2. **Cache headers**: what Vite content-hashes (`.css`, `.js`, fonts) gets
+   `max-age=31536000, immutable`; everything else `max-age=300`. Images under
+   `assets/img/` come from `public/` unhashed and stay short-lived.
+3. **A delete pass** removes every key `dist/` no longer has — `--delete
+   --size-only`, so nothing just uploaded is re-uploaded with a guessed type.
+4. `CNAME` and `.nojekyll` are GitHub Pages artefacts and are skipped.
+5. Not on a dry run, the script ends by printing the `content-type` and
+   `cache-control` headers of `/`, `/cv.html`, `/llms.txt` and
+   `/site.webmanifest` at `SITE_URL`, so the run finishes with proof.
+
+### `S3_KEEP`: files the deploy must not touch
+
+Search-engine ownership proofs — Yandex Webmaster's `yandex_*.html`, Bing's
+`BingSiteAuth.xml`, an IndexNow key file — live in the bucket but not in the
+repo (they're yours, not the template's). List them as glob patterns:
+
+```
+S3_KEEP="yandex_*.html BingSiteAuth.xml 03ed2fb0794e438a803df3efccfc7524.txt"
+```
+
+Each becomes an `--exclude` on every pass, and the aws cli applies excludes to
+both sides of a sync: the keys are neither uploaded nor deleted.
 
 ## What the build emits
 
