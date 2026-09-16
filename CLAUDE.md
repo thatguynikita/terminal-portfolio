@@ -188,12 +188,20 @@ it. `terminal.locales` used to be that second list; it's gone.
   `import type`, erased at build, so the cycle is types-only and never exists at
   runtime. Keep it that way — giving `core/profile.ts` a value import from the
   i18n tree would close a real cycle.
-- **`src/i18n/messages/` holds every catalogue the repo ships** — `en`, `ru`,
-  `es`, `de` — selected or not. This site selects two; a test asserts the
+- **`src/i18n/messages/` holds every catalogue the repo ships** — thirteen:
+  `en ru uk es pt fr it de pl tr zh ja ko` — selected or not. `pt` is
+  Brazilian Portuguese and `zh` Simplified Chinese; plain two-letter codes on
+  purpose, since `pt-BR`-style keys would need quoting in every `Localized`
+  config field. `zh`/`ja`/`ko` render in the system font (JetBrains Mono has
+  no CJK). Every catalogue is translated from `en.ts`, never from another
+  translation. This site selects two; a test asserts the
   unselected ones' text is absent from `dist/`. `tsc` still checks them
   (tsconfig includes `src`), and the i18n suite walks every file on disk rather
-  than only the selected locales, since types can't see array lengths or
-  `{placeholders}`.
+  than only the selected locales, since types can't see array lengths,
+  `{placeholders}`, or inline markup — the suite compares `<span class="…">`
+  tags and entities leaf for leaf against `en`, and insists `lang.set` names
+  the language in itself, because those are what an LLM-translated file gets
+  wrong.
 - **Two example configs**, one per locale count: `profile.config.example.ts`
   (English) and `profile.config.multilingual.example.ts` (en/es/de). They stay
   at the repo root deliberately: a `cp` onto `profile.config.ts` has to work

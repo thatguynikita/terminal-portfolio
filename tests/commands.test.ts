@@ -530,3 +530,23 @@ describe("secret theme easter egg", () => {
     expect(second).not.toMatch(/theme\s*$/m); // no "type theme " with an empty name
   });
 });
+
+/** `env`'s LANG used to be `${lang}_US.UTF-8` — `ru_US` for a Russian session. */
+describe("env LANG", () => {
+  it("prints a real POSIX locale for the session language", async () => {
+    const { posixLocale } = await import("../src/commands/env");
+    expect(posixLocale("en")).toBe("en_US");
+    expect(posixLocale("ru")).toBe("ru_RU");
+    expect(posixLocale("pt")).toBe("pt_BR");
+    expect(posixLocale("zh")).toBe("zh_CN");
+    expect(posixLocale("uk")).toBe("uk_UA");
+    expect(posixLocale("xx")).toBe("xx_XX");
+    const env = commands.find((c) => c.name === "env")!;
+    for (const lang of LOCALES) {
+      const ctx = createFakeContext(lang);
+      await env.run(ctx, args("", "env"));
+      expect(ctx.lines.join("\n")).toContain(`LANG=${posixLocale(lang)}.UTF-8`);
+      expect(ctx.lines.join("\n")).not.toContain(`${lang}_US.UTF-8`.replace("en_US", "never"));
+    }
+  });
+});
