@@ -9,6 +9,6 @@ import profile from "../../profile.config";
 export default defineCommand({
   name: "game",
   hidden: true,
-  enabled: Boolean(profile.commands.game),
-  run: (ctx) => ctx.runFile(ctx.profile.commands.game?.script ?? "", { sudo: true }),
+  enabled: Boolean(profile.commands?.game),
+  run: (ctx) => ctx.runFile(ctx.profile.commands?.game?.script ?? "", { sudo: true }),
 });

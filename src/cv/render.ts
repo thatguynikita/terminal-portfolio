@@ -3,7 +3,7 @@ import { skillsFor, socialsFor } from "../core/profile";
 import { LOCALES, type Locale } from "../i18n/locales";
 import { translate } from "../i18n";
 import { escapeHtml as esc } from "../core/html";
-import { CV_LINK_LABEL, cvUrl } from "./url";
+import { CV_LINK_LABEL, cvUrl, photoAltFor } from "./url";
 
 /**
  * Renders the CV body as a string.
@@ -38,7 +38,7 @@ type SectionKey = keyof typeof SECTIONS;
 export function renderCv(profile: ProfileConfig, locale: Locale): string {
   const t = (key: string, vars?: Record<string, string | number>): string =>
     translate(locale, `cv.${key}`, vars);
-  const { identity, terminal } = profile;
+  const { terminal } = profile;
   const cv = profile.cv;
   if (!cv) return "";
 
@@ -75,16 +75,16 @@ export function renderCv(profile: ProfileConfig, locale: Locale): string {
 
   out.push(`<header class="profile">
   <div class="profile-text">
-    <h1>${esc(identity.name[locale])}</h1>
+    <h1>${esc(profile.author[locale])}</h1>
     ${cv.tagline ? `<p class="tagline">${esc(cv.tagline[locale])}</p>` : ""}
-    <p class="contact-row">${contacts}</p>
+    ${contacts ? `<p class="contact-row">${contacts}</p>` : ""}
     ${cv.metaLine ? `<p class="meta dim">${esc(cv.metaLine[locale])}</p>` : ""}
   </div>${
     cv.photo
       ? `
   <div class="avatar-frame style-${cv.photoStyle ?? "plain"}">
     <img class="avatar" src="${esc(cv.photo)}" width="150" height="150"
-         alt="${esc(t("photoAlt", { name: identity.name[locale], role: identity.role[locale] }))}">
+         alt="${esc(photoAltFor(profile, locale, (k, v) => translate(locale, k, v)))}">
   </div>`
       : ""
   }

@@ -50,9 +50,8 @@ describe("registry", () => {
     }
   });
 
-  it("only references commands that exist in the config's enable/disable lists", () => {
+  it("only references commands that exist in the config's disabledCommands", () => {
     const names = new Set(commands.map((c) => c.name));
-    for (const name of profile.terminal.enabledCommands ?? []) expect(names).toContain(name);
     for (const name of profile.terminal.disabledCommands ?? []) expect(names).toContain(name);
   });
 });

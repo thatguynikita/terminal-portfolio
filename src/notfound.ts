@@ -19,7 +19,7 @@ if (canvas) {
   // carries over to this page.
   createThemeController(matrix, {
     defaultTheme: profile.terminal.defaultTheme,
-    secretTheme: profile.commands.system?.secretTheme,
+    secretTheme: profile.commands?.system?.secretTheme,
   });
 }
 

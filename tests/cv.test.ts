@@ -98,7 +98,7 @@ withCv("cv locales", () => {
     for (const locale of locales) {
       const line = renderCopyright(profile, locale, "https://x.test");
       expect(line).toContain(`© ${year} `);
-      expect(line).toContain(`>${profile.identity.name[locale]}</a>`);
+      expect(line).toContain(`>${profile.author[locale]}</a>`);
       const href = /href="([^"]*)"/.exec(line)?.[1];
       expect(href, "no link").toBeTruthy();
       expect(href).toBe("https://x.test");
@@ -108,7 +108,7 @@ withCv("cv locales", () => {
   });
 
   it("escapes the name in the copyright line", () => {
-    const p = { ...profile, identity: { ...profile.identity, name: { ...profile.identity.name, [profile.terminal.defaultLocale]: "A <b>& B" } } } as typeof profile;
+    const p = { ...profile, author: { ...profile.author, [profile.terminal.defaultLocale]: "A <b>& B" } } as typeof profile;
     const line = renderCopyright(p, profile.terminal.defaultLocale, "https://x.test");
     expect(line).toContain("A &lt;b&gt;&amp; B");
     expect(line).not.toContain("<b>");
@@ -125,7 +125,7 @@ withCv("cv locales", () => {
 
     it("joins the copyright and the page's tail with a separator", () => {
       const html = renderFooter(withFooter({ bottomText: undefined }), locale, "https://x.test", "<i>tail</i>");
-      expect(html).toContain(`>${profile.identity.name[locale]}</a> · <i>tail</i>`);
+      expect(html).toContain(`>${profile.author[locale]}</a> · <i>tail</i>`);
       expect(html).not.toContain("footer-bottom");
     });
 
@@ -290,8 +290,8 @@ withCv("cv structured data", () => {
       const p = person(locale);
       expect(p["@type"]).toBe("Person");
       expect(p["@id"]).toBe("https://example.com/#owner");
-      expect(p["name"]).toBe(profile.identity.name[locale]);
-      expect(p["jobTitle"]).toBe(profile.identity.role[locale]);
+      expect(p["name"]).toBe(profile.author[locale]);
+      expect(p["jobTitle"]).toBe(profile.seo.role![locale]);
       // Derived from the socials, so the address a crawler reads is the one
       // a visitor sees; absent when there's no mailto: social at all.
       expect(p["email"]).toBe(mailtoFor(profile));
@@ -334,7 +334,8 @@ withCv("cv structured data", () => {
         // Present tense: only the current (first-listed) job is an occupation the person has.
         expect(p["hasOccupation"]).toEqual({ "@type": "Occupation", name: cv!.jobs[0]!.title[locale] });
         for (const past of cv!.jobs.slice(1)) {
-          expect(JSON.stringify(p["hasOccupation"]), "a past title in hasOccupation").not.toContain(past.title[locale]);
+          if (past.title[locale] === cv!.jobs[0]!.title[locale]) continue; // same title held twice
+          expect(p["hasOccupation"].name, "a past title in hasOccupation").not.toBe(past.title[locale]);
         }
         // Employers live on affiliation, deduped: Occupation has no employer
         // property, and the validator flags hiringOrganization there.
@@ -603,13 +604,13 @@ withCv("partial configs", () => {
         expect(html, `omitting ${key} also lost ${other}`).toContain(other);
       }
       // The header is not a section and always stays.
-      expect(html).toContain(profile.identity.name[locale]);
+      expect(html).toContain(profile.author[locale]);
     });
   }
 
   it("renders without metaLine", () => {
     const html = renderCv(omit("metaLine"), locale);
-    expect(html).toContain(profile.identity.name[locale]);
+    expect(html).toContain(profile.author[locale]);
     expect(html, "an empty meta paragraph was left behind").not.toContain('class="meta dim"');
   });
 
@@ -630,14 +631,14 @@ withCv("partial configs", () => {
 
   it("renders without signOff, and drops its rule too", () => {
     const html = renderCv(omit("signOff"), locale);
-    expect(html).toContain(profile.identity.name[locale]);
+    expect(html).toContain(profile.author[locale]);
     expect(html).not.toContain("sign-off");
     expect(html).not.toContain("fake-cursor");
   });
 
   it("renders an empty cv — the header, plus skills if any are marked for it", () => {
     const html = renderCv({ ...profile, cv: {} } as typeof profile, locale);
-    expect(html).toContain(profile.identity.name[locale]);
+    expect(html).toContain(profile.author[locale]);
     // The tagline lives in `cv` now, so an empty cv has no line under the name.
     expect(html).not.toContain('class="tagline"');
     // Skills come from profile.skills, not from `cv`, so they survive.
@@ -654,7 +655,7 @@ withCv("partial configs", () => {
       skills: profile.skills.map((s) => ({ ...s, contexts: ["terminal" as const] })),
     } as typeof profile;
     const html = renderCv(bare, locale);
-    expect(html).toContain(profile.identity.name[locale]);
+    expect(html).toContain(profile.author[locale]);
     expect(html, "a section heading survived a completely empty cv").not.toContain("section-head");
   });
 

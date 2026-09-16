@@ -154,12 +154,13 @@ through to the terminal — which is exactly what the language chip links to.
   grayscale. The predecessor greyed out individual classes and would miss any
   token a newer theme introduced. A test asserts every token `green.css` defines
   is overridden.
-- **The CV's title is `name — CV — hostname`**, not `name — role` like the
-  terminal page: it names the document, and `identity.role` already carries
-  an em dash. The visible line under the CV's `<h1>` is `cv.tagline`
-  (optional, CV-only); the terminal's no-JS fallback and `llms.txt` say
-  `identity.role` instead. There is no `seo.title` — the terminal page is
-  titled `identity.name — identity.role`.
+- **Every page is titled `what — hostname`**, and the two pages about a
+  person `name — what — hostname`: `— CV —` and `— terminal —`
+  (`ui.pageTitle`, localized). The share card drops the hostname, since
+  `og:site_name` carries it. `seo.role` is never in a title — it
+  already carries an em dash — it goes to JSON-LD, noscript and llms.txt;
+  the visible line under the CV's `<h1>` is `cv.tagline`. There is no
+  `seo.title`.
 - **The portrait is served as uploaded unless `cv.photoStyle` opts in**
   — no filter, no tint, colour and all; only print greys it. `"tint"` is
   grayscale under the theme colour, pure CSS. `"pixel"` adds the canvas:
@@ -313,6 +314,19 @@ and gate their file *reads* too, since `describe.skip` still evaluates the body.
   and say so: `neofetch.ascii` and `terminal.footer.bottomText` (not
   localised — one credit line for every language). Everything else is plain
   text escaped by the renderer.
+- **Defaults live in `defineProfile()` and nowhere else.** It takes
+  `ProfileInput` (what the author writes; only `author` is required) and
+  returns `ProfileConfig` (what the code reads; defaulted fields are
+  required there, so readers never guard them). `MESSAGES` is its first
+  argument so `defaultLocale` can default to the first catalogue without
+  importing `src/i18n/locales.ts` — that import would close the runtime
+  cycle. `hostname` is an enumerable getter over `SITE_URL`, read lazily
+  because `vite.config.ts` imports the config before computing `SITE_URL`
+  (it publishes `process.env.SITE_URL` right after). Features that can be
+  absent — `neofetch`, `bio`, `skills`, `socials`, `commands`, `cv`,
+  `seo.role`, `seo.description` — stay optional and are gated with
+  `enabled` on their command/file and guards in the renderers; the table in
+  docs/architecture.md says what each omission does.
 - `profile.config.ts` ships with real personal data, so `npm run check` guards
   the rebrand. **`SITE_URL` is the one deployment fact that lives outside the
   config** — in `.env`, the shell, or CI's `vars.SITE_URL`, shell winning.

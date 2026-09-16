@@ -20,7 +20,7 @@ describe("filesystem", () => {
     expect(names).toContain("about.txt");
     expect(names).toContain("skills.txt");
     expect(names).toContain("contact.txt");
-    if (profile.commands.game) expect(names).toContain(profile.commands.game.script);
+    if (profile.commands?.game) expect(names).toContain(profile.commands?.game.script);
   });
 
   it("never surfaces the loader's own modules as files", () => {
@@ -131,9 +131,9 @@ describe("filesystem", () => {
     });
 
     it("denies a sudo-gated file without sudo, and allows it with", async () => {
-      if (!profile.commands.game) return;
-      expect(await fs.run(profile.commands.game.script)).toBe("denied");
-      expect(await fs.run(profile.commands.game.script, { sudo: true })).toBe("ok");
+      if (!profile.commands?.game) return;
+      expect(await fs.run(profile.commands?.game.script)).toBe("denied");
+      expect(await fs.run(profile.commands?.game.script, { sudo: true })).toBe("ok");
     });
   });
 });
@@ -146,18 +146,18 @@ describe("filesystem", () => {
  */
 describe("game launcher", () => {
   it("takes its filename from game.script", () => {
-    expect(gameFile.name).toBe(profile.commands.game?.script ?? "game.sh");
+    expect(gameFile.name).toBe(profile.commands?.game?.script ?? "game.sh");
   });
 
   it("exists exactly when a game is configured — file and command alike", () => {
-    expect(gameFile.enabled).toBe(Boolean(profile.commands.game));
-    expect(gameCommand.enabled).toBe(Boolean(profile.commands.game));
+    expect(gameFile.enabled).toBe(Boolean(profile.commands?.game));
+    expect(gameCommand.enabled).toBe(Boolean(profile.commands?.game));
   });
 
   it("names itself in its own header line, from a placeholder", () => {
-    if (!profile.commands.game) return;
-    const lines = fs.read(profile.commands.game.script) ?? [];
-    expect(lines[1]).toContain(profile.commands.game.script);
+    if (!profile.commands?.game) return;
+    const lines = fs.read(profile.commands?.game.script) ?? [];
+    expect(lines[1]).toContain(profile.commands?.game.script);
     // Templated, not hardcoded: the catalogue carries {script}, so a fork's
     // name lands here without touching the messages.
     for (const [code, catalogue] of Object.entries(messages)) {
@@ -170,7 +170,7 @@ describe("game launcher", () => {
     // Exactly one, or none — a static copy left in the plain file alongside
     // the configured one would be two.
     const aliases = lines.filter((l) => l.startsWith("alias game="));
-    if (profile.commands.game) expect(aliases).toEqual([`alias game='sudo ./${profile.commands.game.script}'`]);
+    if (profile.commands?.game) expect(aliases).toEqual([`alias game='sudo ./${profile.commands?.game.script}'`]);
     else expect(aliases, "a game alias with no game configured").toEqual([]);
   });
 
@@ -193,7 +193,7 @@ describe("game launcher, with no game configured", () => {
     vi.resetModules();
     vi.doMock("../profile.config", async () => {
       const real = await vi.importActual<typeof import("../profile.config")>("../profile.config");
-      const { game: _game, ...commands } = real.default.commands;
+      const { game: _game, ...commands } = real.default.commands ?? {};
       return { ...real, default: { ...real.default, commands } };
     });
     const file = (await import("../src/fs/game.sh")).default;
@@ -202,5 +202,61 @@ describe("game launcher, with no game configured", () => {
     expect(command.enabled).toBe(false);
     vi.doUnmock("../profile.config");
     vi.resetModules();
+  });
+});
+
+/**
+ * The other optional blocks, the same way: with the config mocked so the
+ * block is absent, the command and the file that read it are unregistered.
+ */
+describe("optional blocks, with each omitted", () => {
+  const withoutKey = async (key: "neofetch" | "bio" | "skills" | "socials") => {
+    vi.resetModules();
+    vi.doMock("../profile.config", async () => {
+      const real = await vi.importActual<typeof import("../profile.config")>("../profile.config");
+      const { [key]: _gone, ...rest } = real.default;
+      // skills/socials resolve to [] in a real defineProfile call; mirror that.
+      const patched = key === "skills" || key === "socials" ? { ...rest, [key]: [] } : rest;
+      return { ...real, default: patched };
+    });
+  };
+  const restore = () => {
+    vi.doUnmock("../profile.config");
+    vi.resetModules();
+  };
+
+  it("no neofetch: the command is unregistered", async () => {
+    await withoutKey("neofetch");
+    const command = (await import("../src/commands/neofetch")).default;
+    expect(command.enabled).toBe(false);
+    restore();
+  });
+
+  it("no bio: neither `about` nor about.txt", async () => {
+    await withoutKey("bio");
+    expect((await import("../src/commands/about")).default.enabled).toBe(false);
+    expect((await import("../src/fs/about.txt")).default.enabled).toBe(false);
+    restore();
+  });
+
+  it("no skills: neither `skills` nor skills.txt", async () => {
+    await withoutKey("skills");
+    expect((await import("../src/commands/skills")).default.enabled).toBe(false);
+    expect((await import("../src/fs/skills.txt")).default.enabled).toBe(false);
+    restore();
+  });
+
+  it("no socials: neither `contact` nor contact.txt", async () => {
+    await withoutKey("socials");
+    expect((await import("../src/commands/contact")).default.enabled).toBe(false);
+    expect((await import("../src/fs/contact.txt")).default.enabled).toBe(false);
+    restore();
+  });
+
+  it("with everything present, all of them are registered", async () => {
+    vi.resetModules();
+    for (const m of ["../src/commands/neofetch", "../src/commands/about", "../src/commands/skills", "../src/commands/contact"]) {
+      expect((await import(m)).default.enabled, m).not.toBe(false);
+    }
   });
 });

@@ -37,13 +37,9 @@ export function loadCommands(): Command[] {
 }
 
 export function createRegistry(profile: ProfileConfig): Registry {
-  const { enabledCommands, disabledCommands } = profile.terminal;
-  const allow = enabledCommands ? new Set(enabledCommands) : null;
-  const deny = new Set(disabledCommands ?? []);
+  const deny = new Set(profile.terminal.disabledCommands ?? []);
 
-  const commands = loadCommands().filter(
-    (c) => c.enabled !== false && (!allow || allow.has(c.name)) && !deny.has(c.name)
-  );
+  const commands = loadCommands().filter((c) => c.enabled !== false && !deny.has(c.name));
 
   const byName = new Map<string, Command>();
   for (const command of commands) {

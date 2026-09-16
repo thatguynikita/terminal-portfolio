@@ -89,6 +89,35 @@ The dev server needs `configureServer` middleware to serve the non-default
 locales; without it `npm run dev` 404s on `/ru/cv.html` and silently falls
 through to the terminal — which is exactly what the language chip links to.
 
+## What the config requires
+
+`defineProfile(MESSAGES, { … })` in `src/core/profile.ts` is the one place
+defaults live: it takes what an author writes (`ProfileInput`) and returns
+what the code reads (`ProfileConfig`), with every default filled in. Readers
+never guard a defaulted field; they do guard the features that can be absent.
+
+| field | when omitted |
+|---|---|
+| `author` | **required** — the one field with no possible default |
+| `terminal.defaultLocale` | the first key of `MESSAGES` |
+| `terminal.handle` | `"guest"` |
+| `terminal.hostname` | the host of `SITE_URL`; `localhost` in dev without one (read lazily, since `vite.config.ts` imports the config before it has computed `SITE_URL`) |
+| `terminal.defaultTheme` / `defaultMatrix` | `"green"` / `"on"` |
+| `terminal.bootScreen` / `chips` | `true` |
+| `terminal.footer` | `{ copyright: true, backToTerminal: true }` |
+| `seo.contentSignal` | all `yes` |
+| `seo.enable*` (six) | `true` |
+| `seo.role` | no JSON-LD `jobTitle`, no noscript/llms.txt role, plain portrait alt |
+| `seo.description` | no description tags, no manifest description, no llms.txt paragraph — **the preflight warns** |
+| `neofetch` | no card, no `neofetch` command, the intro is the welcome lines |
+| `bio` / `skills` / `socials` | no `about` / `skills` / `contact` command or file, and nothing in the CV, noscript, llms.txt or JSON-LD for it |
+| `commands` | default help lines, owner `root`, uptime from the build, no secret theme, no game, no ssh personas (the egg still plays) |
+| `cv` | no CV pages, command or file |
+
+One rule the preflight and the build both enforce: a `skills`/`socials` row
+tagged only `["cv"]` while no `cv` is configured can never render, and fails
+naming the row — a dead row is a half-removed résumé.
+
 ## Testing
 
 281 tests across ten suites, run with Vitest and happy-dom. The ones worth

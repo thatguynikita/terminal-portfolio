@@ -53,7 +53,7 @@ export function createTerminal(options: TerminalOptions): Terminal {
 
   const theme = createThemeController(matrix, {
     defaultTheme: profile.terminal.defaultTheme,
-    secretTheme: profile.commands.system?.secretTheme,
+    secretTheme: profile.commands?.system?.secretTheme,
   });
 
   const registry = createRegistry(profile);

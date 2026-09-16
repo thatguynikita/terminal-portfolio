@@ -42,6 +42,20 @@ function expectValidSince(since: unknown, label: string): void {
   expect(since as string, `${label}: since needs a UTC offset or Z`).toMatch(/(Z|[+-]\d\d:\d\d)$/);
 }
 
+/** `skills[i]` / `socials[i]` rows tagged `["cv"]` while `cv` is absent. */
+function cvOnlyRowsWithoutCv(p: { cv?: unknown; skills?: Array<{ contexts?: string[] }>; socials?: Array<{ contexts?: string[] }> }): string[] {
+  if (p.cv) return [];
+  const out: string[] = [];
+  for (const [list, rows] of [["skills", p.skills ?? []], ["socials", p.socials ?? []]] as const) {
+    rows.forEach((row, i) => {
+      if (row.contexts && row.contexts.length > 0 && row.contexts.every((c) => c === "cv")) {
+        out.push(`${list}[${i}] is tagged for the CV, but no cv is configured`);
+      }
+    });
+  }
+  return out;
+}
+
 describe("profile.config.ts", () => {
   // `defaultLocale` being one of the shipped locales is a *compile* error
   // now that Locale is `keyof typeof MESSAGES`, so what's left to assert at
@@ -73,18 +87,18 @@ describe("profile.config.ts", () => {
   // The launcher is typed as a fake shell file: `./<script>` has to parse as
   // a path, and `ls` has to print it. A space or a slash would break both.
   it("names the game launcher as a bare filename", () => {
-    if (!profile.commands.game) return;
-    expect(profile.commands.game.script).toMatch(/^[\w.-]+$/);
+    if (!profile.commands?.game) return;
+    expect(profile.commands?.game.script).toMatch(/^[\w.-]+$/);
   });
 
   it("dates the machine with an offset, when it dates it at all", () => {
-    expectValidSince(profile.commands.system?.since, "profile.config.ts");
+    expectValidSince(profile.commands?.system?.since, "profile.config.ts");
   });
 
   // The secret theme's visible name is free-form, but it must not shadow a
   // public theme, and "secret" is the CSS id — a name would collide with it.
   it("gives the secret theme a name no other theme has", () => {
-    const secret = profile.commands.system?.secretTheme;
+    const secret = profile.commands?.system?.secretTheme;
     if (secret === undefined) return;
     expect(secret.trim(), "secretTheme is blank").not.toBe("");
     expect(secret).not.toBe(SECRET_ID);
@@ -107,8 +121,7 @@ describe("profile.config.ts", () => {
     expect(new URL(siteUrl).hostname).not.toMatch(/\.example$/);
   });
 
-  it("has usable social links", () => {
-    expect(profile.socials.length).toBeGreaterThan(0);
+  it("has usable social links, when it has any", () => {
     for (const social of profile.socials) {
       expect(social.label.trim()).not.toBe("");
       expect(social.display.trim()).not.toBe("");
@@ -157,14 +170,35 @@ describe("profile.config.ts", () => {
     expect(missing).toEqual([]);
   });
 
-  it("has neofetch rows and at least one skill", () => {
-    expect(profile.neofetch.rows.length).toBeGreaterThan(0);
-    expect(profile.neofetch.ascii.trim()).not.toBe("");
-    expect(profile.skills.length).toBeGreaterThan(0);
+  it("has neofetch rows and art when it has a card, and no empty skill list", () => {
+    if (profile.neofetch) {
+      expect(profile.neofetch.rows.length).toBeGreaterThan(0);
+      expect(profile.neofetch.ascii.trim()).not.toBe("");
+    }
+    // `skills: []` is the resolved form of "omitted"; a written empty list is
+    // the same thing, so nothing to assert beyond the shape.
+    expect(Array.isArray(profile.skills)).toBe(true);
+  });
+
+  // A description is the one thing search engines and share cards can't
+  // invent well. Optional, but its absence is worth a line in the output.
+  it("warns, without failing, when seo.description is not set", () => {
+    if (profile.seo.description) return;
+    console.warn(
+      "profile.config.ts: seo.description is not set — the terminal page ships with no meta description, no og:description, and llms.txt has no site summary; search engines will write their own snippet."
+    );
+  });
+
+  /**
+   * A row tagged for the CV can never render when there is no CV. That's a
+   * half-removed résumé, not a preference, so it fails rather than hides.
+   */
+  it("tags no skill or social for a CV that isn't configured", () => {
+    expect(cvOnlyRowsWithoutCv(profile)).toEqual([]);
   });
 
   it("gives every ssh persona a host and at least one question", () => {
-    for (const [key, persona] of Object.entries(profile.commands.ssh?.personas ?? {})) {
+    for (const [key, persona] of Object.entries(profile.commands?.ssh?.personas ?? {})) {
       expect(persona.host, `${key} has no host`).toMatch(/\S/);
       expect(persona.qa.length, `${key} has no questions`).toBeGreaterThan(0);
       const cmds = persona.qa.map((q) => q.cmd);
@@ -280,8 +314,21 @@ describe.each([
   });
 
   it("dates the machine with an offset, when it dates it at all", () => {
-    const { commands } = mod!.default as { commands: { system?: { since?: unknown } } };
-    expectValidSince(commands.system?.since, file);
+    const { commands } = mod!.default as { commands?: { system?: { since?: unknown } } };
+    expectValidSince(commands?.system?.since, file);
+  });
+
+  it("tags no skill or social for a CV that isn't configured", () => {
+    expect(cvOnlyRowsWithoutCv(mod!.default as Parameters<typeof cvOnlyRowsWithoutCv>[0])).toEqual([]);
+  });
+
+  it("proves the cv-context rule bites", () => {
+    const bad = { skills: [{ contexts: ["cv"] }, { contexts: ["terminal", "cv"] }], socials: [{ contexts: ["cv"] }] };
+    expect(cvOnlyRowsWithoutCv(bad)).toEqual([
+      "skills[0] is tagged for the CV, but no cv is configured",
+      "socials[0] is tagged for the CV, but no cv is configured",
+    ]);
+    expect(cvOnlyRowsWithoutCv({ ...bad, cv: {} })).toEqual([]);
   });
 
   it("gives the secret theme a name no other theme has", () => {
@@ -301,11 +348,10 @@ describe.each([
   });
 
   it("names its game launcher, as a bare filename", () => {
-    const game = /game:\s*\{([^}]*)\}/.exec(example)?.[1] ?? "";
-    if (!game) return; // no game is a valid setup
-    const script = /script:\s*"([^"]*)"/.exec(game)?.[1];
-    expect(script, "game block without a script").toBeTruthy();
-    expect(script).toMatch(/^[\w.-]+$/);
+    const { commands } = mod!.default as { commands: { game?: { script?: unknown } } };
+    if (!commands.game) return; // no game is a valid setup
+    expect(commands.game.script, "game block without a script").toBeTruthy();
+    expect(commands.game.script).toMatch(/^[\w.-]+$/);
   });
 
   it("keeps its own hosts non-resolving, apart from real social platforms", () => {
