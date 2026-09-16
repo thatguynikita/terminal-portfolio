@@ -259,6 +259,24 @@ renders nothing without JavaScript. The last three are switches in `seo`
 are absent, not stubbed, and `tests/discovery.test.ts` asserts every page both
 ways. `seo.ogImage` is inert with social cards off.
 
+**Structured data is derived, never hand-kept** (`src/core/jsonld.ts`). The
+terminal page is a `@graph` of `WebSite` (`inLanguage` = the selected
+locales) and `Person#owner`; each CV page is a `ProfilePage` whose
+`mainEntity` is the same Person plus what only the CV knows. Which config
+feeds what: `profile.skills[].value` → `knowsAbout` (split on commas);
+`cv.languages` → `knowsLanguage`; `cv.education` → `alumniOf`; `cv.certs` →
+`hasCredential`; `cv.jobs` → `hasOccupation` (titles) *and* `affiliation`
+(employers, deduped) — not `hiringOrganization`, which belongs to
+`JobPosting` and the validator flags on an `Occupation`. There is no
+`address` (location was dropped from config) and no `seeks`: nothing in the
+config states availability, so nothing may claim it. Both shapes validate
+clean at validator.schema.org; keep it that way when adding a property.
+
+**Descriptions are per page kind**: `seo.description` is the terminal's,
+`cv.description` (optional, falls back) the CV's, `notFound.description` in
+the catalogue the 404's. Share-card tags come from one `socialCardTags()` so
+the three pages can't drift; `theme-color` is the manifest's colour.
+
 `public/` is copied verbatim into `dist/` — with one exception.
 **`public/assets/img/portraits/` is pruned in `writeBundle`**: it holds every
 persona's portrait (the author's and both examples'), and only the file

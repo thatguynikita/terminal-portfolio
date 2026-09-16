@@ -71,6 +71,19 @@ implementations in the wild contain an error.
 that produces the pages, so they can't list a page that doesn't exist. Each is
 optional — `seo.enableSitemap`, `seo.enableRobotsTxt`, `seo.enableLlmsTxt`.
 
+`llms.txt` opens with the name in every shipped spelling, the bio as the
+summary, a short key-facts list (role and primary contact — only facts the
+config states, so no "core stack" or "years of experience" line unless one day
+a field holds it) and the site description —
+then the page list, one section per shipped language linking that language's
+CV, and the contacts.
+
+The CV pages' structured data is a `ProfilePage` whose Person carries what the
+résumé does: education, certifications, job titles, employers, languages,
+skills. All of it is derived from the same `cv` fields the page renders, so it
+can't contradict what a visitor reads. Set `cv.description` to give the CV its
+own meta/share-card description; without it the terminal's is reused.
+
 ## Getting back
 
 Esc or `q` returns to the terminal — the same `/` the topbar link points at,

@@ -351,6 +351,7 @@ const pt: Messages = {
 
   notFound: {
     message: "Arquivo ou diretório inexistente",
+    description: "404 — página não encontrada.",
     quip: "Opa! Parece que o gato comeu todo o leite condensado... e esta página também.",
     catAlt: "Um gato laranja deitado de costas, cansado, cercado de latas de leite condensado derramadas.",
     back: "voltar ao terminal",

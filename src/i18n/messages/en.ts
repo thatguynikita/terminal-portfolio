@@ -348,6 +348,7 @@ const en = {
 
   notFound: {
     message: "No such file or directory",
+    description: "404 — page not found.",
     quip: "Oops! Looks like the cat ate all the condensed milk... and this page too.",
     catAlt: "An orange cat lies on its back, tired, surrounded by spilled condensed-milk cans.",
     back: "back to terminal",

@@ -32,3 +32,31 @@ export function isLocale(value: unknown): value is Locale {
 export function nextLocale<T extends string>(locales: readonly T[], current: T): T {
   return locales[(locales.indexOf(current) + 1) % locales.length] as T;
 }
+
+/**
+ * Each shipped catalogue's language, named in itself — for llms.txt
+ * sections and anywhere a code alone would be cryptic. A locale this map
+ * doesn't know falls back to its code.
+ */
+export const LANGUAGE_NAMES: Record<string, string> = {
+  en: "English", ru: "Русский", uk: "Українська", es: "Español", pt: "Português",
+  fr: "Français", it: "Italiano", de: "Deutsch", pl: "Polski", tr: "Türkçe",
+  zh: "中文", ja: "日本語", ko: "한국어",
+};
+
+export function languageName(locale: string): string {
+  return LANGUAGE_NAMES[locale] ?? locale;
+}
+
+/**
+ * The POSIX locale for a UI language — `ru_RU`, `pt_BR`, `zh_CN`. Used by
+ * `env` and by the pages' og:locale. Every shipped catalogue is listed;
+ * anything else gets the language doubled, which is what most are anyway.
+ */
+const REGIONS: Record<string, string> = {
+  en: "US", ru: "RU", es: "ES", de: "DE", pt: "BR", fr: "FR", zh: "CN",
+  ja: "JP", it: "IT", pl: "PL", uk: "UA", tr: "TR", ko: "KR",
+};
+export function posixLocale(lang: string): string {
+  return `${lang}_${REGIONS[lang] ?? lang.toUpperCase()}`;
+}

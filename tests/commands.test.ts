@@ -534,7 +534,7 @@ describe("secret theme easter egg", () => {
 /** `env`'s LANG used to be `${lang}_US.UTF-8` — `ru_US` for a Russian session. */
 describe("env LANG", () => {
   it("prints a real POSIX locale for the session language", async () => {
-    const { posixLocale } = await import("../src/commands/env");
+    const { posixLocale } = await import("../src/i18n/locales");
     expect(posixLocale("en")).toBe("en_US");
     expect(posixLocale("ru")).toBe("ru_RU");
     expect(posixLocale("pt")).toBe("pt_BR");

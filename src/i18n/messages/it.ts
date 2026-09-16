@@ -350,6 +350,7 @@ const it: Messages = {
 
   notFound: {
     message: "File o directory non esistente",
+    description: "404 — pagina non trovata.",
     quip: "Ops! Pare che il gatto abbia mangiato tutto il latte condensato... e anche questa pagina.",
     catAlt: "Un gatto arancione sdraiato sulla schiena, stanco, circondato da lattine di latte condensato rovesciate.",
     back: "torna al terminale",

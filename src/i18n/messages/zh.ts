@@ -355,6 +355,7 @@ const zh: Messages = {
 
   notFound: {
     message: "没有那个文件或目录",
+    description: "404 — 页面未找到。",
     quip: "哎呀！看来猫把炼乳吃光了... 连这个页面也吃了。",
     catAlt: "一只橘猫仰面躺着，一脸疲惫，周围散落着打翻的炼乳罐头。",
     back: "返回终端",
