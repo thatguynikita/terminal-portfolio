@@ -1,4 +1,6 @@
 import { defineCommand } from "../core/types";
+import { systemSince } from "../core/describe";
+import { unameStamp } from "./uptime";
 
 export default defineCommand({
   name: "uname",
@@ -9,8 +11,7 @@ export default defineCommand({
       return;
     }
     const host = ctx.escape(ctx.profile.terminal.hostname);
-    ctx.print(
-      `Linux ${host} 6.6.0-sre #1 SMP PREEMPT Sun Aug 9 20:48:27 UTC 2026 x86_64 GNU/Linux`
-    );
+    const built = unameStamp(systemSince(ctx.profile));
+    ctx.print(`Linux ${host} 6.6.0-sre #1 SMP PREEMPT ${built} x86_64 GNU/Linux`);
   },
 });

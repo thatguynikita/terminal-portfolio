@@ -1,7 +1,7 @@
 import { defineCommand } from "../core/types";
 import type { FsNode } from "../core/types";
-
-const DATE = "Aug  9 20:48";
+import { systemSince } from "../core/describe";
+import { lsStamp } from "./uptime";
 
 function humanSize(bytes: number): string {
   if (bytes < 1024) return String(bytes);
@@ -30,6 +30,7 @@ export default defineCommand({
     const all = args.flags.has("a");
     const human = args.flags.has("h");
     const files = ctx.fs.list({ all });
+    const stamp = lsStamp(systemSince(ctx.profile));
 
     if (!long) {
       const names = files.map((f) => displayName(f, ctx.escape));
@@ -45,7 +46,7 @@ export default defineCommand({
     const owner = ctx.profile.terminal.handle;
     const row = (perms: string, links: number, size: number, name: string): void => {
       const sizeStr = (human ? humanSize(size) : String(size)).padStart(6);
-      ctx.print(`${perms}  ${links} ${ctx.escape(owner)} staff ${sizeStr} ${DATE} ${name}`);
+      ctx.print(`${perms}  ${links} ${ctx.escape(owner)} staff ${sizeStr} ${stamp} ${name}`);
     };
 
     if (all) {

@@ -39,3 +39,17 @@ export function systemOwner(profile: ProfileConfig): string {
   const owner = profile.commands?.system?.owner;
   return typeof owner === "string" && owner.trim() !== "" ? owner.trim() : DEFAULT_OWNER;
 }
+
+/**
+ * When the machine came up: `commands.system.since` if it parses, else the
+ * build. `uptime` counts from it and `uname -a` / `ls -l` stamp it, so all
+ * three agree — they used to carry the date as three separate literals.
+ */
+export function systemSince(profile: ProfileConfig): Date {
+  const configured = profile.commands?.system?.since;
+  if (typeof configured === "string") {
+    const parsed = new Date(configured);
+    if (!Number.isNaN(parsed.getTime())) return parsed;
+  }
+  return new Date(__BUILD_TIME__);
+}

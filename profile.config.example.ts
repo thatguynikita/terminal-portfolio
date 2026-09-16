@@ -35,6 +35,10 @@ export default defineProfile({
     defaultTheme: "random",
     // Background rain for a first-time visitor; `matrix on|off` is remembered.
     defaultMatrix: "on",
+    // The fake dmesg sequence before the terminal, once per session.
+    bootScreen: true,
+    // The tappable command chips under the terminal.
+    chips: true,
     // Extra topbar links. The CV link is added automatically when `cv` is
     // configured, so this is for anything else you want up there.
     links: [
@@ -170,6 +174,9 @@ before a dashboard lies, and documentation someone reads at 2am.`,
     // visitor, who is terminal.handle, and the machine's owner — you.
     system: {
       owner: "marina",
+      // When the machine came up: `uptime` counts from it, `uname -a` and
+      // `ls -l` stamp it. Omit to count from the build instead.
+      since: "2026-03-14T09:15:00+01:00",
     },
 
     game: {

@@ -1,13 +1,27 @@
 import { defineCommand } from "../core/types";
-
-/** Counts from a fixed point, so the number is always plausible. */
-export const UPTIME_SINCE = new Date("2026-08-09T20:48:27+03:00");
+import { systemSince } from "../core/describe";
 
 const pad = (n: number): string => String(n).padStart(2, "0");
 
-export function uptimeLine(users = 1): string {
+const DAYS = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
+const MONTHS = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+
+/** The build stamp in `uname -a`: `Sun Aug 9 17:48:27 UTC 2026`, in UTC as uname prints it. */
+export function unameStamp(since: Date): string {
+  const time = `${pad(since.getUTCHours())}:${pad(since.getUTCMinutes())}:${pad(since.getUTCSeconds())}`;
+  return `${DAYS[since.getUTCDay()]} ${MONTHS[since.getUTCMonth()]} ${since.getUTCDate()} ${time} UTC ${since.getUTCFullYear()}`;
+}
+
+/** The mtime column in `ls -l`: `Aug  9 20:48`, day space-padded, local time as ls shows it. */
+export function lsStamp(since: Date): string {
+  const day = String(since.getDate()).padStart(2, " ");
+  return `${MONTHS[since.getMonth()]} ${day} ${pad(since.getHours())}:${pad(since.getMinutes())}`;
+}
+
+/** `uptime`'s line, counting from `since` so the number is always plausible. */
+export function uptimeLine(since: Date, users = 1): string {
   const now = new Date();
-  const totalMinutes = Math.floor(Math.max(0, now.getTime() - UPTIME_SINCE.getTime()) / 60000);
+  const totalMinutes = Math.floor(Math.max(0, now.getTime() - since.getTime()) / 60000);
   const days = Math.floor(totalMinutes / 1440);
   const hours = Math.floor((totalMinutes % 1440) / 60);
   const minutes = totalMinutes % 60;
@@ -26,6 +40,6 @@ export default defineCommand({
   name: "uptime",
   hidden: true,
   run(ctx) {
-    ctx.printText(uptimeLine());
+    ctx.printText(uptimeLine(systemSince(ctx.profile)));
   },
 });

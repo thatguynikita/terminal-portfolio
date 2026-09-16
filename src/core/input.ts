@@ -25,7 +25,13 @@ export interface InputController {
 export function createInput(terminal: Terminal): InputController {
   const { ctx, registry } = terminal;
   const body = ctx.root;
-  const chipsEl = document.getElementById("chips");
+  // `terminal.chips: false` strips the bar at build; a shell that kept the
+  // element gets it hidden here. Null is what `renderChips` checks for.
+  const chipsEl = ctx.profile.terminal.chips ? document.getElementById("chips") : null;
+  if (!ctx.profile.terminal.chips) {
+    const stray = document.getElementById("chips");
+    if (stray) stray.hidden = true;
+  }
 
   const inputRow = el("div", "input-row");
   inputRow.innerHTML =

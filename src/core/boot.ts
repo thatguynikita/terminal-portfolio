@@ -22,7 +22,9 @@ export async function boot(terminal: Terminal, input: InputController): Promise<
 
   const alreadyBooted = readSession(BOOTED_SESSION_KEY) === "1";
 
-  if (bootEl && !alreadyBooted) {
+  // `terminal.bootScreen: false` also strips the #boot markup at build, so
+  // this guard only matters for a shell that kept it. Same flag, both ways.
+  if (bootEl && !alreadyBooted && ctx.profile.terminal.bootScreen) {
     if (animationsEnabled()) {
       let html = "";
       for (const [index, line] of lines.entries()) {
