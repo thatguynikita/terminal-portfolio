@@ -106,7 +106,7 @@ never guard a defaulted field; they do guard the features that can be absent.
 | `terminal.bootScreen` / `chips` | `true` |
 | `terminal.footer` | `{ copyright: true, backToTerminal: true, bottomText: <the credit line> }` — `bottomText: ""` turns the credit off |
 | `seo.contentSignal` | all `yes` |
-| `seo.enable*` (six) | `true` |
+| `seo.enable*` (seven, incl. `enable404`) | `true` — `enable404: false` builds no 404 page and ships no 404 cat |
 | `seo.role` | no JSON-LD `jobTitle`, no noscript/llms.txt role, plain portrait alt |
 | `seo.description` | no description tags, no manifest description, no llms.txt paragraph — **the preflight warns** |
 | `neofetch` | no card, no `neofetch` command, the intro is the welcome lines |

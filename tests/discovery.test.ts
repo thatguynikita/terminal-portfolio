@@ -26,6 +26,8 @@ const read = (p: string): string => readFileSync(join(DIST, p), "utf8");
 const suite = built ? describe : describe.skip;
 
 const locales = cvLocales(profile);
+// The 404 page is behind `seo.enable404`; page lists spread this in.
+const notFoundPage = profile.seo.enable404 ? ["404.html"] : [];
 
 suite("built output", () => {
   // The two shell switches remove markup at build rather than hiding it, so
@@ -34,6 +36,14 @@ suite("built output", () => {
     const index = read("index.html");
     expect(index.includes('id="boot"'), "#boot vs terminal.bootScreen").toBe(profile.terminal.bootScreen);
     expect(index.includes('id="chips"'), "#chips vs terminal.chips").toBe(profile.terminal.chips);
+  });
+
+  // The 404 page is a switch too, and its cat goes with it: nothing else
+  // references the image, so an orphan would ship otherwise.
+  it("ships the 404 page, and its cat, only when seo.enable404 is on", () => {
+    const { enable404 } = profile.seo;
+    expect(existsSync(join(DIST, "404.html")), "404.html vs seo.enable404").toBe(enable404);
+    expect(existsSync(join(DIST, "assets/img/404-cat.png")), "404 cat vs seo.enable404").toBe(enable404);
   });
 
   /**
@@ -50,7 +60,7 @@ suite("built output", () => {
     const host = escapeHtml(profile.terminal.hostname);
     const what = escapeHtml(translate(lang, "ui.pageTitle"));
     expect(index).toContain(`<title>${name} — ${what} — ${host}</title>`);
-    expect(read("404.html")).toContain(`<title>404 — ${host}</title>`);
+    if (profile.seo.enable404) expect(read("404.html")).toContain(`<title>404 — ${host}</title>`);
     if (profile.seo.enableSocialCards) {
       expect(index).toContain(`<meta property="og:title" content="${name} — ${what}" />`);
       expect(index).toContain(`<meta name="twitter:title" content="${name} — ${what}" />`);
@@ -82,7 +92,7 @@ suite("built output", () => {
     // Each page with the locale its content is in; index and 404 are the default's.
     const pages = (): Array<[string, typeof lang]> => [
       ["index.html", lang],
-      ["404.html", lang],
+      ...(profile.seo.enable404 ? [["404.html", lang] as [string, typeof lang]] : []),
       ...locales.map((l): [string, typeof lang] => [cvUrl(profile, l).replace(/^\//, ""), l]),
     ];
 
@@ -180,7 +190,7 @@ suite("built output", () => {
 
   it("gives every page the manifest's theme colour, the manifest, and the sized icons", () => {
     const manifest = JSON.parse(read("site.webmanifest")) as { theme_color: string };
-    const allPages = ["index.html", "404.html", ...locales.map((l) => cvUrl(profile, l).replace(/^\//, ""))];
+    const allPages = ["index.html", ...notFoundPage, ...locales.map((l) => cvUrl(profile, l).replace(/^\//, ""))];
     for (const page of allPages) {
       const html = read(page);
       expect(html, `${page} theme-color`).toContain(`<meta name="theme-color" content="${manifest.theme_color}" />`);
@@ -202,7 +212,7 @@ suite("built output", () => {
     const lang = profile.terminal.defaultLocale;
     const meta = (html: string) => /<meta name="description" content="([^"]*)" \/>/.exec(html)?.[1];
     expect(meta(read("index.html"))).toBe(escapeHtml(profile.seo.description![lang]));
-    expect(meta(read("404.html"))).toBe(escapeHtml(translate(lang, "notFound.description")));
+    if (profile.seo.enable404) expect(meta(read("404.html"))).toBe(escapeHtml(translate(lang, "notFound.description")));
     for (const l of locales) {
       const html = read(cvUrl(profile, l).replace(/^\//, ""));
       const expected = profile.cv?.description?.[l] ?? profile.seo.description![l];
@@ -262,9 +272,10 @@ suite("built output", () => {
     } else {
       expect(shipped, "no portrait configured, yet portraits shipped").toEqual([]);
     }
-    // The non-portrait images are untouched by the pruning.
-    const source = readdirSync(join(process.cwd(), "public/assets/img")).filter((f) =>
-      /\.(png|jpe?g|webp|svg)$/.test(f)
+    // The non-portrait images are untouched by the pruning — except the 404
+    // cat, which goes with its page (asserted above).
+    const source = readdirSync(join(process.cwd(), "public/assets/img")).filter(
+      (f) => /\.(png|jpe?g|webp|svg)$/.test(f) && (profile.seo.enable404 || f !== "404-cat.png")
     );
     for (const f of source) {
       expect(existsSync(join(DIST, "assets/img", f)), `${f} was dropped from dist`).toBe(true);
@@ -344,7 +355,7 @@ suite("built output", () => {
   });
 
   it("applies the theme before first paint on every page", () => {
-    const pages = ["index.html", "404.html", ...locales.map((l) => cvUrl(profile, l).replace(/^\//, ""))];
+    const pages = ["index.html", ...notFoundPage, ...locales.map((l) => cvUrl(profile, l).replace(/^\//, ""))];
     for (const page of pages) {
       expect(read(page), `${page} has no theme bootstrap`).toContain("terminal-portfolio:theme");
     }

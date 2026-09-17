@@ -21,6 +21,33 @@ export function sleep(ms: number): Promise<void> {
  * would strand the terminal mid-line until the tab is focused again.
  * Re-read every call, since both conditions change during a session.
  */
+/**
+ * Resolves once the document is visible — at once when it already is.
+ *
+ * A page can start hidden: Chrome prerenders a URL it expects the visitor
+ * to open (typed into the omnibox, or a link with speculation rules), and a
+ * tab opened in the background is the same. `document.hidden` is true, so
+ * every paced sleep is skipped and the whole intro lands on the page
+ * already rendered — the visitor's first sight of it is the finished
+ * transcript, not the boot. Anything that should be *watched* waits here
+ * first; `animationsEnabled()` still decides what happens if the tab is
+ * hidden mid-way.
+ */
+export function untilVisible(): Promise<void> {
+  if (typeof document === "undefined" || !document.hidden) return Promise.resolve();
+  return new Promise((resolve) => {
+    const check = (): void => {
+      if (document.hidden) return;
+      document.removeEventListener("visibilitychange", check);
+      document.removeEventListener("prerenderingchange", check);
+      resolve();
+    };
+    document.addEventListener("visibilitychange", check);
+    // Prerender activation; Chrome also flips visibility, but be explicit.
+    document.addEventListener("prerenderingchange", check);
+  });
+}
+
 export function animationsEnabled(): boolean {
   if (typeof document !== "undefined" && document.hidden) return false;
   try {

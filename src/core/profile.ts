@@ -209,10 +209,16 @@ export interface ProfileInput {
      * snippet, so `npm run check` warns.
      */
     description?: Localized;
-    /** Adds <meta name="robots" content="noindex"> to every page. */
-    noindex?: boolean;
+    /**
+     * The 404 page (`404.html`) — what the host serves for a missing URL.
+     * Off means it isn't built (nor the 404 cat shipped) and the host falls
+     * back to its own error page. Default true.
+     */
+    enable404?: boolean;
     /** Emit robots.txt: per-crawler rules, Content-Signal, the sitemap line. Default true. */
     enableRobotsTxt?: boolean;
+    /** Adds <meta name="robots" content="noindex"> to every page. */
+    noindex?: boolean;
     /**
      * robots.txt's `Content-Signal`: what the content may be used for —
      * search indexing, AI model training, inference-time input — as opposed
@@ -360,7 +366,7 @@ export interface ProfileConfig {
       footer: Required<Pick<Footer, "copyright" | "backToTerminal" | "bottomText">> & Pick<Footer, "hint">;
     };
   seo: Required<
-    Pick<Seo, "enableRobotsTxt" | "contentSignal" | "enableSitemap" | "enableLlmsTxt" | "enableJsonLd" | "enableNoscript" | "enableSocialCards">
+    Pick<Seo, "enable404" | "enableRobotsTxt" | "contentSignal" | "enableSitemap" | "enableLlmsTxt" | "enableJsonLd" | "enableNoscript" | "enableSocialCards">
   > &
     Pick<Seo, "role" | "description" | "noindex" | "ogImage">;
   neofetch?: ProfileInput["neofetch"];
@@ -499,8 +505,9 @@ export function defineProfile<M extends Record<string, unknown>>(
     seo: {
       ...(seo.role ? { role: seo.role } : {}),
       ...(seo.description ? { description: seo.description } : {}),
-      ...(seo.noindex !== undefined ? { noindex: seo.noindex } : {}),
+      enable404: seo.enable404 ?? true,
       enableRobotsTxt: seo.enableRobotsTxt ?? true,
+      ...(seo.noindex !== undefined ? { noindex: seo.noindex } : {}),
       contentSignal: seo.contentSignal ?? { search: true, aiTrain: true, aiInput: true },
       enableSitemap: seo.enableSitemap ?? true,
       enableLlmsTxt: seo.enableLlmsTxt ?? true,

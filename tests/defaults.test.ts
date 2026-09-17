@@ -46,6 +46,7 @@ describe("defineProfile defaults", () => {
     expect(s.enableJsonLd).toBe(true);
     expect(s.enableNoscript).toBe(true);
     expect(s.enableSocialCards).toBe(true);
+    expect(s.enable404).toBe(true);
     expect(s.contentSignal).toEqual({ search: true, aiTrain: true, aiInput: true });
     expect(renderContentSignal(resolved)).toBe("search=yes, ai-train=yes, ai-input=yes");
     for (const key of ["role", "description", "noindex", "ogImage"]) expect(key in s, key).toBe(false);
@@ -61,7 +62,7 @@ describe("defineProfile defaults", () => {
     const custom = defineProfile(MESSAGES, {
       author,
       terminal: { handle: "visitor", defaultTheme: "amber", chips: false, footer: { copyright: false, bottomText: "" } },
-      seo: { enableSitemap: false, contentSignal: { search: true, aiTrain: false, aiInput: true } },
+      seo: { enableSitemap: false, enable404: false, contentSignal: { search: true, aiTrain: false, aiInput: true } },
     });
     expect(custom.terminal.handle).toBe("visitor");
     expect(custom.terminal.defaultTheme).toBe("amber");
@@ -70,6 +71,7 @@ describe("defineProfile defaults", () => {
     // "" is the off switch for the credit line, and must survive as "".
     expect(custom.terminal.footer).toEqual({ copyright: false, backToTerminal: true, bottomText: "" });
     expect(custom.seo.enableSitemap).toBe(false);
+    expect(custom.seo.enable404).toBe(false);
     expect(renderContentSignal(custom)).toBe("search=yes, ai-train=no, ai-input=yes");
   });
 
