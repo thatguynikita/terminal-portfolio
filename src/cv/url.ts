@@ -28,7 +28,7 @@ export const CV_LINK_LABEL = "cv.html";
 export function photoAltFor(
   profile: ProfileConfig,
   locale: Locale,
-  t: (key: string, vars: Record<string, string>) => string
+  t: (key: string, vars: Record<string, string>) => string,
 ): string {
   const name = profile.author[locale];
   const role = profile.seo.role?.[locale];

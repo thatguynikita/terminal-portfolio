@@ -1,5 +1,5 @@
-import { defineCommand } from "../core/types.ts";
 import { systemOwner } from "../core/describe.ts";
+import { defineCommand } from "../core/types.ts";
 
 export default defineCommand({
   name: "ps",
@@ -18,7 +18,7 @@ export default defineCommand({
         [owner, "256", "23.9", "18.7", "kubernetes-cluster"],
         [owner, "404", "0.0", "0.0", "dreams_of_vacation &lt;defunct&gt;"],
         [guest, "999", "0.0", "0.1", "ps aux"],
-      ]
+      ],
     );
   },
 });

@@ -1,7 +1,7 @@
-import { defineFile } from "./define.ts";
+import profile from "../../profile.config.ts";
 import { escapeHtml } from "../core/html.ts";
 import { socialsFor } from "../core/profile.ts";
-import profile from "../../profile.config.ts";
+import { defineFile } from "./define.ts";
 
 export default defineFile({
   enabled: socialsFor(profile, "terminal").length > 0,
@@ -10,6 +10,6 @@ export default defineFile({
     socialsFor(ctx.profile, "terminal").map(
       (s) =>
         `<span class="accent">${escapeHtml(s.label)}:</span> ` +
-        `<a href="${ctx.escapeAttr(s.href)}" target="_blank" rel="noopener">${escapeHtml(s.display)}</a>`
+        `<a href="${ctx.escapeAttr(s.href)}" target="_blank" rel="noopener">${escapeHtml(s.display)}</a>`,
     ),
 });

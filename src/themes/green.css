@@ -1,31 +1,35 @@
 /* ---------- default theme: green ---------- */
-:root, :root[data-theme="green"]{
-  --bg:#050806;
-  --bg-rgb:5,8,6;
-  --fg:#3dff8a;
-  --fg-dim:#2a9c60;
-  --fg-dim2:#1f6b45;
-  --accent:#5ff1ff;
-  --amber:#ffb454;
-  --amber-glow:0 0 6px #ffb45499;
-  --red:#ff5f56;
-  --border:rgba(61,255,138,.28);
-  --glow:0 0 4px rgba(61,255,138,.85), 0 0 12px rgba(61,255,138,.45), 0 0 24px rgba(61,255,138,.25);
-  --ambient:rgba(61,255,138,.06);
-  --ambient-inset:rgba(61,255,138,.03);
-  --tint-rgb:61,255,138;
-  --term-g1:rgba(15,25,17,.92);
-  --term-g2:rgba(6,10,8,.96);
-  --term-head-bg:rgba(0,0,0,.35);
-  --chips-bg:rgba(0,0,0,.25);
-  --boot-bg:#020402;
-  --vignette-bg:radial-gradient(ellipse at center, rgba(0,0,0,0) 55%, rgba(0,0,0,.55) 100%);
-  --game-frame-g1:rgba(15,25,17,.96);
-  --game-frame-g2:rgba(6,10,8,.98);
-  --game-hint-bg:rgba(0,0,0,.3);
-  --game-filter:grayscale(.55) sepia(.5) hue-rotate(75deg) saturate(1.8) brightness(1.08) contrast(1.02);
+:root,
+:root[data-theme="green"] {
+  --bg: #050806;
+  --bg-rgb: 5, 8, 6;
+  --fg: #3dff8a;
+  --fg-dim: #2a9c60;
+  --fg-dim2: #1f6b45;
+  --accent: #5ff1ff;
+  --amber: #ffb454;
+  --amber-glow: 0 0 6px #ffb45499;
+  --red: #ff5f56;
+  --border: rgba(61, 255, 138, 0.28);
+  --glow:
+    0 0 4px rgba(61, 255, 138, 0.85), 0 0 12px rgba(61, 255, 138, 0.45),
+    0 0 24px rgba(61, 255, 138, 0.25);
+  --ambient: rgba(61, 255, 138, 0.06);
+  --ambient-inset: rgba(61, 255, 138, 0.03);
+  --tint-rgb: 61, 255, 138;
+  --term-g1: rgba(15, 25, 17, 0.92);
+  --term-g2: rgba(6, 10, 8, 0.96);
+  --term-head-bg: rgba(0, 0, 0, 0.35);
+  --chips-bg: rgba(0, 0, 0, 0.25);
+  --boot-bg: #020402;
+  --vignette-bg: radial-gradient(ellipse at center, rgba(0, 0, 0, 0) 55%, rgba(0, 0, 0, 0.55) 100%);
+  --game-frame-g1: rgba(15, 25, 17, 0.96);
+  --game-frame-g2: rgba(6, 10, 8, 0.98);
+  --game-hint-bg: rgba(0, 0, 0, 0.3);
+  --game-filter: grayscale(0.55) sepia(0.5) hue-rotate(75deg) saturate(1.8) brightness(1.08)
+    contrast(1.02);
   /* matrix-rain canvas can't read CSS vars directly — theme.ts reads
      these two via getComputedStyle and hands them to the canvas. */
-  --matrix-color:#3dff8a;
-  --matrix-fade:rgba(2,4,3,0.08);
+  --matrix-color: #3dff8a;
+  --matrix-fade: rgba(2, 4, 3, 0.08);
 }

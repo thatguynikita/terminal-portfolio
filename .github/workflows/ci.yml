@@ -28,6 +28,11 @@ jobs:
       - name: Typecheck
         run: npm run typecheck
 
+      # Biome: lint, format and import order in one pass; `npm run lint:fix`
+      # locally applies what this reports.
+      - name: Lint
+        run: npm run lint
+
       - name: Test
         run: npm test
 

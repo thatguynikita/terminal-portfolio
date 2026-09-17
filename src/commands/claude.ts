@@ -1,13 +1,18 @@
-import { defineCommand } from "../core/types.ts";
-import type { CommandContext, SequenceStep } from "../core/types.ts";
 import { unquote } from "../core/args.ts";
+import type { CommandContext, SequenceStep } from "../core/types.ts";
+import { defineCommand } from "../core/types.ts";
 
 const COMMIT_HASHES = ["t3u4v5w", "a1b2c3d", "e4f5g6h", "h7i8j9k", "k1l2m3n", "n4o5p6q"];
 
 /** Tool-call lines shown between the typed replies, as Claude Code does. */
 const TOOL_LINES: Record<string, string[]> = {
   lightTheme1: [" ⎿  Read index.html"],
-  lightTheme2: [" ⎿  Read theme.js", " ⎿  Read theme.css", " ⎿  Edit theme.css", " ⎿  Edit theme.js"],
+  lightTheme2: [
+    " ⎿  Read theme.js",
+    " ⎿  Read theme.css",
+    " ⎿  Edit theme.css",
+    " ⎿  Edit theme.js",
+  ],
   fixBug: [` ⎿  Searched for "bug"`],
   addTests: [` ⎿  Searched for "test"`],
   generic: [" ⎿  Read index.html"],
@@ -111,10 +116,7 @@ export default defineCommand({
 
     if (prompt === "fix the bug") {
       const [line] = ctx.tList("claude.fixBug");
-      await ctx.sequence([
-        tool(TOOL_LINES["fixBug"]?.[0] ?? "", 750),
-        typed(line ?? "", 700),
-      ]);
+      await ctx.sequence([tool(TOOL_LINES["fixBug"]?.[0] ?? "", 750), typed(line ?? "", 700)]);
       return;
     }
 

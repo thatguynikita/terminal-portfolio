@@ -1,0 +1,4 @@
+#!/usr/bin/env sh
+# Biome on the staged files only, so a partial commit isn't judged by the
+# rest of the tree. Skip once with `git commit --no-verify`.
+exec npx biome check --staged --no-errors-on-unmatched

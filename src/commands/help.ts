@@ -1,5 +1,5 @@
-import { defineCommand } from "../core/types.ts";
 import { commandDescription } from "../core/describe.ts";
+import { defineCommand } from "../core/types.ts";
 
 /**
  * Reads the registry, so it can never disagree with what actually runs.

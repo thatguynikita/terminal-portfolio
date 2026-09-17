@@ -2,11 +2,11 @@ import "./styles/base.css";
 import "./styles/cv.css";
 
 import profile from "../profile.config.ts";
-import { createMatrixRain, initialMatrixEnabled } from "./core/matrix.ts";
-import { createThemeController } from "./core/theme.ts";
-import { StorageKey, writeStored } from "./core/storage.ts";
-import { posterizeGray } from "./cv/portrait.ts";
 import { leaveForTerminalOnKey } from "./core/leave.ts";
+import { createMatrixRain, initialMatrixEnabled } from "./core/matrix.ts";
+import { StorageKey, writeStored } from "./core/storage.ts";
+import { createThemeController } from "./core/theme.ts";
+import { posterizeGray } from "./cv/portrait.ts";
 
 /**
  * The CV's only client-side JavaScript. Everything the page says is

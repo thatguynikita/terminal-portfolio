@@ -11,7 +11,7 @@ export default defineCommand({
         ["overlay", "64G", "61G", "3G", "95%", "/var/lib/regrets"],
         ["/dev/condensed-milk", "30 cans", "30 cans", "0", "100%", "/home/cat"],
         ["tmpfs", "2.0G", "1.1M", "2.0G", "1%", "/run"],
-      ]
+      ],
     );
   },
 });

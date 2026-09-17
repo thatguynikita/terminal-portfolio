@@ -1,5 +1,5 @@
-import { defineConfig } from "vitest/config";
 import { loadEnv } from "vite";
+import { defineConfig } from "vitest/config";
 import profile from "./profile.config.ts";
 import { cvByteSize } from "./src/cv/render.ts";
 
@@ -15,7 +15,9 @@ export default defineConfig({
   define: {
     __SITE_URL__: JSON.stringify((process.env["SITE_URL"] ?? "").replace(/\/$/, "")),
     __BUILD_TIME__: JSON.stringify(new Date().toISOString()),
-    __CV_BYTES__: JSON.stringify(profile.cv ? cvByteSize(profile, profile.terminal.defaultLocale) : 0),
+    __CV_BYTES__: JSON.stringify(
+      profile.cv ? cvByteSize(profile, profile.terminal.defaultLocale) : 0,
+    ),
   },
   test: {
     environment: "happy-dom",

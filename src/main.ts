@@ -2,12 +2,12 @@ import "./styles/base.css";
 import "./styles/terminal.css";
 
 import profile from "../profile.config.ts";
-import { createTerminal } from "./core/terminal.ts";
-import { createInput } from "./core/input.ts";
 import { boot, intro } from "./core/boot.ts";
 import { initGameOverlay } from "./core/game.ts";
-import { CV_LINK_LABEL, cvUrl } from "./cv/url.ts";
+import { createInput } from "./core/input.ts";
 import { renderFooter } from "./core/profile.ts";
+import { createTerminal } from "./core/terminal.ts";
+import { CV_LINK_LABEL, cvUrl } from "./cv/url.ts";
 
 const body = document.getElementById("termBody");
 const canvas = document.getElementById("matrix") as HTMLCanvasElement | null;
@@ -56,10 +56,12 @@ function renderChrome(): void {
     // The arrow marks only the CV link — the same `cv.html →` affordance the
     // 404 page shows; configured links render as plain text.
     const cvLink = profile.cv
-      ? [`<a href="${ctx.escapeAttr(cvUrl(profile, lang))}">${ctx.escape(CV_LINK_LABEL)} &rarr;</a>`]
+      ? [
+          `<a href="${ctx.escapeAttr(cvUrl(profile, lang))}">${ctx.escape(CV_LINK_LABEL)} &rarr;</a>`,
+        ]
       : [];
     const extra = (profile.terminal.links ?? []).map(
-      (l) => `<a href="${ctx.escapeAttr(l.href)}">${ctx.escape(l.label)}</a>`
+      (l) => `<a href="${ctx.escapeAttr(l.href)}">${ctx.escape(l.label)}</a>`,
     );
     links.innerHTML = [...extra, ...cvLink].join("");
   }
@@ -71,7 +73,7 @@ function renderChrome(): void {
       profile,
       lang,
       __SITE_URL__,
-      hint ? ctx.escape(hint) : ctx.t("ui.footerHint")
+      hint ? ctx.escape(hint) : ctx.t("ui.footerHint"),
     );
   }
 

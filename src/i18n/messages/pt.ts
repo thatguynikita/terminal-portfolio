@@ -138,7 +138,10 @@ const pt: Messages = {
       "a moleza das 15h, navegando como mecanismo de defesa",
       "energia da tarde, firme e forte",
     ],
-    evening: ["navegação noturna, a melhor parte", "horário nobre da rolagem, sem vergonha nenhuma"],
+    evening: [
+      "navegação noturna, a melhor parte",
+      "horário nobre da rolagem, sem vergonha nenhuma",
+    ],
     night: ["já devia estar dormindo a essa hora", "só mais uma aba antes de dormir, claro"],
   },
 
@@ -343,7 +346,7 @@ const pt: Messages = {
     game: [
       "#!/bin/bash",
       "# {script} — não leia, só execute",
-      "# veja também: <a href=\"{url}\" target=\"_blank\" rel=\"noopener\">{url}</a>",
+      '# veja também: <a href="{url}" target="_blank" rel="noopener">{url}</a>',
       "# nota: você vai precisar de sudo",
       'echo "abrindo uma pequena surpresa..."',
       "xdg-open {url} 2&gt;/dev/null",
@@ -354,7 +357,8 @@ const pt: Messages = {
     message: "Arquivo ou diretório inexistente",
     description: "404 — página não encontrada.",
     quip: "Opa! Parece que o gato comeu todo o leite condensado... e esta página também.",
-    catAlt: "Um gato laranja deitado de costas, cansado, cercado de latas de leite condensado derramadas.",
+    catAlt:
+      "Um gato laranja deitado de costas, cansado, cercado de latas de leite condensado derramadas.",
     back: "voltar ao terminal",
     unknownPage: "pagina-desconhecida",
     switchTo: "Trocar idioma",
@@ -371,7 +375,6 @@ const pt: Messages = {
     backToTerminal: "voltar ao terminal",
     switchLanguage: "Trocar idioma",
   },
-
 };
 
 export default pt;

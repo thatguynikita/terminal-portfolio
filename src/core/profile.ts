@@ -1,4 +1,4 @@
-import type { Localized, Locale } from "../i18n/locales.ts";
+import type { Locale, Localized } from "../i18n/locales.ts";
 import { escapeHtml } from "./html.ts";
 
 /** Where an entry is shown. Omitted means everywhere. */
@@ -361,12 +361,34 @@ type Seo = NonNullable<ProfileInput["seo"]>;
  */
 export interface ProfileConfig {
   author: Localized;
-  terminal: Required<Pick<Terminal, "handle" | "hostname" | "defaultLocale" | "defaultTheme" | "defaultMatrix" | "bootScreen" | "chips">> &
+  terminal: Required<
+    Pick<
+      Terminal,
+      | "handle"
+      | "hostname"
+      | "defaultLocale"
+      | "defaultTheme"
+      | "defaultMatrix"
+      | "bootScreen"
+      | "chips"
+    >
+  > &
     Pick<Terminal, "disabledCommands" | "links"> & {
-      footer: Required<Pick<Footer, "copyright" | "backToTerminal" | "bottomText">> & Pick<Footer, "hint">;
+      footer: Required<Pick<Footer, "copyright" | "backToTerminal" | "bottomText">> &
+        Pick<Footer, "hint">;
     };
   seo: Required<
-    Pick<Seo, "enable404" | "enableRobotsTxt" | "contentSignal" | "enableSitemap" | "enableLlmsTxt" | "enableJsonLd" | "enableNoscript" | "enableSocialCards">
+    Pick<
+      Seo,
+      | "enable404"
+      | "enableRobotsTxt"
+      | "contentSignal"
+      | "enableSitemap"
+      | "enableLlmsTxt"
+      | "enableJsonLd"
+      | "enableNoscript"
+      | "enableSocialCards"
+    >
   > &
     Pick<Seo, "role" | "description" | "noindex" | "ogImage">;
   neofetch?: ProfileInput["neofetch"];
@@ -431,7 +453,12 @@ export function renderCopyright(profile: ProfileConfig, locale: Locale, origin: 
  * hint or the back link — since this module can't reach the catalogues.
  * Empty when every part is off; the callers can still set it blindly.
  */
-export function renderFooter(profile: ProfileConfig, locale: Locale, origin: string, tail: string): string {
+export function renderFooter(
+  profile: ProfileConfig,
+  locale: Locale,
+  origin: string,
+  tail: string,
+): string {
   const { footer } = profile.terminal;
   const line = [footer.copyright ? renderCopyright(profile, locale, origin) : "", tail]
     .filter(Boolean)
@@ -471,7 +498,7 @@ export const CREDIT_LINE =
 
 export function defineProfile<M extends Record<string, unknown>>(
   messages: M,
-  input: ProfileInput
+  input: ProfileInput,
 ): ProfileConfig {
   const t = input.terminal ?? {};
   const f = t.footer ?? {};

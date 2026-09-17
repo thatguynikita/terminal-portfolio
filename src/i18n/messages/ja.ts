@@ -128,19 +128,10 @@ const ja: Messages = {
       "どこかは午前3時。残念ながらここかもしれない",
       "機械は眠らないし、どうやらあなたも眠らない",
     ],
-    earlyMorning: [
-      "早起きか、まだ寝てないか — 判断が難しい",
-      "極端にオンラインな早起き鳥",
-    ],
-    morning: [
-      "まともな時間帯、とても真面目ですね",
-      "生産的な朝のエネルギー、尊敬します",
-    ],
+    earlyMorning: ["早起きか、まだ寝てないか — 判断が難しい", "極端にオンラインな早起き鳥"],
+    morning: ["まともな時間帯、とても真面目ですね", "生産的な朝のエネルギー、尊敬します"],
     midday: ["昼休みのネットサーフィン、定番", "先延ばしのゴールデンタイム"],
-    afternoon: [
-      "午後3時の眠気、ブラウジングで対処中",
-      "午後のエネルギー、まだ持ってる",
-    ],
+    afternoon: ["午後3時の眠気、ブラウジングで対処中", "午後のエネルギー、まだ持ってる"],
     evening: ["夜のブラウジング、いい時間", "スクロールのゴールデンタイム、恥じることはない"],
     night: ["もう寝ている時間では", "寝る前にもう1タブだけ、ですよね"],
   },
@@ -209,10 +200,7 @@ const ja: Messages = {
       "cat-deployment-7f9d8c-x2m4q": {
         status: "Running",
         reason: "やる気満々、練乳缶：0/30",
-        events: [
-          "Started — コンテナは 11 年前に起動",
-          "Normal — 大半の本番サービスより安定",
-        ],
+        events: ["Started — コンテナは 11 年前に起動", "Normal — 大半の本番サービスより安定"],
       },
       "condensed-milk-store-0": {
         status: "CrashLoopBackOff",
@@ -226,10 +214,7 @@ const ja: Messages = {
       "sre-sanity-canary": {
         status: "Running",
         reason: "コーヒーと意地で持ちこたえている",
-        events: [
-          "Started — コンテナ起動",
-          "Warning — 不安レベルが臨界に接近",
-        ],
+        events: ["Started — コンテナ起動", "Warning — 不安レベルが臨界に接近"],
       },
       "deploy-friday-afternoon": {
         status: "Evicted",
@@ -346,7 +331,7 @@ const ja: Messages = {
     game: [
       "#!/bin/bash",
       "# {script} — 読まずに、実行して",
-      "# 関連：<a href=\"{url}\" target=\"_blank\" rel=\"noopener\">{url}</a>",
+      '# 関連：<a href="{url}" target="_blank" rel="noopener">{url}</a>',
       "# 注：sudo が必要です",
       'echo "ちょっとしたサプライズを開いています..."',
       "xdg-open {url} 2&gt;/dev/null",
@@ -374,7 +359,6 @@ const ja: Messages = {
     backToTerminal: "ターミナルに戻る",
     switchLanguage: "言語を切り替え",
   },
-
 };
 
 export default ja;

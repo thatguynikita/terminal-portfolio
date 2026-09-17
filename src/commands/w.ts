@@ -1,6 +1,6 @@
+import { systemOwner, systemSince } from "../core/describe.ts";
 import { defineCommand } from "../core/types.ts";
 import { nowDateTime, uptimeLine } from "./uptime.ts";
-import { systemOwner, systemSince } from "../core/describe.ts";
 
 export default defineCommand({
   name: "w",
@@ -27,7 +27,7 @@ export default defineCommand({
           "6y",
           "vim",
         ],
-      ]
+      ],
     );
   },
 });

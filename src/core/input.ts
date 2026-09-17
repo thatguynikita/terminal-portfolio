@@ -1,8 +1,13 @@
-import type { Terminal } from "./terminal.ts";
-import { LOCALES, nextLocale as rotateLocale, type Locale } from "../i18n/locales.ts";
+import { LOCALES, type Locale, nextLocale as rotateLocale } from "../i18n/locales.ts";
 import { commonPrefix } from "./args.ts";
-import { firstWordCandidates, isCompleteArgument, scriptCandidates, splitInput } from "./complete.ts";
+import {
+  firstWordCandidates,
+  isCompleteArgument,
+  scriptCandidates,
+  splitInput,
+} from "./complete.ts";
 import { el, escapeAttr, escapeHtml } from "./html.ts";
+import type { Terminal } from "./terminal.ts";
 
 interface Chip {
   label: string;
@@ -51,7 +56,11 @@ export function createInput(terminal: Terminal): InputController {
       return (ctx.mode.complete?.(ctx, raw) ?? []).filter((c) => c.startsWith(raw.toLowerCase()));
     }
     if (base === null) {
-      return firstWordCandidates(prefix, registry.names(), scriptCandidates(ctx.fs.list({ all: true })));
+      return firstWordCandidates(
+        prefix,
+        registry.names(),
+        scriptCandidates(ctx.fs.list({ all: true })),
+      );
     }
     const command = registry.get(base);
     return (command?.complete?.(ctx, prefix) ?? []).filter((c) => c.startsWith(prefix));
@@ -106,7 +115,7 @@ export function createInput(terminal: Terminal): InputController {
       chipsEl.innerHTML = currentChips()
         .map(
           (chip) =>
-            `<button class="chip" data-value="${escapeAttr(chip.value)}">${escapeHtml(chip.label)}</button>`
+            `<button class="chip" data-value="${escapeAttr(chip.value)}">${escapeHtml(chip.label)}</button>`,
         )
         .join("");
     });

@@ -1,11 +1,11 @@
-import { defineCommand } from "../core/types.ts";
-import type { CommandContext, Mode } from "../core/types.ts";
 import type { Persona } from "../core/profile.ts";
+import type { CommandContext, Mode } from "../core/types.ts";
+import { defineCommand } from "../core/types.ts";
 
 /** Accepts either the bare key (`recruiter`) or the full host. */
 function resolvePersona(ctx: CommandContext, target: string): string | null {
   const wanted = target.trim().toLowerCase();
-  for (const [key, persona] of Object.entries((ctx.profile.commands?.ssh?.personas ?? {}))) {
+  for (const [key, persona] of Object.entries(ctx.profile.commands?.ssh?.personas ?? {})) {
     if (wanted === key.toLowerCase() || wanted === persona.host.toLowerCase()) return key;
   }
   return null;
@@ -15,7 +15,7 @@ function menu(ctx: CommandContext, persona: Persona): string {
   const rows = persona.qa
     .map(
       (item) =>
-        `<tr><td class="accent">${ctx.escape(item.cmd)}</td><td>${ctx.escape(item.q[ctx.lang])}</td></tr>`
+        `<tr><td class="accent">${ctx.escape(item.cmd)}</td><td>${ctx.escape(item.q[ctx.lang])}</td></tr>`,
     )
     .join("");
   return (
@@ -65,7 +65,7 @@ function createPersonaMode(persona: Persona): Mode {
       }
 
       ctx.print(
-        ctx.t("ssh.unrecognized", { cmds: ctx.escape(persona.qa.map((q) => q.cmd).join(", ")) })
+        ctx.t("ssh.unrecognized", { cmds: ctx.escape(persona.qa.map((q) => q.cmd).join(", ")) }),
       );
     },
 
@@ -85,11 +85,11 @@ export default defineCommand({
   usage: "<user@host>",
   order: 120,
 
-  complete: (ctx) => Object.values((ctx.profile.commands?.ssh?.personas ?? {})).map((p) => p.host),
+  complete: (ctx) => Object.values(ctx.profile.commands?.ssh?.personas ?? {}).map((p) => p.host),
 
   async run(ctx, args) {
     const target = args.raw.trim();
-    const personas = (ctx.profile.commands?.ssh?.personas ?? {});
+    const personas = ctx.profile.commands?.ssh?.personas ?? {};
 
     if (!target) {
       ctx.print(ctx.t("ssh.usage"));
@@ -105,9 +105,10 @@ export default defineCommand({
       const persona = personas[key] as Persona;
       // The handshake plays in shell mode, before the prompt changes.
       await ctx.sequence(
-        ctx
-          .tList("ssh.handshake", { host: ctx.escape(persona.host) })
-          .map((line, i) => ({ text: `<span class="dim">${line}</span>`, delay: i === 0 ? 0 : 260 }))
+        ctx.tList("ssh.handshake", { host: ctx.escape(persona.host) }).map((line, i) => ({
+          text: `<span class="dim">${line}</span>`,
+          delay: i === 0 ? 0 : 260,
+        })),
       );
       await ctx.sleep(410);
       await ctx.enterMode(createPersonaMode(persona));

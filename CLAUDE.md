@@ -23,6 +23,7 @@ npm run build          # tsc --noEmit, then vite build → dist/
 npm run preview        # serve the built dist/
 npm test               # vitest, all suites
 npm run check          # config preflight only
+npm run lint           # biome: lint + format + import order (lint:fix applies)
 npm run deploy         # gh-pages
 npm run deploy:s3      # scripts/deploy-s3.sh → S3-compatible bucket (see .env.example)
 ```
@@ -314,6 +315,17 @@ and gate their file *reads* too, since `describe.skip` still evaluates the body.
 
 ## Conventions
 
+- **Biome is the linter and formatter** (`biome.json`: 2 spaces, double
+  quotes, 100 columns, recommended rules, imports organised). `npm run lint`
+  gates CI and both deploys; `npm run lint:fix` applies. Three rules are
+  off on purpose — `useLiteralKeys` (index-signature access stays
+  bracketed), `noImportantStyles` and `noDescendingSpecificity` (the print
+  CSS relies on both) — and tests may use `!` and `any`. A deliberate
+  duplicate (the `vh`/`dvh` pair) carries a `biome-ignore` with its reason.
+  `.githooks/` (git-native, `core.hooksPath` set by `prepare`) runs it on
+  staged files at commit and typecheck + tests at push; `--no-verify`
+  skips. Dependabot files a monthly grouped PR for the devDependencies and
+  the actions.
 - **Relative imports carry their `.ts` extension** (`from "./html.ts"`,
   `from "../i18n/index.ts"` — never a bare directory). Vite 8 warns that its
   next config loader is Node's own TS stripping, which resolves nothing

@@ -1,7 +1,7 @@
+import profile from "../../profile.config.ts";
+import { escapeHtml } from "../core/html.ts";
 import RAW from "./.bashrc?raw";
 import { defineFile } from "./define.ts";
-import { escapeHtml } from "../core/html.ts";
-import profile from "../../profile.config.ts";
 
 /**
  * Layers on top of the plain `.bashrc` next to this file, which supplies
@@ -24,6 +24,8 @@ export default defineFile({
   size: new TextEncoder().encode(text).length,
   read: () =>
     lines.map((line) =>
-      line.trim().startsWith("#") ? `<span class="dim">${escapeHtml(line)}</span>` : escapeHtml(line)
+      line.trim().startsWith("#")
+        ? `<span class="dim">${escapeHtml(line)}</span>`
+        : escapeHtml(line),
     ),
 });

@@ -1,8 +1,8 @@
 import { describe, expect, it } from "vitest";
+import profile from "../profile.config.ts";
+import { commandDescription } from "../src/core/describe.ts";
 import { loadCommands } from "../src/core/registry.ts";
 import { LOCALES } from "../src/i18n/locales.ts";
-import { commandDescription } from "../src/core/describe.ts";
-import profile from "../profile.config.ts";
 
 const commands = loadCommands();
 
@@ -15,7 +15,10 @@ describe("registry", () => {
     const seen = new Map<string, string>();
     for (const command of commands) {
       for (const name of [command.name, ...(command.aliases ?? [])]) {
-        expect(seen.has(name), `"${name}" is claimed by both ${seen.get(name)} and ${command.name}`).toBe(false);
+        expect(
+          seen.has(name),
+          `"${name}" is claimed by both ${seen.get(name)} and ${command.name}`,
+        ).toBe(false);
         seen.set(name, command.name);
       }
     }

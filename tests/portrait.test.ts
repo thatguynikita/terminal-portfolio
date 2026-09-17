@@ -22,7 +22,8 @@ function strip(values: number[], alpha = 255): Uint8ClampedArray {
 const greys = (rgba: Uint8ClampedArray): number[] =>
   Array.from({ length: rgba.length / 4 }, (_, i) => rgba[i * 4] as number);
 
-const distinct = (rgba: Uint8ClampedArray): number[] => [...new Set(greys(rgba))].sort((a, b) => a - b);
+const distinct = (rgba: Uint8ClampedArray): number[] =>
+  [...new Set(greys(rgba))].sort((a, b) => a - b);
 
 describe("posterizeGray", () => {
   it("collapses a full gradient to exactly `levels` greys", () => {
@@ -70,7 +71,8 @@ describe("posterizeGray", () => {
     const buf = strip(input);
     posterizeGray(buf, 5);
     const out = greys(buf);
-    for (let i = 1; i < out.length; i++) expect(out[i]).toBeGreaterThanOrEqual(out[i - 1] as number);
+    for (let i = 1; i < out.length; i++)
+      expect(out[i]).toBeGreaterThanOrEqual(out[i - 1] as number);
   });
 
   it("survives the degenerate cases", () => {

@@ -1,5 +1,5 @@
-import { defineCommand } from "../core/types.ts";
 import { systemOwner } from "../core/describe.ts";
+import { defineCommand } from "../core/types.ts";
 import { posixLocale } from "../i18n/locales.ts";
 
 export default defineCommand({
@@ -22,7 +22,7 @@ export default defineCommand({
         "SLEEP_DEBT=considerable",
         "IMPOSTOR_SYNDROME=1",
         `PATH=/usr/local/bin:/usr/bin:/bin:/home/${owner}/regrets`,
-      ].map(ctx.escape)
+      ].map(ctx.escape),
     );
   },
 });

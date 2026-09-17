@@ -1,12 +1,25 @@
-import { defineCommand } from "../core/types.ts";
-import type { CommandContext } from "../core/types.ts";
 import { scriptCandidates } from "../core/complete.ts";
+import type { CommandContext } from "../core/types.ts";
+import { defineCommand } from "../core/types.ts";
 
 const DANGEROUS = new Set(["/", "/*", "~", "/home", "."]);
 
 const WIPE_PATHS = [
-  "/bin", "/boot", "/dev", "/etc", "/home/guest", "/lib", "/opt", "/proc",
-  "/root", "/sbin", "/srv", "/sys", "/usr", "/var", "/home/guest/.bashrc",
+  "/bin",
+  "/boot",
+  "/dev",
+  "/etc",
+  "/home/guest",
+  "/lib",
+  "/opt",
+  "/proc",
+  "/root",
+  "/sbin",
+  "/srv",
+  "/sys",
+  "/usr",
+  "/var",
+  "/home/guest/.bashrc",
   "/home/guest/dreams",
 ];
 
@@ -39,7 +52,7 @@ async function panic(ctx: CommandContext): Promise<void> {
     WIPE_PATHS.map((path, i) => ({
       text: ctx.t("sudo.removing", { path }),
       delay: i === 0 ? 0 : 300,
-    }))
+    })),
   );
   await ctx.sleep(1000);
   ctx.clear();

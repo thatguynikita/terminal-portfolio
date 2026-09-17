@@ -222,10 +222,7 @@ const it: Messages = {
       "sre-sanity-canary": {
         status: "Running",
         reason: "tenuto insieme da caffè e testardaggine",
-        events: [
-          "Started — container avviato",
-          "Warning — livello di ansia vicino al critico",
-        ],
+        events: ["Started — container avviato", "Warning — livello di ansia vicino al critico"],
       },
       "deploy-friday-afternoon": {
         status: "Evicted",
@@ -342,7 +339,7 @@ const it: Messages = {
     game: [
       "#!/bin/bash",
       "# {script} — non leggerlo, eseguilo e basta",
-      "# vedi anche: <a href=\"{url}\" target=\"_blank\" rel=\"noopener\">{url}</a>",
+      '# vedi anche: <a href="{url}" target="_blank" rel="noopener">{url}</a>',
       "# nota: ti servirà sudo",
       'echo "apro una piccola sorpresa..."',
       "xdg-open {url} 2&gt;/dev/null",
@@ -353,7 +350,8 @@ const it: Messages = {
     message: "File o directory non esistente",
     description: "404 — pagina non trovata.",
     quip: "Ops! Pare che il gatto abbia mangiato tutto il latte condensato... e anche questa pagina.",
-    catAlt: "Un gatto arancione sdraiato sulla schiena, stanco, circondato da lattine di latte condensato rovesciate.",
+    catAlt:
+      "Un gatto arancione sdraiato sulla schiena, stanco, circondato da lattine di latte condensato rovesciate.",
     back: "torna al terminale",
     unknownPage: "pagina-sconosciuta",
     switchTo: "Cambia lingua",
@@ -370,7 +368,6 @@ const it: Messages = {
     backToTerminal: "torna al terminale",
     switchLanguage: "Cambia lingua",
   },
-
 };
 
 export default it;

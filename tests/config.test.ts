@@ -1,10 +1,10 @@
-import { describe, expect, it } from "vitest";
 import { existsSync, readFileSync } from "node:fs";
 import { join } from "node:path";
+import { describe, expect, it } from "vitest";
 import profile, { MESSAGES } from "../profile.config.ts";
+import type { ProfileConfig } from "../src/core/profile.ts";
 import { LOCALES, type Locale } from "../src/i18n/locales.ts";
 import { SECRET_ID, THEME_IDS } from "../src/themes/index.ts";
-import type { ProfileConfig } from "../src/core/profile.ts";
 
 /**
  * `npm run check` — the preflight a fork runs before deploying.
@@ -23,11 +23,12 @@ function localizedFields(node: unknown, path = ""): Array<[string, Record<string
   if (!node || typeof node !== "object") return [];
   const record = node as Record<string, unknown>;
   const keys = Object.keys(record);
-  const isLocalized = keys.length > 0 && keys.every((k) => (LOCALES as readonly string[]).includes(k));
+  const isLocalized =
+    keys.length > 0 && keys.every((k) => (LOCALES as readonly string[]).includes(k));
   if (isLocalized) return [[path, record]];
 
   return Object.entries(record).flatMap(([key, value]) =>
-    localizedFields(value, path ? `${path}.${key}` : key)
+    localizedFields(value, path ? `${path}.${key}` : key),
   );
 }
 
@@ -39,15 +40,24 @@ function localizedFields(node: unknown, path = ""): Array<[string, Record<string
 function expectValidSince(since: unknown, label: string): void {
   if (since === undefined) return; // omitted means "the build" — fine
   expect(typeof since, `${label}: since must be a string`).toBe("string");
-  expect(Number.isNaN(new Date(since as string).getTime()), `${label}: unparsable since`).toBe(false);
+  expect(Number.isNaN(new Date(since as string).getTime()), `${label}: unparsable since`).toBe(
+    false,
+  );
   expect(since as string, `${label}: since needs a UTC offset or Z`).toMatch(/(Z|[+-]\d\d:\d\d)$/);
 }
 
 /** `skills[i]` / `socials[i]` rows tagged `["cv"]` while `cv` is absent. */
-function cvOnlyRowsWithoutCv(p: { cv?: unknown; skills?: Array<{ contexts?: string[] }>; socials?: Array<{ contexts?: string[] }> }): string[] {
+function cvOnlyRowsWithoutCv(p: {
+  cv?: unknown;
+  skills?: Array<{ contexts?: string[] }>;
+  socials?: Array<{ contexts?: string[] }>;
+}): string[] {
   if (p.cv) return [];
   const out: string[] = [];
-  for (const [list, rows] of [["skills", p.skills ?? []], ["socials", p.socials ?? []]] as const) {
+  for (const [list, rows] of [
+    ["skills", p.skills ?? []],
+    ["socials", p.socials ?? []],
+  ] as const) {
     rows.forEach((row, i) => {
       if (row.contexts && row.contexts.length > 0 && row.contexts.every((c) => c === "cv")) {
         out.push(`${list}[${i}] is tagged for the CV, but no cv is configured`);
@@ -83,7 +93,9 @@ function sharedRules(label: string, p: ProfileConfig): void {
     expect(typeof secret, `${label}: secretTheme`).toBe("string");
     expect(secret.trim(), `${label}: secretTheme is blank`).not.toBe("");
     expect(secret).not.toBe(SECRET_ID);
-    expect(THEME_IDS, `${label}: secretTheme "${secret}" shadows a public theme`).not.toContain(secret);
+    expect(THEME_IDS, `${label}: secretTheme "${secret}" shadows a public theme`).not.toContain(
+      secret,
+    );
   });
 
   it("names a theme that exists", () => {
@@ -102,7 +114,7 @@ function sharedRules(label: string, p: ProfileConfig): void {
       expect(social.display.trim()).not.toBe("");
       expect(
         /^(https?:|mailto:)/.test(social.href),
-        `${label}: ${social.label}: "${social.href}" is not a URL or mailto:`
+        `${label}: ${social.label}: "${social.href}" is not a URL or mailto:`,
       ).toBe(true);
     }
   });
@@ -112,7 +124,8 @@ function sharedRules(label: string, p: ProfileConfig): void {
   // dead <image:loc> in sitemap.xml, and check stays green.
   it("points at assets that actually exist", () => {
     const missing = [p.seo.ogImage, p.cv?.photo].filter(
-      (path): path is string => Boolean(path?.startsWith("/")) && !existsSync(join(ROOT, "public", path!.slice(1)))
+      (path): path is string =>
+        Boolean(path?.startsWith("/")) && !existsSync(join(ROOT, "public", path!.slice(1))),
     );
     expect(missing, `${label}: missing assets`).toEqual([]);
   });
@@ -132,7 +145,7 @@ function sharedRules(label: string, p: ProfileConfig): void {
   it("warns, without failing, when seo.description is not set", () => {
     if (p.seo.description) return;
     console.warn(
-      `${label}: seo.description is not set — the terminal page ships with no meta description, no og:description, and llms.txt has no site summary; search engines will write their own snippet.`
+      `${label}: seo.description is not set — the terminal page ships with no meta description, no og:description, and llms.txt has no site summary; search engines will write their own snippet.`,
     );
   });
 
@@ -147,7 +160,9 @@ function sharedRules(label: string, p: ProfileConfig): void {
       expect(persona.host, `${label}: ${key} has no host`).toMatch(/\S/);
       expect(persona.qa.length, `${label}: ${key} has no questions`).toBeGreaterThan(0);
       const cmds = persona.qa.map((q) => q.cmd);
-      expect(new Set(cmds).size, `${label}: ${key} has duplicate question commands`).toBe(cmds.length);
+      expect(new Set(cmds).size, `${label}: ${key} has duplicate question commands`).toBe(
+        cmds.length,
+      );
       // These would collide with the mode's own exit words.
       for (const cmd of cmds) expect(["exit", "logout", "quit", "help"]).not.toContain(cmd);
     }
@@ -156,7 +171,10 @@ function sharedRules(label: string, p: ProfileConfig): void {
 
 describe("the cv-context rule", () => {
   it("names the row that can never render", () => {
-    const bad = { skills: [{ contexts: ["cv"] }, { contexts: ["terminal", "cv"] }], socials: [{ contexts: ["cv"] }] };
+    const bad = {
+      skills: [{ contexts: ["cv"] }, { contexts: ["terminal", "cv"] }],
+      socials: [{ contexts: ["cv"] }],
+    };
     expect(cvOnlyRowsWithoutCv(bad)).toEqual([
       "skills[0] is tagged for the CV, but no cv is configured",
       "socials[0] is tagged for the CV, but no cv is configured",
@@ -261,7 +279,7 @@ function localeMismatches(node: unknown, expected: string[], path = ""): string[
       : [`${path}: {${sorted.join(",")}}`];
   }
   return Object.entries(record).flatMap(([key, value]) =>
-    localeMismatches(value, expected, path ? `${path}.${key}` : key)
+    localeMismatches(value, expected, path ? `${path}.${key}` : key),
   );
 }
 
@@ -319,13 +337,19 @@ describe.each([
     bool(footer?.["copyright"], "terminal.footer.copyright");
     bool(footer?.["backToTerminal"], "terminal.footer.backToTerminal");
     for (const key of [
-      "enableRobotsTxt", "enableSitemap", "enableLlmsTxt",
-      "enableJsonLd", "enableNoscript", "enableSocialCards", "enable404",
+      "enableRobotsTxt",
+      "enableSitemap",
+      "enableLlmsTxt",
+      "enableJsonLd",
+      "enableNoscript",
+      "enableSocialCards",
+      "enable404",
     ]) {
       bool(seo?.[key], `seo.${key}`);
     }
     const signal = seo?.["contentSignal"] as Record<string, unknown> | undefined;
-    for (const key of ["search", "aiTrain", "aiInput"]) bool(signal?.[key], `seo.contentSignal.${key}`);
+    for (const key of ["search", "aiTrain", "aiInput"])
+      bool(signal?.[key], `seo.contentSignal.${key}`);
   });
 
   it("sends nobody into src/ to change languages", () => {

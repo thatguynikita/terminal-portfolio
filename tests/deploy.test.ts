@@ -1,7 +1,7 @@
-import { describe, expect, it } from "vitest";
 import { execFileSync } from "node:child_process";
 import { existsSync, readdirSync, readFileSync } from "node:fs";
 import { join } from "node:path";
+import { describe, expect, it } from "vitest";
 
 /**
  * The S3 deploy script sets every object's Content-Type from an explicit
@@ -44,7 +44,8 @@ describe("scripts/deploy-s3.sh", () => {
 
   it("caches only what Vite content-hashes for a year", () => {
     for (const ext of ["css", "js"]) expect(table.get(ext)?.cache).toBe("LONG");
-    for (const ext of ["html", "txt", "xml", "webmanifest", "png"]) expect(table.get(ext)?.cache).toBe("SHORT");
+    for (const ext of ["html", "txt", "xml", "webmanifest", "png"])
+      expect(table.get(ext)?.cache).toBe("SHORT");
   });
 
   it("refuses to run without a bucket, and without a build", () => {
@@ -52,7 +53,13 @@ describe("scripts/deploy-s3.sh", () => {
       execFileSync("sh", [SCRIPT], { env: { ...process.env, ...env }, stdio: "pipe" }).toString();
     expect(() => run({ S3_BUCKET: "" })).toThrow(/S3_BUCKET/);
     // A bucket but no dist/: the guard fires before any aws call.
-    expect(() => execFileSync("sh", [SCRIPT], { env: { ...process.env, S3_BUCKET: "x" }, cwd: "/tmp", stdio: "pipe" })).toThrow(/npm run build/);
+    expect(() =>
+      execFileSync("sh", [SCRIPT], {
+        env: { ...process.env, S3_BUCKET: "x" },
+        cwd: "/tmp",
+        stdio: "pipe",
+      }),
+    ).toThrow(/npm run build/);
   });
 
   // Every file the build emits must have a type — the script would refuse

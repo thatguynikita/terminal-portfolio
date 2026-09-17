@@ -1,5 +1,5 @@
-import { mailtoFor, type ProfileConfig } from "./profile.ts";
 import { LOCALES, type Locale } from "../i18n/locales.ts";
+import { mailtoFor, type ProfileConfig } from "./profile.ts";
 
 /**
  * Structured data for the two page kinds. Every property is *derived* from
@@ -28,7 +28,7 @@ function personNode(
   profile: ProfileConfig,
   locale: Locale,
   origin: string,
-  withCv: boolean
+  withCv: boolean,
 ): Record<string, unknown> {
   const { cv } = profile;
   const person: Record<string, unknown> = {
@@ -72,7 +72,7 @@ function personNode(
       // present, goes on affiliation instead, deduped.
       person["hasOccupation"] = {
         "@type": "Occupation",
-        name: cv.jobs[0]!.title[locale],
+        name: cv.jobs[0]?.title[locale],
       };
       const orgs = new Map<string, Record<string, unknown>>();
       for (const job of cv.jobs) {
@@ -94,7 +94,7 @@ function personNode(
 export function buildIndexJsonLd(
   profile: ProfileConfig,
   locale: Locale,
-  origin: string
+  origin: string,
 ): Record<string, unknown> {
   return {
     "@context": "https://schema.org",
@@ -115,7 +115,7 @@ export function buildIndexJsonLd(
 export function buildCvJsonLd(
   profile: ProfileConfig,
   locale: Locale,
-  origin: string
+  origin: string,
 ): Record<string, unknown> {
   return {
     "@context": "https://schema.org",

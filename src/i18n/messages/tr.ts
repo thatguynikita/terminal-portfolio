@@ -128,10 +128,7 @@ const tr: Messages = {
       "erken kalktın ya da hiç yatmadın — söylemesi zor",
       "aşırı çevrimiçi erkenci kuş",
     ],
-    morning: [
-      "makul saatler, çok sorumluluk sahibisin",
-      "verimli sabah enerjisi, saygı duyarım",
-    ],
+    morning: ["makul saatler, çok sorumluluk sahibisin", "verimli sabah enerjisi, saygı duyarım"],
     midday: ["öğle arası gezintisi, klasik", "ertelemenin altın saati"],
     afternoon: [
       "saat 3 çöküşü, başa çıkma yöntemi olarak gezinmek",
@@ -222,10 +219,7 @@ const tr: Messages = {
       "sre-sanity-canary": {
         status: "Running",
         reason: "kahve ve inatla ayakta",
-        events: [
-          "Started — konteyner başlatıldı",
-          "Warning — kaygı seviyesi kritiğe yaklaşıyor",
-        ],
+        events: ["Started — konteyner başlatıldı", "Warning — kaygı seviyesi kritiğe yaklaşıyor"],
       },
       "deploy-friday-afternoon": {
         status: "Evicted",
@@ -342,7 +336,7 @@ const tr: Messages = {
     game: [
       "#!/bin/bash",
       "# {script} — okuma, sadece çalıştır",
-      "# ayrıca bkz: <a href=\"{url}\" target=\"_blank\" rel=\"noopener\">{url}</a>",
+      '# ayrıca bkz: <a href="{url}" target="_blank" rel="noopener">{url}</a>',
       "# not: sudo gerekecek",
       'echo "küçük bir sürpriz açılıyor..."',
       "xdg-open {url} 2&gt;/dev/null",
@@ -353,7 +347,8 @@ const tr: Messages = {
     message: "Böyle bir dosya ya da dizin yok",
     description: "404 — sayfa bulunamadı.",
     quip: "Hoop! Görünüşe göre kedi tüm yoğunlaştırılmış sütü yemiş... bu sayfayı da.",
-    catAlt: "Sırtüstü yatan yorgun bir turuncu kedi, etrafında devrilmiş yoğunlaştırılmış süt kutuları.",
+    catAlt:
+      "Sırtüstü yatan yorgun bir turuncu kedi, etrafında devrilmiş yoğunlaştırılmış süt kutuları.",
     back: "terminale dön",
     unknownPage: "bilinmeyen-sayfa",
     switchTo: "Dili değiştir",
@@ -370,7 +365,6 @@ const tr: Messages = {
     backToTerminal: "terminale dön",
     switchLanguage: "Dili değiştir",
   },
-
 };
 
 export default tr;

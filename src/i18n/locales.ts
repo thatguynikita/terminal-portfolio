@@ -39,9 +39,19 @@ export function nextLocale<T extends string>(locales: readonly T[], current: T):
  * doesn't know falls back to its code.
  */
 export const LANGUAGE_NAMES: Record<string, string> = {
-  en: "English", ru: "Русский", uk: "Українська", es: "Español", pt: "Português",
-  fr: "Français", it: "Italiano", de: "Deutsch", pl: "Polski", tr: "Türkçe",
-  zh: "中文", ja: "日本語", ko: "한국어",
+  en: "English",
+  ru: "Русский",
+  uk: "Українська",
+  es: "Español",
+  pt: "Português",
+  fr: "Français",
+  it: "Italiano",
+  de: "Deutsch",
+  pl: "Polski",
+  tr: "Türkçe",
+  zh: "中文",
+  ja: "日本語",
+  ko: "한국어",
 };
 
 export function languageName(locale: string): string {
@@ -54,8 +64,19 @@ export function languageName(locale: string): string {
  * anything else gets the language doubled, which is what most are anyway.
  */
 const REGIONS: Record<string, string> = {
-  en: "US", ru: "RU", es: "ES", de: "DE", pt: "BR", fr: "FR", zh: "CN",
-  ja: "JP", it: "IT", pl: "PL", uk: "UA", tr: "TR", ko: "KR",
+  en: "US",
+  ru: "RU",
+  es: "ES",
+  de: "DE",
+  pt: "BR",
+  fr: "FR",
+  zh: "CN",
+  ja: "JP",
+  it: "IT",
+  pl: "PL",
+  uk: "UA",
+  tr: "TR",
+  ko: "KR",
 };
 export function posixLocale(lang: string): string {
   return `${lang}_${REGIONS[lang] ?? lang.toUpperCase()}`;

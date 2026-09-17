@@ -1,11 +1,11 @@
 import { describe, expect, it, vi } from "vitest";
-import { createFileSystem } from "../src/fs/index.ts";
-import { createFakeContext } from "./helpers.ts";
-import { skillsFor, socialsFor } from "../src/core/profile.ts";
 import profile from "../profile.config.ts";
-import gameFile from "../src/fs/game.sh.ts";
 import gameCommand from "../src/commands/game.ts";
+import { skillsFor, socialsFor } from "../src/core/profile.ts";
+import gameFile from "../src/fs/game.sh.ts";
+import { createFileSystem } from "../src/fs/index.ts";
 import { messages } from "../src/i18n/index.ts";
+import { createFakeContext } from "./helpers.ts";
 
 const ctx = createFakeContext("en");
 const fs = createFileSystem(() => ctx);
@@ -68,7 +68,7 @@ describe("filesystem", () => {
         // newline that `cat` trims — hence the one-byte tolerance.
         expect(
           Math.abs(node.size - visible),
-          `${node.name}: size ${node.size} vs ${visible} bytes of visible text`
+          `${node.name}: size ${node.size} vs ${visible} bytes of visible text`,
         ).toBeLessThanOrEqual(1);
       }
     });
@@ -166,7 +166,8 @@ describe("game launcher", () => {
     // Exactly one, or none — a static copy left in the plain file alongside
     // the configured one would be two.
     const aliases = lines.filter((l) => l.startsWith("alias game="));
-    if (profile.commands?.game) expect(aliases).toEqual([`alias game='sudo ./${profile.commands?.game.script}'`]);
+    if (profile.commands?.game)
+      expect(aliases).toEqual([`alias game='sudo ./${profile.commands?.game.script}'`]);
     else expect(aliases, "a game alias with no game configured").toEqual([]);
   });
 
@@ -188,7 +189,8 @@ describe("game launcher, with no game configured", () => {
   it("registers neither the file nor the command", async () => {
     vi.resetModules();
     vi.doMock("../profile.config.ts", async () => {
-      const real = await vi.importActual<typeof import("../profile.config.ts")>("../profile.config.ts");
+      const real =
+        await vi.importActual<typeof import("../profile.config.ts")>("../profile.config.ts");
       const { game: _game, ...commands } = real.default.commands ?? {};
       return { ...real, default: { ...real.default, commands } };
     });
@@ -209,7 +211,8 @@ describe("optional blocks, with each omitted", () => {
   const withoutKey = async (key: "neofetch" | "bio" | "skills" | "socials") => {
     vi.resetModules();
     vi.doMock("../profile.config.ts", async () => {
-      const real = await vi.importActual<typeof import("../profile.config.ts")>("../profile.config.ts");
+      const real =
+        await vi.importActual<typeof import("../profile.config.ts")>("../profile.config.ts");
       const { [key]: _gone, ...rest } = real.default;
       // skills/socials resolve to [] in a real defineProfile call; mirror that.
       const patched = key === "skills" || key === "socials" ? { ...rest, [key]: [] } : rest;
@@ -251,7 +254,12 @@ describe("optional blocks, with each omitted", () => {
 
   it("with everything present, all of them are registered", async () => {
     vi.resetModules();
-    for (const m of ["../src/commands/neofetch.ts", "../src/commands/about.ts", "../src/commands/skills.ts", "../src/commands/contact.ts"]) {
+    for (const m of [
+      "../src/commands/neofetch.ts",
+      "../src/commands/about.ts",
+      "../src/commands/skills.ts",
+      "../src/commands/contact.ts",
+    ]) {
       expect((await import(m)).default.enabled, m).not.toBe(false);
     }
   });

@@ -1,10 +1,10 @@
-import type { Args, CommandContext, FsNode, Mode } from "../src/core/types.ts";
-import type { ProfileConfig } from "../src/core/profile.ts";
 import profile from "../profile.config.ts";
+import { parseArgs } from "../src/core/args.ts";
+import { escapeAttr, escapeHtml } from "../src/core/html.ts";
+import type { ProfileConfig } from "../src/core/profile.ts";
+import type { Args, CommandContext, FsNode, Mode } from "../src/core/types.ts";
 import { translate, translateList } from "../src/i18n/index.ts";
 import type { Locale } from "../src/i18n/locales.ts";
-import { escapeAttr, escapeHtml } from "../src/core/html.ts";
-import { parseArgs } from "../src/core/args.ts";
 
 export interface FakeContext extends CommandContext {
   /** Everything printed so far, as plain text. */
@@ -16,7 +16,10 @@ export interface FakeContext extends CommandContext {
  * animations and timers stubbed out, so a command's `run` can be driven
  * to completion synchronously.
  */
-export function createFakeContext(lang: Locale = "en", overrides: Partial<ProfileConfig> = {}): FakeContext {
+export function createFakeContext(
+  lang: Locale = "en",
+  overrides: Partial<ProfileConfig> = {},
+): FakeContext {
   const root = document.createElement("div");
   const lines: string[] = [];
   // No network in tests: the now-playing poller is off unless a test
@@ -41,7 +44,9 @@ export function createFakeContext(lang: Locale = "en", overrides: Partial<Profil
     root,
     print,
     printText: (text) => print(escapeHtml(text)),
-    printLines: (items) => items.forEach((l) => print(l)),
+    printLines: (items) => {
+      for (const l of items) print(l);
+    },
     async type(text) {
       print(escapeHtml(text));
     },
@@ -52,9 +57,12 @@ export function createFakeContext(lang: Locale = "en", overrides: Partial<Profil
       print(
         `<table>${header ? `<tr>${header.map((h) => `<td>${h}</td>`).join("")}</tr>` : ""}` +
           rows.map((r) => `<tr>${r.map((v) => `<td>${v}</td>`).join("")}</tr>`).join("") +
-          `</table>`
+          `</table>`,
       ),
-    kv: (pairs) => print(`<table>${pairs.map(([k, v]) => `<tr><td>${k}</td><td>${v}</td></tr>`).join("")}</table>`),
+    kv: (pairs) =>
+      print(
+        `<table>${pairs.map(([k, v]) => `<tr><td>${k}</td><td>${v}</td></tr>`).join("")}</table>`,
+      ),
     promptEcho: (cmd) => print(escapeHtml(cmd)),
     clear() {
       root.innerHTML = "";

@@ -3,7 +3,8 @@ import type { Messages } from "./en.ts";
 /** Russian messages. Typed as `Messages`, so a missing key is a build error. */
 const ru: Messages = {
   ui: {
-    welcome: "Добро пожаловать в мой игрушечный терминал. Введите «help», чтобы увидеть список команд.",
+    welcome:
+      "Добро пожаловать в мой игрушечный терминал. Введите «help», чтобы увидеть список команд.",
     welcomeWhisper: "(псс — «help» скромничает. покопайся немного.)",
     availableCommands: "Доступные команды:",
     notFound: `команда не найдена: <span class="accent">{cmd}</span>`,
@@ -335,7 +336,7 @@ const ru: Messages = {
     game: [
       "#!/bin/bash",
       "# {script} — ой, да не читай, просто запусти",
-      "# см. также: <a href=\"{url}\" target=\"_blank\" rel=\"noopener\">{url}</a>",
+      '# см. также: <a href="{url}" target="_blank" rel="noopener">{url}</a>',
       "# заметка: понадобится sudo",
       'echo "открываю маленький сюрприз..."',
       "xdg-open {url} 2&gt;/dev/null",
@@ -363,7 +364,6 @@ const ru: Messages = {
     backToTerminal: "назад в терминал",
     switchLanguage: "Переключить язык",
   },
-
 };
 
 export default ru;

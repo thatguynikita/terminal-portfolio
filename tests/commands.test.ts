@@ -1,14 +1,15 @@
 import { afterAll, afterEach, beforeAll, describe, expect, it, vi } from "vitest";
-import { loadCommands } from "../src/core/registry.ts";
-import { LOCALES, type Localized } from "../src/i18n/locales.ts";
-import { createFakeContext, withNodes, args } from "./helpers.ts";
 import profile from "../profile.config.ts";
-import { initialMatrixEnabled } from "../src/core/matrix.ts";
-import { BOOTED_SESSION_KEY, StorageKey } from "../src/core/storage.ts";
-import { systemSince } from "../src/core/describe.ts";
 import { lsStamp, unameStamp, uptimeLine } from "../src/commands/uptime.ts";
+import { systemSince } from "../src/core/describe.ts";
+import { initialMatrixEnabled } from "../src/core/matrix.ts";
+import { loadCommands } from "../src/core/registry.ts";
+import { BOOTED_SESSION_KEY, StorageKey } from "../src/core/storage.ts";
+import { LOCALES, type Localized } from "../src/i18n/locales.ts";
+import { args, createFakeContext, withNodes } from "./helpers.ts";
 
 const profileHandle = profile.terminal.handle;
+
 import type { FsNode } from "../src/core/types.ts";
 
 const commands = loadCommands();
@@ -117,7 +118,8 @@ describe("commands", () => {
       const first = LOCALES[0]!;
       expect(profile.neofetch!.rows.filter((r) => r.highlight)).toHaveLength(1);
       for (const r of profile.neofetch!.rows) {
-        for (const l of LOCALES) expect(r.value[l], `${r.key[first]} (${l}) carries markup`).not.toMatch(/<\w+/);
+        for (const l of LOCALES)
+          expect(r.value[l], `${r.key[first]} (${l}) carries markup`).not.toMatch(/<\w+/);
       }
     });
   });
@@ -137,7 +139,7 @@ describe("commands", () => {
         getItem: (k: string) => store.get(k) ?? null,
         setItem: (k: string, v: string) => void store.set(k, v),
         removeItem: (k: string) => void store.delete(k),
-      })
+      }),
     );
     afterAll(() => vi.unstubAllGlobals());
     afterEach(() => localStorage.removeItem(KEY));
@@ -233,7 +235,14 @@ describe("commands", () => {
     const cat = commands.find((c) => c.name === "cat")!;
     const ctx = createFakeContext("en");
     withNodes(ctx, [
-      { name: "x.bin", perms: "-rw-r--r--", hidden: false, accent: false, size: 1, read: () => null },
+      {
+        name: "x.bin",
+        perms: "-rw-r--r--",
+        hidden: false,
+        accent: false,
+        size: 1,
+        read: () => null,
+      },
     ]);
     await cat.run(ctx, args("x.bin", "cat"));
     expect(ctx.lines.join(" ").trim()).toBe("cat: x.bin: not a text file");
@@ -531,12 +540,17 @@ describe("terminal switches", () => {
       const ctx = createFakeContext("en", { terminal: { ...profile.terminal, bootScreen: false } });
       document.body.append(ctx.root);
       const mount = vi.fn();
-      const terminal = { ...stubTerminal(ctx), registry: { get: () => undefined, names: () => [], visible: () => [] } };
+      const terminal = {
+        ...stubTerminal(ctx),
+        registry: { get: () => undefined, names: () => [], visible: () => [] },
+      };
       try {
         await boot(terminal as never, { mount } as never);
         const text = ctx.lines.join("\n");
         expect(text).toContain(ctx.t("ui.welcome"));
-        expect(text, "neofetch content printed with no card").not.toContain(profile.terminal.hostname);
+        expect(text, "neofetch content printed with no card").not.toContain(
+          profile.terminal.hostname,
+        );
         expect(mount).toHaveBeenCalledTimes(1);
       } finally {
         ctx.root.remove();

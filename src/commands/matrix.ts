@@ -1,5 +1,5 @@
-import { defineCommand } from "../core/types.ts";
 import { StorageKey, writeStored } from "../core/storage.ts";
+import { defineCommand } from "../core/types.ts";
 
 export default defineCommand({
   name: "matrix",

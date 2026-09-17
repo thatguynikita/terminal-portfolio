@@ -1,6 +1,6 @@
-import { defineCommand } from "../core/types.ts";
-import { socialsFor } from "../core/profile.ts";
 import profile from "../../profile.config.ts";
+import { socialsFor } from "../core/profile.ts";
+import { defineCommand } from "../core/types.ts";
 
 export default defineCommand({
   name: "contact",
@@ -11,7 +11,7 @@ export default defineCommand({
     const links = socialsFor(ctx.profile, "terminal")
       .map(
         (s) =>
-          `<a href="${ctx.escapeAttr(s.href)}" target="_blank" rel="noopener">${ctx.escape(s.label)}</a>`
+          `<a href="${ctx.escapeAttr(s.href)}" target="_blank" rel="noopener">${ctx.escape(s.label)}</a>`,
       )
       .join("");
     ctx.print(`<div class="links">${links}</div>`);

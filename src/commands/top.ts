@@ -1,5 +1,5 @@
-import { defineCommand } from "../core/types.ts";
 import type { CommandContext, Mode } from "../core/types.ts";
+import { defineCommand } from "../core/types.ts";
 
 const REFRESH_MS = 1200;
 
@@ -37,8 +37,7 @@ function createTopMode(): Mode {
 
     prompt: (ctx) => `<span class="dim">${ctx.t("top.promptLabel")}</span>`,
 
-    title: (ctx) =>
-      `${ctx.profile.terminal.handle}@${ctx.profile.terminal.hostname} — top — 80×24`,
+    title: (ctx) => `${ctx.profile.terminal.handle}@${ctx.profile.terminal.hostname} — top — 80×24`,
 
     enter(ctx) {
       container = ctx.print(tableHtml(ctx));

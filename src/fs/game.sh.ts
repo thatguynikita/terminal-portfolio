@@ -1,6 +1,6 @@
-import { defineFile } from "./define.ts";
-import { openGame } from "../core/game.ts";
 import profile from "../../profile.config.ts";
+import { openGame } from "../core/game.ts";
+import { defineFile } from "./define.ts";
 
 /**
  * The game's launcher. Its filename is `game.script` from profile.config.ts
@@ -25,7 +25,9 @@ export default defineFile({
       .map((line) => `<span class="dim">${line}</span>`),
   requiresSudo: true,
   exec: (ctx) => {
-    ctx.print(ctx.t("exec.launchingGame", { title: ctx.profile.commands?.game?.title[ctx.lang] ?? "" }));
+    ctx.print(
+      ctx.t("exec.launchingGame", { title: ctx.profile.commands?.game?.title[ctx.lang] ?? "" }),
+    );
     openGame();
   },
 });

@@ -1,7 +1,7 @@
-import type { MatrixController, ThemeController } from "./types.ts";
 import { SECRET_ID, THEME_IDS } from "../themes/index.ts";
-import { StorageKey, readStored, writeStored } from "./storage.ts";
 import { pick } from "./html.ts";
+import { readStored, StorageKey, writeStored } from "./storage.ts";
+import type { MatrixController, ThemeController } from "./types.ts";
 
 /**
  * Themes have an id (the CSS filename, what `data-theme` and storage hold)
@@ -58,7 +58,7 @@ export interface ThemeOptions {
 
 export function createThemeController(
   matrix: MatrixController,
-  options: ThemeOptions
+  options: ThemeOptions,
 ): ThemeController {
   // A blank name is no name: the secret theme is then simply not on offer.
   const secret = options.secretTheme?.trim() || undefined;

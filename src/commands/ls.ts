@@ -1,6 +1,6 @@
-import { defineCommand } from "../core/types.ts";
-import type { FsNode } from "../core/types.ts";
 import { systemSince } from "../core/describe.ts";
+import type { FsNode } from "../core/types.ts";
+import { defineCommand } from "../core/types.ts";
 import { lsStamp } from "./uptime.ts";
 
 function humanSize(bytes: number): string {
@@ -15,8 +15,8 @@ function humanSize(bytes: number): string {
   return (value < 10 ? value.toFixed(1) : Math.round(value)) + (units[i] ?? "");
 }
 
-function displayName(node: FsNode, escape: (s: string) => string): string {
-  const name = escape(node.name);
+function displayName(node: FsNode, esc: (s: string) => string): string {
+  const name = esc(node.name);
   return node.accent ? `<span class="accent">${name}</span>` : name;
 }
 
