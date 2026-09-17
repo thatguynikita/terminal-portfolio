@@ -12,7 +12,7 @@
 [![Vite](https://img.shields.io/badge/Vite-8-646cff?logo=vite&logoColor=white)](vite.config.ts)
 [![Live Demo](https://img.shields.io/badge/Live%20Demo-nikita.sh-0a7)](https://nikita.sh)
 
-<img src="docs/demo.gif" width="800" alt="A recorded session: the boot sequence and neofetch card, help, a fake top, switching to the ubuntu theme, then ls -lah revealing milk-quest.sh and running it with sudo">
+<img src="docs/img/demo.gif" width="800" alt="A recorded session: the boot sequence and neofetch card, then help, about, skills, ls -lh revealing milk-quest.sh, cat contact.txt, switching to the ubuntu theme and back to green, asking claude to add tests, whoami, and logging out">
 
 </div>
 
