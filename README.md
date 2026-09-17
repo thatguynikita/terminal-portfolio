@@ -14,28 +14,26 @@
 
 <img src="docs/demo.gif" width="800" alt="A recorded session: the boot sequence and neofetch card, help, a fake top, switching to the ubuntu theme, then ls -lah revealing milk-quest.sh and running it with sudo">
 
-**[Try it live →](https://nikita.sh)**
-
 </div>
 
 ---
 
-## ✨ Features
+## Features
 
 - 🖥️ **A terminal that feels real** — a boot sequence, Tab-completion, history, Ctrl shortcuts, matrix rain
 - 🕵️ **38 built-in commands** — `sudo`, `terraform`, a fake `top`, an `ssh` that answers recruiter questions and many more
 - 🎮 **A hidden game** — poke around the filesystem to find it; the demo hides [condensed-milk-quest](https://github.com/thatguynikita/condensed-milk-quest), yours can hide anything
+- 🎵 **"Now playing" from Spotify** in the info card, via [spotify-now-playing](https://github.com/thatguynikita/spotify-now-playing)
 - 🎨 **7 themes** — pick one, or deal a random one to every first visit; a secret one if you ask nicely
 - 📄 **A CV that looks like the terminal** — every section is a shell command, your photo can go pixel-art, and it follows whatever theme the visitor picked
 - 🖨️ **The CV prints cleanly** — grayscale on paper whatever theme is on screen
 - 📱 **Works on a phone** — tappable command chips, minimal keyboard interaction
 - 🌍 **13 languages ready** — pick the ones you want, or add your own in one file
-- 🎵 **"Now playing" from Spotify** in the info card, via [spotify-now-playing](https://github.com/thatguynikita/spotify-now-playing)
 - 🔍 **Found by search engines and AI** — sitemap, robots, `llms.txt`, structured data, all generated
 - ⚙️ **Everything about you in one file** — name, bio, skills, links, CV, jokes
 - 🚀 **One command to deploy** — GitHub Pages or any S3-compatible bucket
 
-## 📸 Screenshots
+## Screenshots
 
 | The terminal | The CV |
 |---|---|
@@ -47,7 +45,7 @@
 
 ---
 
-## 🚀 Get started
+## Quick start
 
 ```bash
 git clone https://github.com/thatguynikita/terminal-portfolio.git
@@ -67,7 +65,7 @@ npm run deploy                                   # GitHub Pages…
 npm run deploy:s3                                # …or an S3 bucket (AWS, Yandex)
 ```
 
-## ✏️ Make it yours
+## Make it yours
 
 **1. Start from an example.** Two complete, fictional configs ship next to
 the real one: `profile.config.example.ts` (English) and
@@ -106,7 +104,7 @@ Swapping the icons (`public/favicon.ico`, `public/assets/icons/`) is optional.
 **5. `npm run check`.** It catches a half-finished rebrand — a missing
 translation, an image that isn't there, a link that isn't a link.
 
-## 🧩 Add your own
+## Add your own
 
 Each of these is one file, and nothing needs registering.
 
@@ -168,7 +166,7 @@ One file in `src/i18n/messages/`, translated from `en.ts`, plus its line in
 
 </details>
 
-## 📦 Deploy
+## Deploy
 
 ```bash
 npm run deploy       # GitHub Pages
@@ -179,19 +177,19 @@ Both check, test and build first. → [deployment guide](docs/deploy.md)
 
 ---
 
-## 🤝 Contributing
+## Contributing
 
 Issues and pull requests are welcome — see [CONTRIBUTING.md](CONTRIBUTING.md).
 More on how it's built: [docs](docs/README.md).
 
-## 🙏 Credits
+## Credits
 
 Rebuilt from [nikita.sh](https://github.com/thatguynikita/nikita.sh), which now
-deploys from here. Shaped by three terminal portfolios worth a look:
+deploys from here. Inspired by three terminal portfolios worth a look:
 [iamdhakrey/terminal-portfolio](https://github.com/iamdhakrey/terminal-portfolio),
 [micahkepe/term-website](https://github.com/micahkepe/term-website/) and
 [satnaing/terminal-portfolio](https://github.com/satnaing/terminal-portfolio).
 
-## 📄 Licence
+## License
 
 MIT — see [LICENSE](LICENSE). Fork it, rename it, make it yours.
