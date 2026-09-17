@@ -33,7 +33,7 @@ Vite + TypeScript, no UI framework, no runtime dependencies.
 - **Built to be read by machines.** The résumé is in the raw HTML; the build emits `sitemap.xml`, `robots.txt` (with per-crawler rules and `Content-Signal`) and `llms.txt` from the same page list, plus a self-canonical hreflang cluster and JSON-LD. Scan it yourself with [Lighthouse](https://pagespeed.web.dev/) or [isitagentready.com](https://isitagentready.com/).
 - **Thirteen languages ship, and adding one is a single file.** English, Russian, Ukrainian, Spanish, Portuguese, French, Italian, German, Polish, Turkish, Chinese, Japanese, Korean. You pick which ones build; the rest never reach the bundle. → [guide](docs/i18n.md)
 - **Everything about you lives in one file** — `profile.config.ts`. Name, bio, skills, socials, CV, personas, SEO.
-- **394 tests**, and a preflight that refuses to deploy a fork still carrying someone else's name.
+- **394 tests** and a config preflight, `npm run check`.
 - **Deploys anywhere static** — GitHub Pages and S3-compatible hosts (AWS, Yandex Object Storage) are one command each; the S3 path sets every object's content type explicitly, with a dry run that shows the full plan first. → [guide](docs/deploy.md)
 
 ---
@@ -136,8 +136,7 @@ npm run check
 
 It verifies every user-visible field is translated into every enabled language,
 that referenced assets exist, that `SITE_URL` is a bare origin, and that social
-links are real URLs. `npm run build` goes further and refuses to run without
-`SITE_URL` at all — it's the origin for every absolute URL the site emits.
+links are real URLs. (`SITE_URL` itself is covered in [deployment](docs/deploy.md).)
 
 It checks that images *exist*, not that they're *yours* — swapping the portrait
 and the preview card is on you.
@@ -251,8 +250,7 @@ npm run deploy       # GitHub Pages
 npm run deploy:s3    # AWS S3 or Yandex Object Storage; see .env.example
 ```
 
-Both run the test suite and the config preflight first, so a fork can't publish
-with the original author's name and domain still in place.
+Both run the tests and the preflight first.
 
 **[Full guide → Pages setup, DNS, S3, previewing without pushing](docs/deploy.md)**
 
@@ -271,6 +269,7 @@ with the original author's name and domain still in place.
 | `npm run typecheck` | `tsc --noEmit` |
 | `npm run deploy` | test, build, publish to GitHub Pages |
 | `npm run deploy:s3` | test, build, sync to an S3-compatible bucket |
+| `npm run deploy:s3:dry-run` | build, then print the upload/delete plan without touching the bucket |
 
 ---
 
@@ -281,7 +280,7 @@ profile.config.ts       everything about you, including the whole CV
 pages/                  the three page shells — Vite's root
 src/core/               engine: registry, output API, input loop, modes, theme
 src/commands/           one file per command — auto-registered
-src/cv/                 CV renderer, URLs, JSON-LD
+src/cv/                 CV renderer and URLs
 src/fs/                 the fake filesystem
 src/i18n/messages/      one file per language — en, ru, uk, es, pt, fr, it, de, pl, tr, zh, ja, ko
 src/themes/             one CSS file per theme — auto-registered

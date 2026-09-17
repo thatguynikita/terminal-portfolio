@@ -93,28 +93,18 @@ is served at arbitrary URL depths, which is why `base` is `/`. With
 `seo.enable404: false` the page isn't built: the error-document setting then
 points at nothing and S3 answers a missing URL with its own plain 404.
 
-### What `scripts/deploy-s3.sh` does, and why it isn't one `aws s3 sync`
+### Why it isn't one `aws s3 sync`
 
 `aws s3 sync` guesses each object's `Content-Type` from its extension and never
-adds a charset. S3-compatible storage then serves `llms.txt` — half Cyrillic —
-as `text/plain` with no encoding, and browsers render it garbled; and `sync`
-doesn't know `.webmanifest` at all. So:
-
-1. **Every object's type comes from a table** in the script (`.html` →
-   `text/html; charset=utf-8`, `.js` → `text/javascript; charset=utf-8`,
-   `.webmanifest` → `application/manifest+json; charset=utf-8`, images,
-   fonts…), one sync pass per extension. A file whose extension isn't in the
-   table **fails the deploy** naming the file — nothing ships as
-   `application/octet-stream`. Add the extension to the table to allow it.
-2. **Cache headers**: what Vite content-hashes (`.css`, `.js`, fonts) gets
-   `max-age=31536000, immutable`; everything else `max-age=300`. Images under
-   `assets/img/` come from `public/` unhashed and stay short-lived.
-3. **A delete pass** removes every key `dist/` no longer has — `--delete
-   --size-only`, so nothing just uploaded is re-uploaded with a guessed type.
-4. `CNAME` and `.nojekyll` are GitHub Pages artefacts and are skipped.
-5. Not on a dry run, the script ends by printing the `content-type` and
-   `cache-control` headers of `/`, `/cv.html`, `/llms.txt` and
-   `/site.webmanifest` at `SITE_URL`, so the run finishes with proof.
+adds a charset — a UTF-8 `llms.txt` comes back garbled, and `.webmanifest`
+isn't known at all. So `scripts/deploy-s3.sh` sets every object's type and
+cache header from its own table, one sync pass per extension, and **fails the
+deploy naming any file whose extension the table doesn't know** (add it there
+to allow it). Hashed assets get `immutable`, everything else `max-age=300`; a
+`--delete --size-only` pass removes stale keys without re-uploading; `CNAME`
+and `.nojekyll` are skipped; and a real run ends by printing the headers of
+`/`, `/cv.html`, `/llms.txt` and `/site.webmanifest` as proof. The script's
+comments cover the rest.
 
 ### `S3_KEEP`: files the deploy must not touch
 
@@ -131,19 +121,20 @@ both sides of a sync: the keys are neither uploaded nor deleted.
 
 ## What the build emits
 
-Alongside the pages: `CNAME`, `.nojekyll`, a generated `site.webmanifest`, and
-— each behind its own switch in `seo` (`enableSitemap`, `enableRobotsTxt`,
-`enableLlmsTxt`) — `sitemap.xml`, `robots.txt` and `llms.txt`. A switched-off
-file is not emitted at all, and `robots.txt` stops pointing at a sitemap that
-isn't there. `robots.txt`'s `Content-Signal` line — may the content be searched,
-train models, feed AI answers — is `seo.contentSignal`, three booleans. The footer under the window on every page is `terminal.footer`: the
-generated copyright, the terminal's hint, the CV/404 back link, and a raw-HTML
-`bottomText` line — the terminal-portfolio credit unless you set it, `""` for none. Three more switches govern what goes into every
-page's `<head>`:
-`enableJsonLd` (the Person JSON-LD on the terminal and CV pages),
-`enableNoscript` (the terminal's no-JS fallback) and `enableSocialCards`
-(`og:*` and `twitter:card`); `enable404` builds the 404 page itself (and
-ships its cat). Everything in `public/` is copied verbatim.
+Alongside `index.html` and the CV pages:
+
+| file | switch |
+|---|---|
+| `404.html` (and its cat) | `seo.enable404` |
+| `sitemap.xml` | `seo.enableSitemap` |
+| `robots.txt` — per-crawler rules and a `Content-Signal` line from `seo.contentSignal` | `seo.enableRobotsTxt` |
+| `llms.txt` | `seo.enableLlmsTxt` |
+| `site.webmanifest`, `CNAME`, `.nojekyll` | always |
+
+A switched-off file is not emitted at all, and `robots.txt` stops pointing at a
+sitemap that isn't there. Three more switches govern the `<head>` of every
+page: `enableJsonLd`, `enableNoscript` and `enableSocialCards`. Everything in
+`public/` is copied verbatim.
 
 ---
 
