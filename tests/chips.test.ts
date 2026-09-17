@@ -1,11 +1,11 @@
 import { describe, expect, it } from "vitest";
-import { firstWordCandidates, isCompleteArgument, scriptCandidates, splitInput } from "../src/core/complete";
-import { LOCALES, nextLocale } from "../src/i18n/locales";
-import { loadCommands } from "../src/core/registry";
-import { createFakeContext } from "./helpers";
-import { commandDescription } from "../src/core/describe";
-import type { ProfileConfig } from "../src/core/profile";
-import profile from "../profile.config";
+import { firstWordCandidates, isCompleteArgument, scriptCandidates, splitInput } from "../src/core/complete.ts";
+import { LOCALES, nextLocale } from "../src/i18n/locales.ts";
+import { loadCommands } from "../src/core/registry.ts";
+import { createFakeContext } from "./helpers.ts";
+import { commandDescription } from "../src/core/describe.ts";
+import type { ProfileConfig } from "../src/core/profile.ts";
+import profile from "../profile.config.ts";
 
 const commands = loadCommands();
 

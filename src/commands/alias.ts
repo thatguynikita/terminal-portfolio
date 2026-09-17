@@ -1,4 +1,4 @@
-import { defineCommand } from "../core/types";
+import { defineCommand } from "../core/types.ts";
 
 /**
  * Reads the aliases straight out of `.bashrc` rather than keeping a

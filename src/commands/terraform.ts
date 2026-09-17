@@ -1,5 +1,5 @@
-import { defineCommand } from "../core/types";
-import type { CommandContext } from "../core/types";
+import { defineCommand } from "../core/types.ts";
+import type { CommandContext } from "../core/types.ts";
 
 const RESOURCES = [
   { addr: "condensed_milk_reserve.cat_stash", block: `resource "condensed_milk_reserve" "cat_stash" { cans = 30 }`, id: "cans-0030", secs: 2 },

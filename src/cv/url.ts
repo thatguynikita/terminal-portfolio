@@ -1,5 +1,5 @@
-import type { ProfileConfig } from "../core/profile";
-import { LOCALES, type Locale } from "../i18n/locales";
+import type { ProfileConfig } from "../core/profile.ts";
+import { LOCALES, type Locale } from "../i18n/locales.ts";
 
 /**
  * Where the CV lives for a given locale.

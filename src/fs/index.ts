@@ -1,6 +1,6 @@
-import type { CommandContext, FileSystem, FsNode, FsRunResult } from "../core/types";
-import { escapeHtml } from "../core/html";
-import type { FsDescriptor } from "./define";
+import type { CommandContext, FileSystem, FsNode, FsRunResult } from "../core/types.ts";
+import { escapeHtml } from "../core/html.ts";
+import type { FsDescriptor } from "./define.ts";
 
 /**
  * The virtual filesystem.

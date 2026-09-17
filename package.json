@@ -1,12 +1,12 @@
 {
   "name": "terminal-portfolio",
-  "version": "0.1.0",
+  "version": "1.1.0",
   "private": true,
   "type": "module",
   "description": "Personal site as a fake terminal — commands, easter eggs, themes and a prerendered CV — driven by one profile.config.ts.",
   "license": "MIT",
   "engines": {
-    "node": ">=20"
+    "node": ">=22.12"
   },
   "scripts": {
     "dev": "vite",
@@ -21,12 +21,12 @@
     "deploy:s3:dry-run": "npm run build && dotenv -e .env -- env DRY_RUN=1 sh scripts/deploy-s3.sh"
   },
   "devDependencies": {
-    "@types/node": "^26.5.0",
-    "dotenv-cli": "^7.4.4",
-    "gh-pages": "^6.2.0",
-    "happy-dom": "^15.11.7",
-    "typescript": "^5.7.2",
-    "vite": "^6.0.5",
-    "vitest": "^2.1.8"
+    "@types/node": "^26.6.1",
+    "dotenv-cli": "^11.0.0",
+    "gh-pages": "^6.3.0",
+    "happy-dom": "^20.14.5",
+    "typescript": "^7.0.2",
+    "vite": "^8.3.0",
+    "vitest": "^5.0.1"
   }
 }

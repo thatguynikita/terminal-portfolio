@@ -1,6 +1,6 @@
-import { defineCommand } from "../core/types";
-import { socialsFor } from "../core/profile";
-import profile from "../../profile.config";
+import { defineCommand } from "../core/types.ts";
+import { socialsFor } from "../core/profile.ts";
+import profile from "../../profile.config.ts";
 
 export default defineCommand({
   name: "contact",

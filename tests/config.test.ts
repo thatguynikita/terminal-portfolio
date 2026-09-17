@@ -1,10 +1,10 @@
 import { describe, expect, it } from "vitest";
 import { existsSync, readFileSync } from "node:fs";
 import { join } from "node:path";
-import profile, { MESSAGES } from "../profile.config";
-import { LOCALES, type Locale } from "../src/i18n/locales";
-import { SECRET_ID, THEME_IDS } from "../src/themes";
-import type { ProfileConfig } from "../src/core/profile";
+import profile, { MESSAGES } from "../profile.config.ts";
+import { LOCALES, type Locale } from "../src/i18n/locales.ts";
+import { SECRET_ID, THEME_IDS } from "../src/themes/index.ts";
+import type { ProfileConfig } from "../src/core/profile.ts";
 
 /**
  * `npm run check` — the preflight a fork runs before deploying.

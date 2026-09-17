@@ -1,4 +1,4 @@
-import type { ProfileConfig } from "./profile";
+import type { ProfileConfig } from "./profile.ts";
 
 /**
  * The sandboxed game overlay. Set up once by the page entry; commands and

@@ -1,7 +1,7 @@
-import type { MatrixController, ThemeController } from "./types";
-import { SECRET_ID, THEME_IDS } from "../themes";
-import { StorageKey, readStored, writeStored } from "./storage";
-import { pick } from "./html";
+import type { MatrixController, ThemeController } from "./types.ts";
+import { SECRET_ID, THEME_IDS } from "../themes/index.ts";
+import { StorageKey, readStored, writeStored } from "./storage.ts";
+import { pick } from "./html.ts";
 
 /**
  * Themes have an id (the CSS filename, what `data-theme` and storage hold)

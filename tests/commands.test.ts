@@ -1,15 +1,15 @@
 import { afterAll, afterEach, beforeAll, describe, expect, it, vi } from "vitest";
-import { loadCommands } from "../src/core/registry";
-import { LOCALES, type Localized } from "../src/i18n/locales";
-import { createFakeContext, withNodes, args } from "./helpers";
-import profile from "../profile.config";
-import { initialMatrixEnabled } from "../src/core/matrix";
-import { BOOTED_SESSION_KEY, StorageKey } from "../src/core/storage";
-import { systemSince } from "../src/core/describe";
-import { lsStamp, unameStamp, uptimeLine } from "../src/commands/uptime";
+import { loadCommands } from "../src/core/registry.ts";
+import { LOCALES, type Localized } from "../src/i18n/locales.ts";
+import { createFakeContext, withNodes, args } from "./helpers.ts";
+import profile from "../profile.config.ts";
+import { initialMatrixEnabled } from "../src/core/matrix.ts";
+import { BOOTED_SESSION_KEY, StorageKey } from "../src/core/storage.ts";
+import { systemSince } from "../src/core/describe.ts";
+import { lsStamp, unameStamp, uptimeLine } from "../src/commands/uptime.ts";
 
 const profileHandle = profile.terminal.handle;
-import type { FsNode } from "../src/core/types";
+import type { FsNode } from "../src/core/types.ts";
 
 const commands = loadCommands();
 
@@ -300,7 +300,7 @@ describe("system owner", () => {
  */
 describe("terminal title bar", () => {
   it("is filled in before the prompt is mounted", async () => {
-    const { createInput } = await import("../src/core/input");
+    const { createInput } = await import("../src/core/input.ts");
     const ctx = createFakeContext("en");
     const head = document.createElement("div");
     head.className = "term-head";
@@ -315,7 +315,7 @@ describe("terminal title bar", () => {
         run: async () => {},
         pushHistory: () => {},
         historyIndex: 0,
-      } as unknown as import("../src/core/terminal").Terminal;
+      } as unknown as import("../src/core/terminal.ts").Terminal;
 
       createInput(terminal); // deliberately no mount()
 
@@ -408,11 +408,11 @@ describe("terminal switches", () => {
       run: async () => {},
       pushHistory: () => {},
       historyIndex: 0,
-    }) as unknown as import("../src/core/terminal").Terminal;
+    }) as unknown as import("../src/core/terminal.ts").Terminal;
 
   describe("chips", () => {
     const withChipsEl = async (chips: boolean): Promise<HTMLElement> => {
-      const { createInput } = await import("../src/core/input");
+      const { createInput } = await import("../src/core/input.ts");
       const ctx = createFakeContext("en", { terminal: { ...profile.terminal, chips } });
       const chipsEl = document.createElement("div");
       chipsEl.id = "chips";
@@ -455,7 +455,7 @@ describe("terminal switches", () => {
     afterEach(() => session.clear());
 
     const runBoot = async (bootScreen: boolean) => {
-      const { boot } = await import("../src/core/boot");
+      const { boot } = await import("../src/core/boot.ts");
       const ctx = createFakeContext("en", { terminal: { ...profile.terminal, bootScreen } });
       const bootEl = document.createElement("div");
       bootEl.id = "boot";
@@ -495,7 +495,7 @@ describe("terminal switches", () => {
      * until the document is visible.
      */
     it("waits for the page to become visible before booting", async () => {
-      const { boot } = await import("../src/core/boot");
+      const { boot } = await import("../src/core/boot.ts");
       let hidden = true;
       Object.defineProperty(document, "hidden", { configurable: true, get: () => hidden });
       const ctx = createFakeContext("en", { terminal: { ...profile.terminal, bootScreen: true } });
@@ -527,7 +527,7 @@ describe("terminal switches", () => {
     // No card configured: the intro is the welcome lines and nothing else.
     // The registry does the unregistering; here the stub simply lacks it.
     it("prints only the welcome when there is no neofetch to print", async () => {
-      const { boot } = await import("../src/core/boot");
+      const { boot } = await import("../src/core/boot.ts");
       const ctx = createFakeContext("en", { terminal: { ...profile.terminal, bootScreen: false } });
       document.body.append(ctx.root);
       const mount = vi.fn();
@@ -586,7 +586,7 @@ describe("secret theme easter egg", () => {
 /** `env`'s LANG is a real POSIX locale, not `${lang}_US.UTF-8`. */
 describe("env LANG", () => {
   it("prints a real POSIX locale for the session language", async () => {
-    const { posixLocale } = await import("../src/i18n/locales");
+    const { posixLocale } = await import("../src/i18n/locales.ts");
     expect(posixLocale("en")).toBe("en_US");
     expect(posixLocale("ru")).toBe("ru_RU");
     expect(posixLocale("pt")).toBe("pt_BR");

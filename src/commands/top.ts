@@ -1,5 +1,5 @@
-import { defineCommand } from "../core/types";
-import type { CommandContext, Mode } from "../core/types";
+import { defineCommand } from "../core/types.ts";
+import type { CommandContext, Mode } from "../core/types.ts";
 
 const REFRESH_MS = 1200;
 

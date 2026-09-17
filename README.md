@@ -7,9 +7,9 @@ Vite + TypeScript, no UI framework, no runtime dependencies.
 
 [![CI](https://github.com/thatguynikita/terminal-portfolio/actions/workflows/ci.yml/badge.svg)](https://github.com/thatguynikita/terminal-portfolio/actions/workflows/ci.yml)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
-[![Node](https://img.shields.io/badge/node-%3E%3D20-brightgreen)](package.json)
-[![TypeScript](https://img.shields.io/badge/TypeScript-5.7-3178c6?logo=typescript&logoColor=white)](tsconfig.json)
-[![Vite](https://img.shields.io/badge/Vite-6-646cff?logo=vite&logoColor=white)](vite.config.ts)
+[![Node](https://img.shields.io/badge/node-%3E%3D22.12-brightgreen)](package.json)
+[![TypeScript](https://img.shields.io/badge/TypeScript-7-3178c6?logo=typescript&logoColor=white)](tsconfig.json)
+[![Vite](https://img.shields.io/badge/Vite-8-646cff?logo=vite&logoColor=white)](vite.config.ts)
 [![Live Demo](https://img.shields.io/badge/demo-nikita.sh-0a7)](https://nikita.sh)
 
 <img src="docs/demo.gif" width="800" alt="A recorded session: the boot sequence and neofetch card, help, a fake top, switching to the ubuntu theme, then ls -lah revealing milk-quest.sh and running it with sudo">
@@ -97,8 +97,8 @@ feature that's simply absent when you leave it out:
 
 ```ts
 // profile.config.ts
-import { defineProfile } from "./src/core/profile";
-import en from "./src/i18n/messages/en";
+import { defineProfile } from "./src/core/profile.ts";
+import en from "./src/i18n/messages/en.ts";
 
 export const MESSAGES = { en };
 
@@ -155,7 +155,7 @@ Four extension points. Each is one file, and none of them need registering.
 
 ```ts
 // src/commands/coffee.ts
-import { defineCommand } from "../core/types";
+import { defineCommand } from "../core/types.ts";
 
 export default defineCommand({
   name: "coffee",
@@ -212,8 +212,8 @@ automatically. `npm test` fails if a token is missing.
 
 ```ts
 // profile.config.ts
-import en from "./src/i18n/messages/en";
-import es from "./src/i18n/messages/es";
+import en from "./src/i18n/messages/en.ts";
+import es from "./src/i18n/messages/es.ts";
 
 export const MESSAGES = { en, es };   // this map is the whole locale setup
 ```

@@ -1,6 +1,6 @@
-import { lookup } from "../i18n";
-import type { Locale } from "../i18n/locales";
-import type { ProfileConfig } from "./profile";
+import { lookup } from "../i18n/index.ts";
+import type { Locale } from "../i18n/locales.ts";
+import type { ProfileConfig } from "./profile.ts";
 
 /**
  * A command's one-line description for `help`.

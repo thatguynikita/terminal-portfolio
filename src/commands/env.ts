@@ -1,6 +1,6 @@
-import { defineCommand } from "../core/types";
-import { systemOwner } from "../core/describe";
-import { posixLocale } from "../i18n/locales";
+import { defineCommand } from "../core/types.ts";
+import { systemOwner } from "../core/describe.ts";
+import { posixLocale } from "../i18n/locales.ts";
 
 export default defineCommand({
   name: "env",

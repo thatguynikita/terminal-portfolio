@@ -1,12 +1,12 @@
 import { describe, expect, it } from "vitest";
 import { existsSync, readdirSync, readFileSync } from "node:fs";
 import { join } from "node:path";
-import profile, { MESSAGES } from "../profile.config";
-import { cvLocales, cvUrl } from "../src/cv/url";
-import { mailtoFor, renderContentSignal, socialsFor } from "../src/core/profile";
-import { languageName, posixLocale } from "../src/i18n/locales";
-import { translate } from "../src/i18n";
-import { escapeHtml } from "../src/core/html";
+import profile, { MESSAGES } from "../profile.config.ts";
+import { cvLocales, cvUrl } from "../src/cv/url.ts";
+import { mailtoFor, renderContentSignal, socialsFor } from "../src/core/profile.ts";
+import { languageName, posixLocale } from "../src/i18n/locales.ts";
+import { translate } from "../src/i18n/index.ts";
+import { escapeHtml } from "../src/core/html.ts";
 
 // The same resolution vite.config.ts uses; vitest.config.ts loads .env into
 // process.env so a local dist/ and this suite agree on the origin.

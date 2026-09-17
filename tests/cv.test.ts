@@ -1,13 +1,13 @@
 import { afterEach, describe, expect, it, vi } from "vitest";
 import { readFileSync } from "node:fs";
 import { join } from "node:path";
-import profile from "../profile.config";
-import { LOCALES, type Localized } from "../src/i18n/locales";
-import { renderCv, renderCvTopbar } from "../src/cv/render";
-import { buildCvJsonLd, buildIndexJsonLd } from "../src/core/jsonld";
-import { CV_LINK_LABEL, cvLocales, cvUrl } from "../src/cv/url";
-import { mailtoFor, renderCopyright, renderFooter, skillsFor, socialsFor } from "../src/core/profile";
-import { leaveForTerminalOnKey } from "../src/core/leave";
+import profile from "../profile.config.ts";
+import { LOCALES, type Localized } from "../src/i18n/locales.ts";
+import { renderCv, renderCvTopbar } from "../src/cv/render.ts";
+import { buildCvJsonLd, buildIndexJsonLd } from "../src/core/jsonld.ts";
+import { CV_LINK_LABEL, cvLocales, cvUrl } from "../src/cv/url.ts";
+import { mailtoFor, renderCopyright, renderFooter, skillsFor, socialsFor } from "../src/core/profile.ts";
+import { leaveForTerminalOnKey } from "../src/core/leave.ts";
 
 /**
  * The CV is optional, so these suites skip when it isn't configured — a

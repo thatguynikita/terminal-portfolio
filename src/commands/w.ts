@@ -1,6 +1,6 @@
-import { defineCommand } from "../core/types";
-import { nowDateTime, uptimeLine } from "./uptime";
-import { systemOwner, systemSince } from "../core/describe";
+import { defineCommand } from "../core/types.ts";
+import { nowDateTime, uptimeLine } from "./uptime.ts";
+import { systemOwner, systemSince } from "../core/describe.ts";
 
 export default defineCommand({
   name: "w",

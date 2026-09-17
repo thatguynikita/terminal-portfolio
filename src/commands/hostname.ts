@@ -1,4 +1,4 @@
-import { defineCommand } from "../core/types";
+import { defineCommand } from "../core/types.ts";
 
 export default defineCommand({
   name: "hostname",

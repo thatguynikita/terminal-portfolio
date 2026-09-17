@@ -1,5 +1,5 @@
-import { defineCommand } from "../core/types";
-import { isLocale, LOCALES } from "../i18n/locales";
+import { defineCommand } from "../core/types.ts";
+import { isLocale, LOCALES } from "../i18n/locales.ts";
 
 export default defineCommand({
   name: "lang",

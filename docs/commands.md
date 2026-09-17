@@ -9,7 +9,7 @@ chip bar itself is optional: `terminal.chips: false` removes it; completion and
 
 ```ts
 // src/commands/coffee.ts
-import { defineCommand } from "../core/types";
+import { defineCommand } from "../core/types.ts";
 
 export default defineCommand({
   name: "coffee",

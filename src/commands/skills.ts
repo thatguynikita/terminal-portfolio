@@ -1,6 +1,6 @@
-import { defineCommand } from "../core/types";
-import { skillsFor } from "../core/profile";
-import profile from "../../profile.config";
+import { defineCommand } from "../core/types.ts";
+import { skillsFor } from "../core/profile.ts";
+import profile from "../../profile.config.ts";
 
 export default defineCommand({
   name: "skills",

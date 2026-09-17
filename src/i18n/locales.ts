@@ -1,4 +1,4 @@
-import { MESSAGES } from "../../profile.config";
+import { MESSAGES } from "../../profile.config.ts";
 
 /**
  * The locale set, derived from the catalogues profile.config.ts imports.

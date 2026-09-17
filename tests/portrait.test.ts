@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { posterizeGray } from "../src/cv/portrait";
+import { posterizeGray } from "../src/cv/portrait.ts";
 
 /**
  * The portrait pipeline is a pure function over an RGBA buffer precisely so

@@ -1,5 +1,5 @@
-import { defineCommand } from "../core/types";
-import { systemSince } from "../core/describe";
+import { defineCommand } from "../core/types.ts";
+import { systemSince } from "../core/describe.ts";
 
 const pad = (n: number): string => String(n).padStart(2, "0");
 

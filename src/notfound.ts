@@ -1,15 +1,15 @@
 import "./styles/base.css";
 import "./styles/notfound.css";
 
-import profile from "../profile.config";
-import { createMatrixRain, initialMatrixEnabled } from "./core/matrix";
-import { createThemeController } from "./core/theme";
-import { translate } from "./i18n";
-import { LOCALES, nextLocale, type Locale } from "./i18n/locales";
-import { StorageKey, readStored, writeStored } from "./core/storage";
-import { escapeHtml } from "./core/html";
-import { CV_LINK_LABEL, cvUrl } from "./cv/url";
-import { renderFooter } from "./core/profile";
+import profile from "../profile.config.ts";
+import { createMatrixRain, initialMatrixEnabled } from "./core/matrix.ts";
+import { createThemeController } from "./core/theme.ts";
+import { translate } from "./i18n/index.ts";
+import { LOCALES, nextLocale, type Locale } from "./i18n/locales.ts";
+import { StorageKey, readStored, writeStored } from "./core/storage.ts";
+import { escapeHtml } from "./core/html.ts";
+import { CV_LINK_LABEL, cvUrl } from "./cv/url.ts";
+import { renderFooter } from "./core/profile.ts";
 
 const canvas = document.getElementById("matrix") as HTMLCanvasElement | null;
 if (canvas) {

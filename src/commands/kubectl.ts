@@ -1,5 +1,5 @@
-import { defineCommand } from "../core/types";
-import { lookup } from "../i18n";
+import { defineCommand } from "../core/types.ts";
+import { lookup } from "../i18n/index.ts";
 
 const POD_NAMES = [
   "cat-deployment-7f9d8c-x2m4q",

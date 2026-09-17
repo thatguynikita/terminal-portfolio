@@ -1,5 +1,5 @@
-import type { Locale } from "../i18n/locales";
-import type { ProfileConfig } from "./profile";
+import type { Locale } from "../i18n/locales.ts";
+import type { ProfileConfig } from "./profile.ts";
 
 /* ---------------- output ---------------- */
 

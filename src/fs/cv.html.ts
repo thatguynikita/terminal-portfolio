@@ -1,6 +1,6 @@
-import { defineFile } from "./define";
-import { cvUrl } from "../cv/url";
-import profile from "../../profile.config";
+import { defineFile } from "./define.ts";
+import { cvUrl } from "../cv/url.ts";
+import profile from "../../profile.config.ts";
 
 /**
  * The CV is a real page, not text — `cat` says so, and running it

@@ -1,4 +1,4 @@
-import type { Messages } from "./en";
+import type { Messages } from "./en.ts";
 
 /**
  * Portuguese messages — Brazilian Portuguese. Typed as `Messages`, so a

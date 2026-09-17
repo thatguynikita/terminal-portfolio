@@ -56,7 +56,7 @@ That's what keeps the shells emitting to the top of `dist/` rather than
 Consequences worth knowing:
 
 - `build.outDir` is `../dist` and `publicDir` is `../public`, both relative to
-  `root`; `rollupOptions.input` needs resolved absolute paths.
+  `root`; `rolldownOptions.input` needs resolved absolute paths.
 - The shells load `/src/main.ts` through a `resolve.alias` that maps `/src` to
   the real `src/`. A relative `../src/main.ts` is correct on disk but wrong in
   the browser — `..` above `/` clamps, so the request arrives as `/src/main.ts`
@@ -74,7 +74,7 @@ at one depth.
 ## Page assembly
 
 Vite requires HTML inputs to exist on disk, so the locale list can't drive
-`rollupOptions.input`. One real `cv.html` entry is processed normally, then
+`rolldownOptions.input`. One real `cv.html` entry is processed normally, then
 cloned per additional locale in `writeBundle` — not `generateBundle`, where
 Vite's own HTML plugin is still populating the template and plugin order would
 decide whether it exists yet.

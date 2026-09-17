@@ -1,7 +1,7 @@
 import RAW from "./.bashrc?raw";
-import { defineFile } from "./define";
-import { escapeHtml } from "../core/html";
-import profile from "../../profile.config";
+import { defineFile } from "./define.ts";
+import { escapeHtml } from "../core/html.ts";
+import profile from "../../profile.config.ts";
 
 /**
  * Layers on top of the plain `.bashrc` next to this file, which supplies

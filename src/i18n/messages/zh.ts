@@ -1,4 +1,4 @@
-import type { Messages } from "./en";
+import type { Messages } from "./en.ts";
 
 /**
  * Chinese messages — Simplified Chinese. Typed as `Messages`, so a missing

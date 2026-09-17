@@ -1,5 +1,5 @@
-import type { Localized, Locale } from "../i18n/locales";
-import { escapeHtml } from "./html";
+import type { Localized, Locale } from "../i18n/locales.ts";
+import { escapeHtml } from "./html.ts";
 
 /** Where an entry is shown. Omitted means everywhere. */
 export type Context = "terminal" | "cv";

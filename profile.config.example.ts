@@ -1,5 +1,5 @@
-import { defineProfile } from "./src/core/profile";
-import en from "./src/i18n/messages/en";
+import { defineProfile } from "./src/core/profile.ts";
+import en from "./src/i18n/messages/en.ts";
 
 /**
  * The languages this site ships, in rotation order.

@@ -1,6 +1,6 @@
-import { defineCommand } from "../core/types";
-import type { CommandContext, SequenceStep } from "../core/types";
-import { unquote } from "../core/args";
+import { defineCommand } from "../core/types.ts";
+import type { CommandContext, SequenceStep } from "../core/types.ts";
+import { unquote } from "../core/args.ts";
 
 const COMMIT_HASHES = ["t3u4v5w", "a1b2c3d", "e4f5g6h", "h7i8j9k", "k1l2m3n", "n4o5p6q"];
 

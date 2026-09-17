@@ -1,5 +1,5 @@
-import type { MatrixController } from "./types";
-import { StorageKey, readStored } from "./storage";
+import type { MatrixController } from "./types.ts";
+import { StorageKey, readStored } from "./storage.ts";
 
 /**
  * Whether the rain starts enabled: the visitor's stored `matrix on|off`

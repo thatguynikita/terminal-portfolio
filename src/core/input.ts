@@ -1,8 +1,8 @@
-import type { Terminal } from "./terminal";
-import { LOCALES, nextLocale as rotateLocale, type Locale } from "../i18n/locales";
-import { commonPrefix } from "./args";
-import { firstWordCandidates, isCompleteArgument, scriptCandidates, splitInput } from "./complete";
-import { el, escapeAttr, escapeHtml } from "./html";
+import type { Terminal } from "./terminal.ts";
+import { LOCALES, nextLocale as rotateLocale, type Locale } from "../i18n/locales.ts";
+import { commonPrefix } from "./args.ts";
+import { firstWordCandidates, isCompleteArgument, scriptCandidates, splitInput } from "./complete.ts";
+import { el, escapeAttr, escapeHtml } from "./html.ts";
 
 interface Chip {
   label: string;

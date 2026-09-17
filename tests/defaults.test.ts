@@ -1,5 +1,5 @@
 import { afterEach, describe, expect, it, vi } from "vitest";
-import { MESSAGES } from "../profile.config";
+import { MESSAGES } from "../profile.config.ts";
 import {
   CREDIT_LINE,
   defineProfile,
@@ -8,11 +8,11 @@ import {
   skillsFor,
   socialsFor,
   type ProfileInput,
-} from "../src/core/profile";
-import { systemOwner } from "../src/core/describe";
-import { buildCvJsonLd, buildIndexJsonLd } from "../src/core/jsonld";
-import { renderCv } from "../src/cv/render";
-import { LOCALES, type Locale } from "../src/i18n/locales";
+} from "../src/core/profile.ts";
+import { systemOwner } from "../src/core/describe.ts";
+import { buildCvJsonLd, buildIndexJsonLd } from "../src/core/jsonld.ts";
+import { renderCv } from "../src/cv/render.ts";
+import { LOCALES, type Locale } from "../src/i18n/locales.ts";
 
 /**
  * `defineProfile` is the one place defaults live. These pin every default

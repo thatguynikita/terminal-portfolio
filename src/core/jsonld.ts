@@ -1,5 +1,5 @@
-import { mailtoFor, type ProfileConfig } from "./profile";
-import { LOCALES, type Locale } from "../i18n/locales";
+import { mailtoFor, type ProfileConfig } from "./profile.ts";
+import { LOCALES, type Locale } from "../i18n/locales.ts";
 
 /**
  * Structured data for the two page kinds. Every property is *derived* from
