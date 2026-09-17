@@ -411,8 +411,7 @@ export function mailtoFor(profile: ProfileConfig): string | undefined {
 
 /**
  * The © line: `© <year> <name>`, the name linking to the site's own root.
- * Generated rather than configured — it used to be a chunk of HTML in the
- * config, once per locale, carrying the name a second time.
+ * Generated from `author` rather than configured, so the name exists once.
  *
  * `origin` is SITE_URL: the browser pages pass the inlined `__SITE_URL__`,
  * the Vite plugin passes its own constant, since `define` doesn't reach

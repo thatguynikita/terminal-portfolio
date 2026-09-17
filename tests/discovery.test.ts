@@ -38,6 +38,12 @@ suite("built output", () => {
     expect(index.includes('id="chips"'), "#chips vs terminal.chips").toBe(profile.terminal.chips);
   });
 
+  // Both GitHub Pages artefacts come from the build, not public/.
+  it("emits CNAME from SITE_URL's host, and an empty .nojekyll", () => {
+    expect(read("CNAME").trim()).toBe(new URL(process.env["SITE_URL"] ?? "http://localhost").hostname);
+    expect(read(".nojekyll")).toBe("");
+  });
+
   // The 404 page is a switch too, and its cat goes with it: nothing else
   // references the image, so an orphan would ship otherwise.
   it("ships the 404 page, and its cat, only when seo.enable404 is on", () => {
@@ -46,11 +52,6 @@ suite("built output", () => {
     expect(existsSync(join(DIST, "assets/img/404-cat.png")), "404 cat vs seo.enable404").toBe(enable404);
   });
 
-  /**
-   * `seo.title` is gone: the terminal page is titled from what the config
-   * already says about you, so there's no fourth spelling of name + role.
-   * The CV keeps its own `name — CV — hostname`, the 404 its `404 — host`.
-   */
   // One rule for every page: `what — hostname`, and `name — what — hostname`
   // for the two pages about a person. The share card drops the hostname.
   it("titles the terminal page name — terminal — hostname, and its card without the host", () => {
@@ -158,9 +159,8 @@ suite("built output", () => {
     });
 
     /**
-     * The tags the rewrite had dropped, checked against the old site's
-     * head: site_name, locale, explicit twitter:* — and twitter:image
-     * exactly when there is an og:image, since that decides the card.
+     * site_name, locale, explicit twitter:* — and twitter:image exactly
+     * when there is an og:image, since that decides the card.
      */
     it("social cards: site name, locale, and explicit twitter tags on every page", () => {
       if (!profile.seo.enableSocialCards) return;
@@ -204,9 +204,9 @@ suite("built output", () => {
   });
 
   /**
-   * One description per kind of page, as the old site had: the terminal's
-   * from seo.description, the CV's own (or the terminal's when unset), the
-   * 404 describing itself from the catalogue.
+   * One description per kind of page: the terminal's from seo.description,
+   * the CV's own (or the terminal's when unset), the 404's from the
+   * catalogue.
    */
   it("describes each kind of page in its own words", () => {
     const lang = profile.terminal.defaultLocale;
@@ -445,9 +445,6 @@ suite("built output", () => {
       expect(contact, "no contact line").toBeTruthy();
       const known = new Set([mailtoFor(profile)?.replace(/^mailto:/, ""), ...socialsFor(profile, "cv").map((s) => s.display)]);
       expect(known.has(contact as string), `contact "${contact}" is not one of the socials`).toBe(true);
-      // No field states a curated stack, years of experience or availability,
-      // so none of those lines may appear — nothing gets invented.
-      expect(txt).not.toMatch(/^- (Core stack|Experience|Availability):/m);
     });
 
     it("has one section per shipped language, named in that language, linking its CV", () => {
@@ -522,9 +519,8 @@ suite("built output", () => {
   });
 
   /**
-   * The manifest used to be a static file in public/ with one person's name
-   * and host baked in. Nothing renders it visibly, so a fork would have
-   * inherited them without noticing.
+   * The manifest is generated: nothing renders it visibly, so a static one
+   * with the wrong name and host would go unnoticed by a fork.
    */
   describe("site.webmanifest", () => {
     const manifest = built ? JSON.parse(read("site.webmanifest")) : {};

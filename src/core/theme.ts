@@ -32,12 +32,9 @@ const FALLBACK_MATRIX_COLOR = "#3dff8a";
 const FALLBACK_MATRIX_FADE = "rgba(2,4,3,0.08)";
 
 /**
- * Reads the matrix-rain colours the active theme declares.
- *
- * The old code kept a THEME_MAP in JS purely because "canvas can't read
- * CSS custom properties" — true of the canvas API, but `getComputedStyle`
- * reads them fine. So the map is gone and each theme's CSS file is the
- * single source of truth for its own colours.
+ * Reads the matrix-rain colours the active theme declares. Canvas can't
+ * read custom properties, but `getComputedStyle` can — so each theme's CSS
+ * is the only source of its colours.
  */
 function readMatrixTokens(): { color: string; fade: string } {
   const style = getComputedStyle(document.documentElement);

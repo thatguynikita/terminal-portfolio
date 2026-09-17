@@ -4,6 +4,7 @@ import { join } from "node:path";
 import profile, { MESSAGES } from "../profile.config";
 import { LOCALES, type Locale } from "../src/i18n/locales";
 import { SECRET_ID, THEME_IDS } from "../src/themes";
+import type { ProfileConfig } from "../src/core/profile";
 
 /**
  * `npm run check` — the preflight a fork runs before deploying.
@@ -56,6 +57,133 @@ function cvOnlyRowsWithoutCv(p: { cv?: unknown; skills?: Array<{ contexts?: stri
   return out;
 }
 
+/**
+ * Rules that hold for any config, run against the real one and both
+ * examples. Everything here reads the *resolved* profile, which is what
+ * every config exports, so the same code fits all three.
+ */
+function sharedRules(label: string, p: ProfileConfig): void {
+  // The launcher is typed as a fake shell file: `./<script>` has to parse as
+  // a path, and `ls` has to print it. A space or a slash would break both.
+  it("names the game launcher as a bare filename", () => {
+    if (!p.commands?.game) return; // no game is a valid setup
+    expect(p.commands.game.script, `${label}: game block without a script`).toBeTruthy();
+    expect(p.commands.game.script).toMatch(/^[\w.-]+$/);
+  });
+
+  it("dates the machine with an offset, when it dates it at all", () => {
+    expectValidSince(p.commands?.system?.since, label);
+  });
+
+  // The secret theme's visible name is free-form, but it must not shadow a
+  // public theme, and "secret" is the CSS id — a name would collide with it.
+  it("gives the secret theme a name no other theme has", () => {
+    const secret = p.commands?.system?.secretTheme;
+    if (secret === undefined) return;
+    expect(typeof secret, `${label}: secretTheme`).toBe("string");
+    expect(secret.trim(), `${label}: secretTheme is blank`).not.toBe("");
+    expect(secret).not.toBe(SECRET_ID);
+    expect(THEME_IDS, `${label}: secretTheme "${secret}" shadows a public theme`).not.toContain(secret);
+  });
+
+  it("names a theme that exists", () => {
+    const theme = p.terminal.defaultTheme;
+    if (theme !== "random") expect(THEME_IDS, `${label}: defaultTheme`).toContain(theme);
+  });
+
+  it("has a shell user and hostname", () => {
+    expect(p.terminal.handle.trim(), `${label}: handle`).not.toBe("");
+    expect(p.terminal.hostname.trim(), `${label}: hostname`).not.toBe("");
+  });
+
+  it("has usable social links, when it has any", () => {
+    for (const social of p.socials) {
+      expect(social.label.trim()).not.toBe("");
+      expect(social.display.trim()).not.toBe("");
+      expect(
+        /^(https?:|mailto:)/.test(social.href),
+        `${label}: ${social.label}: "${social.href}" is not a URL or mailto:`
+      ).toBe(true);
+    }
+  });
+
+  // The portrait isn't referenced from either shell — cv.html is generated
+  // — so without this a broken path ships a broken image on the CV and a
+  // dead <image:loc> in sitemap.xml, and check stays green.
+  it("points at assets that actually exist", () => {
+    const missing = [p.seo.ogImage, p.cv?.photo].filter(
+      (path): path is string => Boolean(path?.startsWith("/")) && !existsSync(join(ROOT, "public", path!.slice(1)))
+    );
+    expect(missing, `${label}: missing assets`).toEqual([]);
+  });
+
+  it("has neofetch rows and art when it has a card, and no empty skill list", () => {
+    if (p.neofetch) {
+      expect(p.neofetch.rows.length, `${label}: neofetch rows`).toBeGreaterThan(0);
+      expect(p.neofetch.ascii.trim(), `${label}: neofetch art`).not.toBe("");
+    }
+    // `skills: []` is the resolved form of "omitted"; a written empty list is
+    // the same thing, so nothing to assert beyond the shape.
+    expect(Array.isArray(p.skills)).toBe(true);
+  });
+
+  // A description is the one thing search engines and share cards can't
+  // invent well. Optional, but its absence is worth a line in the output.
+  it("warns, without failing, when seo.description is not set", () => {
+    if (p.seo.description) return;
+    console.warn(
+      `${label}: seo.description is not set — the terminal page ships with no meta description, no og:description, and llms.txt has no site summary; search engines will write their own snippet.`
+    );
+  });
+
+  // A row tagged for the CV can never render when there is no CV. That's a
+  // half-removed résumé, not a preference, so it fails rather than hides.
+  it("tags no skill or social for a CV that isn't configured", () => {
+    expect(cvOnlyRowsWithoutCv(p)).toEqual([]);
+  });
+
+  it("gives every ssh persona a host and at least one question", () => {
+    for (const [key, persona] of Object.entries(p.commands?.ssh?.personas ?? {})) {
+      expect(persona.host, `${label}: ${key} has no host`).toMatch(/\S/);
+      expect(persona.qa.length, `${label}: ${key} has no questions`).toBeGreaterThan(0);
+      const cmds = persona.qa.map((q) => q.cmd);
+      expect(new Set(cmds).size, `${label}: ${key} has duplicate question commands`).toBe(cmds.length);
+      // These would collide with the mode's own exit words.
+      for (const cmd of cmds) expect(["exit", "logout", "quit", "help"]).not.toContain(cmd);
+    }
+  });
+}
+
+describe("the cv-context rule", () => {
+  it("names the row that can never render", () => {
+    const bad = { skills: [{ contexts: ["cv"] }, { contexts: ["terminal", "cv"] }], socials: [{ contexts: ["cv"] }] };
+    expect(cvOnlyRowsWithoutCv(bad)).toEqual([
+      "skills[0] is tagged for the CV, but no cv is configured",
+      "socials[0] is tagged for the CV, but no cv is configured",
+    ]);
+    expect(cvOnlyRowsWithoutCv({ ...bad, cv: {} })).toEqual([]);
+  });
+});
+
+/** The two shells are hand-written HTML; anything they reference by root-absolute path must be in public/. */
+describe("pages/", () => {
+  it("reference assets that actually exist", () => {
+    // Emitted by the build rather than shipped in public/.
+    const generated = new Set(["/site.webmanifest", "/sitemap.xml", "/robots.txt", "/llms.txt"]);
+    const missing: string[] = [];
+    for (const page of ["index.html", "404.html"]) {
+      const html = readFileSync(join(ROOT, "pages", page), "utf8");
+      for (const match of html.matchAll(/(?:href|src)="(\/[^"]+)"/g)) {
+        const path = match[1] ?? "";
+        // /src/* are Vite module entries, not files served from public/.
+        if (path.startsWith("/src/") || generated.has(path)) continue;
+        if (!existsSync(join(ROOT, "public", path.slice(1)))) missing.push(`${page}: ${path}`);
+      }
+    }
+    expect(missing).toEqual([]);
+  });
+});
+
 describe("profile.config.ts", () => {
   // `defaultLocale` being one of the shipped locales is a *compile* error
   // now that Locale is `keyof typeof MESSAGES`, so what's left to assert at
@@ -84,32 +212,6 @@ describe("profile.config.ts", () => {
     expect(gaps).toEqual([]);
   });
 
-  // The launcher is typed as a fake shell file: `./<script>` has to parse as
-  // a path, and `ls` has to print it. A space or a slash would break both.
-  it("names the game launcher as a bare filename", () => {
-    if (!profile.commands?.game) return;
-    expect(profile.commands?.game.script).toMatch(/^[\w.-]+$/);
-  });
-
-  it("dates the machine with an offset, when it dates it at all", () => {
-    expectValidSince(profile.commands?.system?.since, "profile.config.ts");
-  });
-
-  // The secret theme's visible name is free-form, but it must not shadow a
-  // public theme, and "secret" is the CSS id — a name would collide with it.
-  it("gives the secret theme a name no other theme has", () => {
-    const secret = profile.commands?.system?.secretTheme;
-    if (secret === undefined) return;
-    expect(secret.trim(), "secretTheme is blank").not.toBe("");
-    expect(secret).not.toBe(SECRET_ID);
-    expect(THEME_IDS, `secretTheme "${secret}" shadows a public theme`).not.toContain(secret);
-  });
-
-  it("names a theme that exists", () => {
-    const theme = profile.terminal.defaultTheme;
-    if (theme !== "random") expect(THEME_IDS).toContain(theme);
-  });
-
   // SITE_URL is the one deployment fact that isn't in the config: the
   // origin for every absolute URL and the CNAME. `vite build` refuses to
   // run without it. Here it's only checked for shape when present, since
@@ -121,102 +223,12 @@ describe("profile.config.ts", () => {
     expect(new URL(siteUrl).hostname).not.toMatch(/\.example$/);
   });
 
-  it("has usable social links, when it has any", () => {
-    for (const social of profile.socials) {
-      expect(social.label.trim()).not.toBe("");
-      expect(social.display.trim()).not.toBe("");
-      expect(
-        /^(https?:|mailto:)/.test(social.href),
-        `${social.label}: "${social.href}" is not a URL or mailto:`
-      ).toBe(true);
-    }
-  });
-
-  it("has a shell user and hostname", () => {
-    expect(profile.terminal.handle.trim()).not.toBe("");
-    expect(profile.terminal.hostname.trim()).not.toBe("");
-  });
-
-  it("points at assets that actually exist", () => {
-    const missing: string[] = [];
-    const check = (path: string | undefined): void => {
-      if (!path?.startsWith("/")) return;
-      if (!existsSync(join(ROOT, "public", path.slice(1)))) missing.push(path);
-    };
-    check(profile.seo.ogImage);
-    // The CV portrait. It isn't referenced from either shell — cv.html is
-    // generated — so without this line a broken path ships a broken image
-    // on the CV and a dead <image:loc> in sitemap.xml, and check stays green.
-    check(profile.cv?.photo);
-
-    // Anything the two pages reference by root-absolute path.
-    for (const page of ["index.html", "404.html"]) {
-      const html = readFileSync(join(ROOT, "pages", page), "utf8");
-      // Emitted by the build rather than shipped in public/, so they are
-      // only on disk after `vite build`.
-      const generated = new Set([
-        "/site.webmanifest",
-        "/sitemap.xml",
-        "/robots.txt",
-        "/llms.txt",
-      ]);
-      for (const match of html.matchAll(/(?:href|src)="(\/[^"]+)"/g)) {
-        // /src/* are Vite module entries, not files served from public/.
-        if (match[1]?.startsWith("/src/")) continue;
-        if (generated.has(match[1] ?? "")) continue;
-        check(match[1]);
-      }
-    }
-    expect(missing).toEqual([]);
-  });
-
-  it("has neofetch rows and art when it has a card, and no empty skill list", () => {
-    if (profile.neofetch) {
-      expect(profile.neofetch.rows.length).toBeGreaterThan(0);
-      expect(profile.neofetch.ascii.trim()).not.toBe("");
-    }
-    // `skills: []` is the resolved form of "omitted"; a written empty list is
-    // the same thing, so nothing to assert beyond the shape.
-    expect(Array.isArray(profile.skills)).toBe(true);
-  });
-
-  // A description is the one thing search engines and share cards can't
-  // invent well. Optional, but its absence is worth a line in the output.
-  it("warns, without failing, when seo.description is not set", () => {
-    if (profile.seo.description) return;
-    console.warn(
-      "profile.config.ts: seo.description is not set — the terminal page ships with no meta description, no og:description, and llms.txt has no site summary; search engines will write their own snippet."
-    );
-  });
-
-  /**
-   * A row tagged for the CV can never render when there is no CV. That's a
-   * half-removed résumé, not a preference, so it fails rather than hides.
-   */
-  it("tags no skill or social for a CV that isn't configured", () => {
-    expect(cvOnlyRowsWithoutCv(profile)).toEqual([]);
-  });
-
-  it("gives every ssh persona a host and at least one question", () => {
-    for (const [key, persona] of Object.entries(profile.commands?.ssh?.personas ?? {})) {
-      expect(persona.host, `${key} has no host`).toMatch(/\S/);
-      expect(persona.qa.length, `${key} has no questions`).toBeGreaterThan(0);
-      const cmds = persona.qa.map((q) => q.cmd);
-      expect(new Set(cmds).size, `${key} has duplicate question commands`).toBe(cmds.length);
-      // These would collide with the mode's own exit words.
-      for (const cmd of cmds) expect(["exit", "logout", "quit", "help"]).not.toContain(cmd);
-    }
-  });
+  sharedRules("profile.config.ts", profile);
 });
 
 /**
- * The example config is what a fork copies first, and nothing imports it —
- * tsc never sees it, so it can rot silently. These checks are structural
- * rather than semantic: it must parse, cover the same keys, and stay
- * single-language.
- */
-/**
- * Both example configs, checked against the same rules.
+ * Both example configs, checked against the same rules — they are what a
+ * fork copies first, and nothing imports them, so they could rot silently.
  *
  * Neither is in tsconfig's `include`, and they can't be: `Localized` is
  * `Record<Locale, T>` where `Locale` comes from the *live* config's
@@ -316,45 +328,11 @@ describe.each([
     for (const key of ["search", "aiTrain", "aiInput"]) bool(signal?.[key], `seo.contentSignal.${key}`);
   });
 
-  it("dates the machine with an offset, when it dates it at all", () => {
-    const { commands } = mod!.default as { commands?: { system?: { since?: unknown } } };
-    expectValidSince(commands?.system?.since, file);
-  });
-
-  it("tags no skill or social for a CV that isn't configured", () => {
-    expect(cvOnlyRowsWithoutCv(mod!.default as Parameters<typeof cvOnlyRowsWithoutCv>[0])).toEqual([]);
-  });
-
-  it("proves the cv-context rule bites", () => {
-    const bad = { skills: [{ contexts: ["cv"] }, { contexts: ["terminal", "cv"] }], socials: [{ contexts: ["cv"] }] };
-    expect(cvOnlyRowsWithoutCv(bad)).toEqual([
-      "skills[0] is tagged for the CV, but no cv is configured",
-      "socials[0] is tagged for the CV, but no cv is configured",
-    ]);
-    expect(cvOnlyRowsWithoutCv({ ...bad, cv: {} })).toEqual([]);
-  });
-
-  it("gives the secret theme a name no other theme has", () => {
-    const { commands } = mod!.default as { commands: { system?: { secretTheme?: unknown } } };
-    const secret = commands.system?.secretTheme;
-    if (secret === undefined) return;
-    expect(typeof secret, `${file}: secretTheme`).toBe("string");
-    expect(secret).not.toBe(SECRET_ID);
-    expect(THEME_IDS, `${file}: secretTheme shadows a public theme`).not.toContain(secret);
-  });
-
   it("sends nobody into src/ to change languages", () => {
     // The whole point of deriving Locale from MESSAGES: picking languages is
     // this file and nothing else. A numbered recipe pointing at src/i18n
     // means that promise has quietly broken.
     expect(example, "the header should not send anyone into src/").not.toMatch(/\d\.\s+src\/i18n/);
-  });
-
-  it("names its game launcher, as a bare filename", () => {
-    const { commands } = mod!.default as { commands: { game?: { script?: unknown } } };
-    if (!commands.game) return; // no game is a valid setup
-    expect(commands.game.script, "game block without a script").toBeTruthy();
-    expect(commands.game.script).toMatch(/^[\w.-]+$/);
   });
 
   it("keeps its own hosts non-resolving, apart from real social platforms", () => {
@@ -364,4 +342,7 @@ describe.each([
     const live = hosts.filter((h) => !h.endsWith(".example") && !platforms.test(h));
     expect(live, "example points at a live host").toEqual([]);
   });
+
+  // The rules any config must meet, on the resolved profile the example exports.
+  sharedRules(file, mod!.default as ProfileConfig);
 });

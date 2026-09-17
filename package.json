@@ -3,7 +3,7 @@
   "version": "0.1.0",
   "private": true,
   "type": "module",
-  "description": "Interactive terminal portfolio — a forkable template. Add a command by dropping a file in src/commands/.",
+  "description": "Personal site as a fake terminal — commands, easter eggs, themes and a prerendered CV — driven by one profile.config.ts.",
   "license": "MIT",
   "engines": {
     "node": ">=20"

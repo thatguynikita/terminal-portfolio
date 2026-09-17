@@ -2,23 +2,14 @@ import { mailtoFor, type ProfileConfig } from "./profile";
 import { LOCALES, type Locale } from "../i18n/locales";
 
 /**
- * Structured data for the two page kinds.
+ * Structured data for the two page kinds. Every property is *derived* from
+ * config that exists for other reasons (skills, the CV's jobs, certs,
+ * education, languages), so nothing can quietly contradict the visible
+ * page; a section the config doesn't have is omitted, never emitted empty.
  *
- * Every property is *derived* from config that exists for other reasons —
- * the skills table, the CV's jobs, certs, education and languages — so
- * there is nothing extra to keep in sync and nothing that can quietly
- * contradict the visible page. A section the config doesn't have is
- * omitted, never emitted empty.
- *
- *   terminal page  → `@graph` of a WebSite (the locales it serves) and the
- *                    Person, linked by `@id`
- *   CV pages       → a ProfilePage whose mainEntity is the same Person,
- *                    plus what only the CV knows: alumniOf, hasCredential,
- *                    hasOccupation (the current title) and affiliation
- *                    (every employer)
- *
- * What is deliberately *not* here: an address (dropped from config) and
- * anything about availability — nothing in the config states it.
+ *   terminal page  → `@graph` of a WebSite and the Person, linked by `@id`
+ *   CV pages       → a ProfilePage whose mainEntity is the same Person plus
+ *                    alumniOf, hasCredential, hasOccupation, affiliation
  */
 
 /** `AWS (primarily), GCP` → `["AWS (primarily)", "GCP"]`, deduped, order kept. */

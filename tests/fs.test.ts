@@ -36,11 +36,7 @@ describe("filesystem", () => {
     }
   });
 
-  /**
-   * `ls` used to count the <span>/<a> wrappers a rendered file adds,
-   * reporting contact.txt as 950 bytes for 184 bytes of visible text.
-   * Size must track what `cat` shows, not how it is marked up.
-   */
+  /** Size must track what `cat` shows, not the <span>/<a> wrappers a rendered file adds. */
   describe("size", () => {
     const bytes = (s: string): number => new TextEncoder().encode(s).length;
     const stripped = (s: string): string =>

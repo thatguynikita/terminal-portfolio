@@ -79,9 +79,8 @@ describe("i18n", () => {
   });
 
   // A translation that drops {host} renders a sentence with a hole in it.
-  // Arrays are checked item by item. This test used to skip them, which
-  // left every placeholder inside a scripted sequence — {host} in the boot
-  // lines, {script} in the launcher — unchecked in every catalogue.
+  // Arrays are checked item by item — the scripted sequences ({host} in the
+  // boot lines, {script} in the launcher) are where it goes wrong.
   it("interpolation placeholders match across catalogues", () => {
     const mismatches: string[] = [];
     const compare = (locale: string, key: string, value: unknown, expected: unknown): void => {

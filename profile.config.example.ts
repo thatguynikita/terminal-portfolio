@@ -45,8 +45,9 @@ export default defineProfile(MESSAGES, {
      */
     // handle: "guest",
     /**
-     * Cosmetic — the prompt and `uname`. Defaults to the host of SITE_URL,
-     * which is where the site is published (every absolute URL, the CNAME).
+     * The prompt, `uname`, every page title, og:site_name and the manifest's
+     * short name. Defaults to the host of SITE_URL — where the site is
+     * published.
      */
     hostname: "marina.example",
     /**
@@ -90,7 +91,7 @@ export default defineProfile(MESSAGES, {
 
   /**
    * What machines see: descriptions, structured data, the discovery files,
-   * and a switch for each.
+   * the 404 page — and a switch for each.
    */
   seo: {
     /**
@@ -109,8 +110,8 @@ export default defineProfile(MESSAGES, {
     description: {
       en: "Interactive terminal portfolio of a data engineer with 10 years of experience. Type `help` to explore.",
     },
+    /** Every enable* switch below defaults to true; the whole seo block can be omitted. */
     /**
-     * Every enable* switch below defaults to true; the whole seo block can be omitted.
      * The 404 page (404.html) — what the host serves for a missing URL. Off
      * for a host that serves its own; the 404 cat is then not shipped either.
      */
@@ -392,7 +393,7 @@ before a dashboard lies, and documentation someone reads at 2am.`,
       en: "Belgrade, Serbia · EU work authorisation · remote-first, open to hybrid in CET",
     },
 
-    /** Shown at the top of the CV, under the contact row. */
+    /** The first section of the CV, before the experience. */
     about: {
       en: "Data engineer with ten years spent turning messy operational data into models people actually trust. I build batch and streaming pipelines, keep warehouses fast and cheap, and care rather too much about column naming. Looking for a team that treats data as a product — with real ownership, a roadmap, and the patience to model things properly the first time.",
     },

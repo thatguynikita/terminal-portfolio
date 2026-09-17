@@ -45,10 +45,7 @@ export interface Output {
 
 /* ---------------- arguments ---------------- */
 
-/**
- * Parsed command arguments. Replaces the ad-hoc re-parsing each command
- * used to do (`ls` and `ll` duplicated the same flag loop verbatim).
- */
+/** Parsed command arguments, shared by every command. */
 export interface Args {
   /** The name actually typed — lets aliases behave differently (`ll`). */
   name: string;
@@ -122,10 +119,7 @@ export interface ThemeController {
 
 /* ---------------- modes ---------------- */
 
-/**
- * A sub-REPL that takes over input (`ssh` persona chat, `top`).
- * Lifts what used to be hardcoded branches at the top of the dispatcher.
- */
+/** A sub-REPL that takes over input (`ssh` persona chat, `top`). */
 export interface Mode {
   name: string;
   /** Prompt HTML while this mode is active. */

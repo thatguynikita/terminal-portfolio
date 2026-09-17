@@ -61,7 +61,7 @@ describe("themes", () => {
     }
   });
 
-  it("declares matrix-rain colours, replacing the old THEME_MAP", () => {
+  it("declares its matrix-rain colours", () => {
     for (const file of files) {
       const css = readFileSync(join(DIR, file), "utf8");
       expect(css, `${file} is missing --matrix-color`).toContain("--matrix-color");

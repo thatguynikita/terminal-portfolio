@@ -45,10 +45,9 @@ export function renderCv(profile: ProfileConfig, locale: Locale): string {
   const prompt = `${esc(terminal.handle)}@${esc(terminal.hostname)}:~$`;
 
   /**
-   * The filename is the heading text; the prompt and command are decoration.
-   * The predecessor put the whole `guest@nikita.sh:~$ cat about.txt` string
-   * inside the heading, so crawlers, screen readers and the document outline
-   * saw shell syntax rather than a section name.
+   * The filename is the heading text; the prompt and command are decoration,
+   * so crawlers, screen readers and the outline see a section name, not
+   * shell syntax.
    */
   const head = (key: SectionKey): string => {
     const { cmd, file } = SECTIONS[key];

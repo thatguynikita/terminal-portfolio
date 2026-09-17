@@ -56,8 +56,9 @@ up automatically; with `seo.enable404: false` there is none, and GitHub
 serves its own 404.)
 
 The build emits a `CNAME` file from `SITE_URL`'s host so your custom domain
-survives each deploy — replacing the branch would otherwise clear it. HTTPS takes
-a few minutes to provision the first time.
+survives each deploy — replacing the branch would otherwise clear it — and an
+empty `.nojekyll`, so Pages serves `dist/` as-is instead of running Jekyll over
+it. HTTPS takes a few minutes to provision the first time.
 
 ### Previewing without pushing
 

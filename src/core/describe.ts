@@ -43,7 +43,7 @@ export function systemOwner(profile: ProfileConfig): string {
 /**
  * When the machine came up: `commands.system.since` if it parses, else the
  * build. `uptime` counts from it and `uname -a` / `ls -l` stamp it, so all
- * three agree — they used to carry the date as three separate literals.
+ * three agree.
  */
 export function systemSince(profile: ProfileConfig): Date {
   const configured = profile.commands?.system?.since;

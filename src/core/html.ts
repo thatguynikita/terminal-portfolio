@@ -13,25 +13,12 @@ export function sleep(ms: number): Promise<void> {
 }
 
 /**
- * Whether to play typewriter/pacing animations at full speed.
- *
- * Skipped when the visitor asked for reduced motion, and when the tab is
- * hidden — a backgrounded tab has its timers clamped to once a second
- * (once a minute after Chrome escalates), so an animation started there
- * would strand the terminal mid-line until the tab is focused again.
- * Re-read every call, since both conditions change during a session.
- */
-/**
  * Resolves once the document is visible — at once when it already is.
  *
- * A page can start hidden: Chrome prerenders a URL it expects the visitor
- * to open (typed into the omnibox, or a link with speculation rules), and a
- * tab opened in the background is the same. `document.hidden` is true, so
- * every paced sleep is skipped and the whole intro lands on the page
- * already rendered — the visitor's first sight of it is the finished
- * transcript, not the boot. Anything that should be *watched* waits here
- * first; `animationsEnabled()` still decides what happens if the tab is
- * hidden mid-way.
+ * A page can start hidden (a Chrome prerender, a background tab); with
+ * `document.hidden` true every paced sleep is skipped and the intro would
+ * land fully rendered before anyone looks. Anything meant to be watched
+ * waits here first.
  */
 export function untilVisible(): Promise<void> {
   if (typeof document === "undefined" || !document.hidden) return Promise.resolve();
@@ -48,6 +35,15 @@ export function untilVisible(): Promise<void> {
   });
 }
 
+/**
+ * Whether to play typewriter/pacing animations at full speed.
+ *
+ * Skipped when the visitor asked for reduced motion, and when the tab is
+ * hidden — a backgrounded tab has its timers clamped to once a second
+ * (once a minute after Chrome escalates), so an animation started there
+ * would strand the terminal mid-line until the tab is focused again.
+ * Re-read every call, since both conditions change during a session.
+ */
 export function animationsEnabled(): boolean {
   if (typeof document !== "undefined" && document.hidden) return false;
   try {
