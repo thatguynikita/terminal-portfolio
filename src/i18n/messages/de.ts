@@ -140,7 +140,10 @@ const de: Messages = {
       "das Nachmittagstief, Surfen als Bewältigungsstrategie",
       "Nachmittagsenergie, hält sich wacker",
     ],
-    evening: ["Abendsurfen, die guten Sachen", "beste Scroll-Stunden, ganz ohne schlechtes Gewissen"],
+    evening: [
+      "Abendsurfen, die guten Sachen",
+      "beste Scroll-Stunden, ganz ohne schlechtes Gewissen",
+    ],
     night: ["solltest längst schlafen", "noch ein Tab vor dem Schlafen, na klar"],
   },
 
@@ -301,7 +304,8 @@ const de: Messages = {
       "revert: Nutzer hat diesmal weniger nett gefragt :(",
     ],
     logFooter: `<span class="dim">diese Website hat eine längere Commit-Historie mit mir als die meisten meiner echten Beziehungen</span>`,
-    confess: "ja — dieses Terminal ist entstanden, indem jemand eine KI gefragt hat (hallo, das bin ich).",
+    confess:
+      "ja — dieses Terminal ist entstanden, indem jemand eine KI gefragt hat (hallo, das bin ich).",
     lightTheme1: [
       "Ich sehe mir die aktuelle Farbschema-Einrichtung an.",
       "Gefunden — diese Seite hat kein helles Farbschema. Hatte sie nie. Wird sie nie haben.",
@@ -345,7 +349,7 @@ const de: Messages = {
     game: [
       "#!/bin/bash",
       "# {script} — nicht lesen, einfach ausführen",
-      "# siehe auch: <a href=\"{url}\" target=\"_blank\" rel=\"noopener\">{url}</a>",
+      '# siehe auch: <a href="{url}" target="_blank" rel="noopener">{url}</a>',
       "# Hinweis: du brauchst sudo",
       'echo "eine kleine Überraschung wird geöffnet ..."',
       "xdg-open {url} 2&gt;/dev/null",
@@ -356,7 +360,8 @@ const de: Messages = {
     message: "Datei oder Verzeichnis nicht gefunden",
     description: "404 — Seite nicht gefunden.",
     quip: "Hoppla! Sieht aus, als hätte die Katze die ganze Kondensmilch gefressen ... und diese Seite gleich mit.",
-    catAlt: "Eine orange Katze liegt müde auf dem Rücken, umgeben von verschütteten Kondensmilchdosen.",
+    catAlt:
+      "Eine orange Katze liegt müde auf dem Rücken, umgeben von verschütteten Kondensmilchdosen.",
     back: "zurück zum Terminal",
     unknownPage: "unbekannte-seite",
     switchTo: "Sprache wechseln",
@@ -373,7 +378,6 @@ const de: Messages = {
     backToTerminal: "zurück zum Terminal",
     switchLanguage: "Sprache wechseln",
   },
-
 };
 
 export default de;

@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { messages, interpolate } from "../src/i18n/index.ts";
+import { interpolate, messages } from "../src/i18n/index.ts";
 import { LOCALES } from "../src/i18n/locales.ts";
 
 type Node = Record<string, unknown>;
@@ -48,7 +48,7 @@ const catalogues = Object.fromEntries(
   Object.entries(modules).map(([path, mod]) => [
     (path.split("/").pop() as string).replace(/\.ts$/, ""),
     flatten(mod.default),
-  ])
+  ]),
 ) as Record<string, Map<string, unknown>>;
 
 const CODES = Object.keys(catalogues).sort();
@@ -63,8 +63,14 @@ describe("i18n", () => {
   it("every catalogue has the same keys as the schema", () => {
     for (const locale of CODES) {
       const other = catalogues[locale] as Map<string, unknown>;
-      expect([...base.keys()].filter((k) => !other.has(k)), `missing in ${locale}`).toEqual([]);
-      expect([...other.keys()].filter((k) => !base.has(k)), `extra in ${locale}`).toEqual([]);
+      expect(
+        [...base.keys()].filter((k) => !other.has(k)),
+        `missing in ${locale}`,
+      ).toEqual([]);
+      expect(
+        [...other.keys()].filter((k) => !base.has(k)),
+        `extra in ${locale}`,
+      ).toEqual([]);
     }
   });
 
@@ -85,7 +91,7 @@ describe("i18n", () => {
     const mismatches: string[] = [];
     const compare = (locale: string, key: string, value: unknown, expected: unknown): void => {
       if (Array.isArray(value) && Array.isArray(expected)) {
-        value.forEach((item, i) => compare(locale, `${key}[${i}]`, item, expected[i]));
+        for (const [i, item] of value.entries()) compare(locale, `${key}[${i}]`, item, expected[i]);
         return;
       }
       if (typeof value !== "string" || typeof expected !== "string") return;
@@ -108,7 +114,7 @@ describe("i18n", () => {
     const mismatches: string[] = [];
     const compare = (locale: string, key: string, value: unknown, expected: unknown): void => {
       if (Array.isArray(value) && Array.isArray(expected)) {
-        value.forEach((item, i) => compare(locale, `${key}[${i}]`, item, expected[i]));
+        for (const [i, item] of value.entries()) compare(locale, `${key}[${i}]`, item, expected[i]);
         return;
       }
       if (typeof value !== "string" || typeof expected !== "string") return;
@@ -130,14 +136,18 @@ describe("i18n", () => {
   it("uses no bare < > & outside tags and known entities", () => {
     const offenders: string[] = [];
     const check = (locale: string, key: string, value: unknown): void => {
-      if (Array.isArray(value)) return value.forEach((item, i) => check(locale, `${key}[${i}]`, item));
+      if (Array.isArray(value)) {
+        for (const [i, item] of value.entries()) check(locale, `${key}[${i}]`, item);
+        return;
+      }
       if (typeof value !== "string") return;
       const stripped = value.replace(/<\/?[a-z]+(?:\s[^>]*)?>/g, "").replace(KNOWN_ENTITIES, "");
       const leftover = stripped.replace(new RegExp(KNOWN_ENTITIES.source, "gi"), "");
       if (/[<>&]/.test(leftover)) offenders.push(`${locale}/${key}: ${JSON.stringify(value)}`);
     };
     for (const locale of CODES) {
-      for (const [key, value] of catalogues[locale] as Map<string, unknown>) check(locale, key, value);
+      for (const [key, value] of catalogues[locale] as Map<string, unknown>)
+        check(locale, key, value);
     }
     expect(offenders).toEqual([]);
   });
@@ -148,7 +158,10 @@ describe("i18n", () => {
     for (const locale of CODES) {
       if (locale === "en") continue;
       for (const key of ["lang.set", "notFound.announce"]) {
-        expect(catalogues[locale]!.get(key), `${locale}/${key} is still the English string`).not.toBe(base.get(key));
+        expect(
+          catalogues[locale]!.get(key),
+          `${locale}/${key} is still the English string`,
+        ).not.toBe(base.get(key));
       }
     }
   });

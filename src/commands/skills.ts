@@ -1,6 +1,6 @@
-import { defineCommand } from "../core/types.ts";
-import { skillsFor } from "../core/profile.ts";
 import profile from "../../profile.config.ts";
+import { skillsFor } from "../core/profile.ts";
+import { defineCommand } from "../core/types.ts";
 
 export default defineCommand({
   name: "skills",
@@ -12,7 +12,7 @@ export default defineCommand({
       skillsFor(ctx.profile, "terminal").map((s) => [
         ctx.escape(s.key[ctx.lang]),
         ctx.escape(s.value),
-      ])
+      ]),
     );
   },
 });

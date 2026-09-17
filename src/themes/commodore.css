@@ -1,44 +1,45 @@
 /* ---------- commodore (Commodore 64, 1982) ----------
    Palette from https://github.com/TOQIR-AHMAD/Unix-Epoch's Commodore 64
    terminal theme — deep blue-purple screen, light blue-lavender text. */
-:root[data-theme="commodore"]{
+:root[data-theme="commodore"] {
   /* bg/fg lightened+darkened from the reference repo's literal C64 values
      (#40318d/#7869c4, an authentically washed-out 2.26:1 on real hardware)
      to clear WCAG AA (4.5:1) while keeping the same hue — real CRTs got a
      pass on contrast a website doesn't. */
-  --bg:#291f5a;
-  --bg-rgb:41,31,90;
-  --fg:#9286d0;
-  --fg-dim:#7364c3;
-  --fg-dim2:#4a3b99;
-  --accent:#ffffb2;
-  --amber:#94e089;
-  --amber-glow:0 0 6px #94e08999;
-  --red:#b86962;
-  --border:#9286d047;
-  --glow:0 0 4px #9286d0, 0 0 12px #9286d088, 0 0 24px #9286d044;
-  --ambient:#9286d00f;
-  --ambient-inset:#9286d008;
-  --tint-rgb:146,134,208;
-  --term-g1:rgba(63,48,139,.92);
-  --term-g2:rgba(43,32,94,.96);
-  --term-head-bg:rgba(20,14,45,.35);
-  --chips-bg:rgba(15,10,35,.25);
-  --boot-bg:#1e1641;
-  --vignette-bg:radial-gradient(ellipse at center, rgba(0,0,0,0) 55%, rgba(0,0,0,.55) 100%);
-  --game-frame-g1:rgba(63,48,139,.96);
-  --game-frame-g2:rgba(43,32,94,.98);
-  --game-hint-bg:rgba(15,10,35,.3);
-  --game-filter:grayscale(.55) sepia(.5) hue-rotate(-141deg) saturate(1.8) brightness(1.08) contrast(1.02);
+  --bg: #291f5a;
+  --bg-rgb: 41, 31, 90;
+  --fg: #9286d0;
+  --fg-dim: #7364c3;
+  --fg-dim2: #4a3b99;
+  --accent: #ffffb2;
+  --amber: #94e089;
+  --amber-glow: 0 0 6px #94e08999;
+  --red: #b86962;
+  --border: #9286d047;
+  --glow: 0 0 4px #9286d0, 0 0 12px #9286d088, 0 0 24px #9286d044;
+  --ambient: #9286d00f;
+  --ambient-inset: #9286d008;
+  --tint-rgb: 146, 134, 208;
+  --term-g1: rgba(63, 48, 139, 0.92);
+  --term-g2: rgba(43, 32, 94, 0.96);
+  --term-head-bg: rgba(20, 14, 45, 0.35);
+  --chips-bg: rgba(15, 10, 35, 0.25);
+  --boot-bg: #1e1641;
+  --vignette-bg: radial-gradient(ellipse at center, rgba(0, 0, 0, 0) 55%, rgba(0, 0, 0, 0.55) 100%);
+  --game-frame-g1: rgba(63, 48, 139, 0.96);
+  --game-frame-g2: rgba(43, 32, 94, 0.98);
+  --game-hint-bg: rgba(15, 10, 35, 0.3);
+  --game-filter: grayscale(0.55) sepia(0.5) hue-rotate(-141deg) saturate(1.8) brightness(1.08)
+    contrast(1.02);
   /* matrix-rain canvas can't read CSS vars directly — theme.ts reads
      these two via getComputedStyle and hands them to the canvas. */
-  --matrix-color:#7869c4;
-  --matrix-fade:rgba(2,4,3,0.08);
+  --matrix-color: #7869c4;
+  --matrix-fade: rgba(2, 4, 3, 0.08);
 }
 
 /* The .crt flicker is calibrated against near-black backgrounds; on
    this one the periodic opacity dip reads as a visible flash. */
-:root[data-theme="commodore"] .crt{
-  animation:none;
-  opacity:.9;
+:root[data-theme="commodore"] .crt {
+  animation: none;
+  opacity: 0.9;
 }

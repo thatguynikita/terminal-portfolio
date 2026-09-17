@@ -337,7 +337,7 @@ const es: Messages = {
     game: [
       "#!/bin/bash",
       "# {script} — no lo leas, simplemente ejecútalo",
-      "# ver también: <a href=\"{url}\" target=\"_blank\" rel=\"noopener\">{url}</a>",
+      '# ver también: <a href="{url}" target="_blank" rel="noopener">{url}</a>',
       "# nota: vas a necesitar sudo",
       'echo "abriendo una pequeña sorpresa..."',
       "xdg-open {url} 2&gt;/dev/null",
@@ -348,7 +348,8 @@ const es: Messages = {
     message: "No existe el archivo o el directorio",
     description: "404 — página no encontrada.",
     quip: "¡Vaya! Parece que el gato se ha comido toda la leche condensada... y esta página también.",
-    catAlt: "Un gato naranja tumbado boca arriba, agotado, rodeado de latas de leche condensada derramadas.",
+    catAlt:
+      "Un gato naranja tumbado boca arriba, agotado, rodeado de latas de leche condensada derramadas.",
     back: "volver a la terminal",
     unknownPage: "pagina-desconocida",
     switchTo: "Cambiar de idioma",
@@ -365,7 +366,6 @@ const es: Messages = {
     backToTerminal: "volver a la terminal",
     switchLanguage: "Cambiar de idioma",
   },
-
 };
 
 export default es;

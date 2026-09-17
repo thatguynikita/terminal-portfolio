@@ -1,8 +1,8 @@
-import { describe, expect, it } from "vitest";
-import { readFileSync, readdirSync } from "node:fs";
+import { readdirSync, readFileSync } from "node:fs";
 import { join } from "node:path";
-import { SECRET_ID, THEME_IDS } from "../src/themes/index.ts";
+import { describe, expect, it } from "vitest";
 import { publicThemes, themeId, themeNames } from "../src/core/theme.ts";
+import { SECRET_ID, THEME_IDS } from "../src/themes/index.ts";
 
 const DIR = join(process.cwd(), "src/themes");
 const files = readdirSync(DIR).filter((f) => f.endsWith(".css"));

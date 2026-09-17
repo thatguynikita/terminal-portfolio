@@ -3,33 +3,34 @@
    "DEC VT52 Amber" theme — warm near-black, #ffb000 phosphor. Accent
    and the amber/warn slot borrow green's fg/bright-white, mirroring
    green's block above. */
-:root[data-theme="amber"]{
-  --bg:#120b00;
-  --bg-rgb:18,11,0;
-  --fg:#ffb000;
-  --fg-dim:#a27000;
-  --fg-dim2:#724f00;
-  --accent:#00ff41;
-  --amber:#ffe0a3;
-  --amber-glow:0 0 6px #ffe0a399;
-  --red:#ff5f56;
-  --border:#ffb00047;
-  --glow:0 0 4px #ffb000, 0 0 12px #ffb00088, 0 0 24px #ffb00044;
-  --ambient:#ffb0000f;
-  --ambient-inset:#ffb00008;
-  --tint-rgb:255,176,0;
-  --term-g1:rgba(35,22,4,.92);
-  --term-g2:rgba(14,8,0,.96);
-  --term-head-bg:rgba(10,6,0,.35);
-  --chips-bg:rgba(8,5,0,.25);
-  --boot-bg:#0a0600;
-  --vignette-bg:radial-gradient(ellipse at center, rgba(0,0,0,0) 55%, rgba(0,0,0,.55) 100%);
-  --game-frame-g1:rgba(35,22,4,.96);
-  --game-frame-g2:rgba(14,8,0,.98);
-  --game-hint-bg:rgba(8,5,0,.3);
-  --game-filter:grayscale(.55) sepia(.5) hue-rotate(3deg) saturate(1.8) brightness(1.08) contrast(1.02);
+:root[data-theme="amber"] {
+  --bg: #120b00;
+  --bg-rgb: 18, 11, 0;
+  --fg: #ffb000;
+  --fg-dim: #a27000;
+  --fg-dim2: #724f00;
+  --accent: #00ff41;
+  --amber: #ffe0a3;
+  --amber-glow: 0 0 6px #ffe0a399;
+  --red: #ff5f56;
+  --border: #ffb00047;
+  --glow: 0 0 4px #ffb000, 0 0 12px #ffb00088, 0 0 24px #ffb00044;
+  --ambient: #ffb0000f;
+  --ambient-inset: #ffb00008;
+  --tint-rgb: 255, 176, 0;
+  --term-g1: rgba(35, 22, 4, 0.92);
+  --term-g2: rgba(14, 8, 0, 0.96);
+  --term-head-bg: rgba(10, 6, 0, 0.35);
+  --chips-bg: rgba(8, 5, 0, 0.25);
+  --boot-bg: #0a0600;
+  --vignette-bg: radial-gradient(ellipse at center, rgba(0, 0, 0, 0) 55%, rgba(0, 0, 0, 0.55) 100%);
+  --game-frame-g1: rgba(35, 22, 4, 0.96);
+  --game-frame-g2: rgba(14, 8, 0, 0.98);
+  --game-hint-bg: rgba(8, 5, 0, 0.3);
+  --game-filter: grayscale(0.55) sepia(0.5) hue-rotate(3deg) saturate(1.8) brightness(1.08)
+    contrast(1.02);
   /* matrix-rain canvas can't read CSS vars directly — theme.ts reads
      these two via getComputedStyle and hands them to the canvas. */
-  --matrix-color:#ffb000;
-  --matrix-fade:rgba(2,4,3,0.08);
+  --matrix-color: #ffb000;
+  --matrix-fade: rgba(2, 4, 3, 0.08);
 }

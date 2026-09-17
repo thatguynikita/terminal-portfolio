@@ -1,15 +1,15 @@
-import type { CommandContext, Mode, Output } from "./types.ts";
-import type { ProfileConfig } from "./profile.ts";
-import { LOCALES, type Locale } from "../i18n/locales.ts";
-import { translate, translateList } from "../i18n/index.ts";
-import { createRegistry, type Registry } from "./registry.ts";
 import { createFileSystem } from "../fs/index.ts";
-import { createThemeController } from "./theme.ts";
-import { createMatrixRain, initialMatrixEnabled } from "./matrix.ts";
-import { createOutput } from "./output.ts";
+import { translate, translateList } from "../i18n/index.ts";
+import { LOCALES, type Locale } from "../i18n/locales.ts";
 import { parseArgs } from "./args.ts";
 import { escapeAttr, escapeHtml, pace } from "./html.ts";
-import { StorageKey, readStored, writeStored } from "./storage.ts";
+import { createMatrixRain, initialMatrixEnabled } from "./matrix.ts";
+import { createOutput } from "./output.ts";
+import type { ProfileConfig } from "./profile.ts";
+import { createRegistry, type Registry } from "./registry.ts";
+import { readStored, StorageKey, writeStored } from "./storage.ts";
+import { createThemeController } from "./theme.ts";
+import type { CommandContext, Mode, Output } from "./types.ts";
 
 export interface Terminal {
   ctx: CommandContext;

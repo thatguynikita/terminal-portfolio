@@ -9,7 +9,7 @@ npm run deploy       # GitHub Pages
 npm run deploy:s3    # AWS S3 or Yandex Object Storage; see .env.example
 ```
 
-Both run the test suite first, then typecheck and build. The config preflight is
+Both run the linter and the test suite first, then typecheck and build. The config preflight is
 part of that, **so a fork can't publish with the original author's name still in
 place.**
 

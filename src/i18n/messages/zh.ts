@@ -129,19 +129,10 @@ const zh: Messages = {
       "总有个地方是凌晨三点，不幸的是可能就是这里",
       "机器不睡觉，显然你也不",
     ],
-    earlyMorning: [
-      "起得早，还是根本没睡 — 很难说",
-      "极度在线的早起鸟",
-    ],
-    morning: [
-      "时间很合理，你真负责",
-      "上午的高效能量，我佩服",
-    ],
+    earlyMorning: ["起得早，还是根本没睡 — 很难说", "极度在线的早起鸟"],
+    morning: ["时间很合理，你真负责", "上午的高效能量，我佩服"],
     midday: ["午休刷网页，经典操作", "拖延症的黄金时段"],
-    afternoon: [
-      "下午三点的低谷，靠刷网页撑着",
-      "下午的精力，还挺稳",
-    ],
+    afternoon: ["下午三点的低谷，靠刷网页撑着", "下午的精力，还挺稳"],
     evening: ["晚上刷网页，最舒服的时候", "刷屏黄金时段，不必羞愧"],
     night: ["这个点应该已经睡了吧", "睡前再开一个标签页，当然"],
   },
@@ -210,10 +201,7 @@ const zh: Messages = {
       "cat-deployment-7f9d8c-x2m4q": {
         status: "Running",
         reason: "干劲十足，炼乳罐头：0/30",
-        events: [
-          "Started — 容器于 11 年前启动",
-          "Normal — 比大多数生产服务都稳定",
-        ],
+        events: ["Started — 容器于 11 年前启动", "Normal — 比大多数生产服务都稳定"],
       },
       "condensed-milk-store-0": {
         status: "CrashLoopBackOff",
@@ -227,10 +215,7 @@ const zh: Messages = {
       "sre-sanity-canary": {
         status: "Running",
         reason: "靠咖啡和倔强撑着",
-        events: [
-          "Started — 容器已启动",
-          "Warning — 焦虑水平接近临界",
-        ],
+        events: ["Started — 容器已启动", "Warning — 焦虑水平接近临界"],
       },
       "deploy-friday-afternoon": {
         status: "Evicted",
@@ -319,10 +304,7 @@ const zh: Messages = {
       "做出来是我的活 — 打开开关是你的：theme {theme}。",
       "取消 won't-fix 标记。还有别的事吗？",
     ],
-    lightTheme3: [
-      "这事我们聊过了。",
-      "工单已标记完成。没什么可做的了 — 输入 theme {theme} 就行。",
-    ],
+    lightTheme3: ["这事我们聊过了。", "工单已标记完成。没什么可做的了 — 输入 theme {theme} 就行。"],
     fixBug: ["没有 bug。从来就没有 bug。我查过了。查了两次。"],
     addTests: [
       "找到 0 个测试。这要么非常令人担忧，要么是个大胆的设计决定。",
@@ -347,7 +329,7 @@ const zh: Messages = {
     game: [
       "#!/bin/bash",
       "# {script} — 别读，直接运行",
-      "# 另见：<a href=\"{url}\" target=\"_blank\" rel=\"noopener\">{url}</a>",
+      '# 另见：<a href="{url}" target="_blank" rel="noopener">{url}</a>',
       "# 注：你需要 sudo",
       'echo "正在打开一个小惊喜..."',
       "xdg-open {url} 2&gt;/dev/null",
@@ -375,7 +357,6 @@ const zh: Messages = {
     backToTerminal: "返回终端",
     switchLanguage: "切换语言",
   },
-
 };
 
 export default zh;

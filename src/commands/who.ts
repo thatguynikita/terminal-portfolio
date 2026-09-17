@@ -1,6 +1,6 @@
+import { systemOwner } from "../core/describe.ts";
 import { defineCommand } from "../core/types.ts";
 import { nowDateTime } from "./uptime.ts";
-import { systemOwner } from "../core/describe.ts";
 
 export default defineCommand({
   name: "who",

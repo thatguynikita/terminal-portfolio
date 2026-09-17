@@ -1,5 +1,5 @@
-import { defineCommand } from "../core/types.ts";
 import { pick } from "../core/html.ts";
+import { defineCommand } from "../core/types.ts";
 
 /** Hour boundary -> the i18n key holding that bucket's jokes. */
 const BUCKETS: Array<[number, string]> = [
@@ -67,9 +67,9 @@ export default defineCommand({
         row(ctx.t("whoami.os"), ctx.escape(os)),
         row(
           ctx.t("whoami.tz"),
-          `${ctx.escape(tz)} <span class="dim">\u2014 ${ctx.escape(quip)}</span>`
+          `${ctx.escape(tz)} <span class="dim">\u2014 ${ctx.escape(quip)}</span>`,
         ),
-      ].join("")
+      ].join(""),
     );
   },
 });

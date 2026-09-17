@@ -1,12 +1,12 @@
-import { describe, expect, it } from "vitest";
 import { existsSync, readdirSync, readFileSync } from "node:fs";
 import { join } from "node:path";
+import { describe, expect, it } from "vitest";
 import profile, { MESSAGES } from "../profile.config.ts";
-import { cvLocales, cvUrl } from "../src/cv/url.ts";
-import { mailtoFor, renderContentSignal, socialsFor } from "../src/core/profile.ts";
-import { languageName, posixLocale } from "../src/i18n/locales.ts";
-import { translate } from "../src/i18n/index.ts";
 import { escapeHtml } from "../src/core/html.ts";
+import { mailtoFor, renderContentSignal, socialsFor } from "../src/core/profile.ts";
+import { cvLocales, cvUrl } from "../src/cv/url.ts";
+import { translate } from "../src/i18n/index.ts";
+import { languageName, posixLocale } from "../src/i18n/locales.ts";
 
 // The same resolution vite.config.ts uses; vitest.config.ts loads .env into
 // process.env so a local dist/ and this suite agree on the origin.
@@ -34,13 +34,17 @@ suite("built output", () => {
   // the built page carries #boot / #chips exactly when the config says so.
   it("ships the boot screen and the chip bar only when they are switched on", () => {
     const index = read("index.html");
-    expect(index.includes('id="boot"'), "#boot vs terminal.bootScreen").toBe(profile.terminal.bootScreen);
+    expect(index.includes('id="boot"'), "#boot vs terminal.bootScreen").toBe(
+      profile.terminal.bootScreen,
+    );
     expect(index.includes('id="chips"'), "#chips vs terminal.chips").toBe(profile.terminal.chips);
   });
 
   // Both GitHub Pages artefacts come from the build, not public/.
   it("emits CNAME from SITE_URL's host, and an empty .nojekyll", () => {
-    expect(read("CNAME").trim()).toBe(new URL(process.env["SITE_URL"] ?? "http://localhost").hostname);
+    expect(read("CNAME").trim()).toBe(
+      new URL(process.env["SITE_URL"] ?? "http://localhost").hostname,
+    );
     expect(read(".nojekyll")).toBe("");
   });
 
@@ -49,7 +53,9 @@ suite("built output", () => {
   it("ships the 404 page, and its cat, only when seo.enable404 is on", () => {
     const { enable404 } = profile.seo;
     expect(existsSync(join(DIST, "404.html")), "404.html vs seo.enable404").toBe(enable404);
-    expect(existsSync(join(DIST, "assets/img/404-cat.png")), "404 cat vs seo.enable404").toBe(enable404);
+    expect(existsSync(join(DIST, "assets/img/404-cat.png")), "404 cat vs seo.enable404").toBe(
+      enable404,
+    );
   });
 
   // One rule for every page: `what — hostname`, and `name — what — hostname`
@@ -102,19 +108,29 @@ suite("built output", () => {
       const noscript = /<noscript>([\s\S]*?)<\/noscript>/.exec(index)?.[1];
       if (!profile.seo.enableNoscript) {
         expect(noscript, "noscript emitted while switched off").toBeUndefined();
-        expect(index, "the placeholder should be consumed either way").not.toContain("<!--NOSCRIPT-->");
+        expect(index, "the placeholder should be consumed either way").not.toContain(
+          "<!--NOSCRIPT-->",
+        );
         return;
       }
       expect(noscript, "no noscript block").toBeDefined();
-      expect(noscript, "noscript should lead with the role").toContain(escapeHtml(profile.seo.role![lang]));
+      expect(noscript, "noscript should lead with the role").toContain(
+        escapeHtml(profile.seo.role![lang]),
+      );
       if (profile.cv?.metaLine) {
-        expect(noscript, "noscript should carry the CV meta line").toContain(escapeHtml(profile.cv.metaLine[lang]));
+        expect(noscript, "noscript should carry the CV meta line").toContain(
+          escapeHtml(profile.cv.metaLine[lang]),
+        );
       }
       if (profile.cv) {
-        expect(noscript, "noscript should point at the CV's skills").toContain(`href="${cvUrl(profile, lang)}#skills"`);
+        expect(noscript, "noscript should point at the CV's skills").toContain(
+          `href="${cvUrl(profile, lang)}#skills"`,
+        );
       }
       if (profile.cv?.tagline) {
-        expect(noscript, "the CV tagline is CV-only").not.toContain(escapeHtml(profile.cv.tagline[lang]));
+        expect(noscript, "the CV tagline is CV-only").not.toContain(
+          escapeHtml(profile.cv.tagline[lang]),
+        );
       }
       for (const [page] of pages().filter(([p]) => p !== "index.html")) {
         expect(read(page), `${page} has a noscript block`).not.toContain("<noscript>");
@@ -125,7 +141,9 @@ suite("built output", () => {
       const { enableJsonLd } = profile.seo;
       for (const [page, locale] of pages()) {
         const html = read(page);
-        const scripts = [...html.matchAll(/<script type="application\/ld\+json">([\s\S]*?)<\/script>/g)];
+        const scripts = [
+          ...html.matchAll(/<script type="application\/ld\+json">([\s\S]*?)<\/script>/g),
+        ];
         if (!enableJsonLd || page === "404.html") {
           expect(scripts.length, `${page} carries JSON-LD`).toBe(0);
           continue;
@@ -135,9 +153,10 @@ suite("built output", () => {
         // whose mainEntity is the Person. Either way there is exactly one Person,
         // named in the page's own locale.
         const data = JSON.parse(scripts[0]![1]!) as Record<string, any>;
-        const person = page === "index.html"
-          ? (data["@graph"] as Array<Record<string, any>>).find((n) => n["@type"] === "Person")
-          : data["mainEntity"];
+        const person =
+          page === "index.html"
+            ? (data["@graph"] as Array<Record<string, any>>).find((n) => n["@type"] === "Person")
+            : data["mainEntity"];
         expect(person?.["@type"], `${page} has no Person node`).toBe("Person");
         expect(person?.["name"]).toBe(profile.author[locale]);
       }
@@ -166,12 +185,22 @@ suite("built output", () => {
       if (!profile.seo.enableSocialCards) return;
       for (const [page, locale] of pages()) {
         const html = read(page);
-        expect(html, `${page} og:site_name`).toContain(`<meta property="og:site_name" content="${escapeHtml(profile.terminal.hostname)}" />`);
-        expect(html, `${page} og:locale`).toContain(`<meta property="og:locale" content="${posixLocale(locale)}" />`);
-        expect(html, `${page} twitter:title`).toMatch(/<meta name="twitter:title" content="[^"]+" \/>/);
-        expect(html, `${page} twitter:description`).toMatch(/<meta name="twitter:description" content="[^"]+" \/>/);
+        expect(html, `${page} og:site_name`).toContain(
+          `<meta property="og:site_name" content="${escapeHtml(profile.terminal.hostname)}" />`,
+        );
+        expect(html, `${page} og:locale`).toContain(
+          `<meta property="og:locale" content="${posixLocale(locale)}" />`,
+        );
+        expect(html, `${page} twitter:title`).toMatch(
+          /<meta name="twitter:title" content="[^"]+" \/>/,
+        );
+        expect(html, `${page} twitter:description`).toMatch(
+          /<meta name="twitter:description" content="[^"]+" \/>/,
+        );
         const hasOgImage = /<meta property="og:image"/.test(html);
-        expect(/<meta name="twitter:image"/.test(html), `${page} twitter:image vs og:image`).toBe(hasOgImage);
+        expect(/<meta name="twitter:image"/.test(html), `${page} twitter:image vs og:image`).toBe(
+          hasOgImage,
+        );
       }
     });
 
@@ -181,24 +210,43 @@ suite("built output", () => {
         const html = read(cvUrl(profile, l).replace(/^\//, ""));
         expect(html).toContain(`<meta property="og:locale" content="${posixLocale(l)}" />`);
         for (const other of locales.filter((o) => o !== l)) {
-          expect(html, `${l} page lacks alternate ${other}`).toContain(`<meta property="og:locale:alternate" content="${posixLocale(other)}" />`);
+          expect(html, `${l} page lacks alternate ${other}`).toContain(
+            `<meta property="og:locale:alternate" content="${posixLocale(other)}" />`,
+          );
         }
-        expect(html, `${l} page lists itself as an alternate`).not.toContain(`og:locale:alternate" content="${posixLocale(l)}"`);
+        expect(html, `${l} page lists itself as an alternate`).not.toContain(
+          `og:locale:alternate" content="${posixLocale(l)}"`,
+        );
       }
     });
   });
 
   it("gives every page the manifest's theme colour, the manifest, and the sized icons", () => {
     const manifest = JSON.parse(read("site.webmanifest")) as { theme_color: string };
-    const allPages = ["index.html", ...notFoundPage, ...locales.map((l) => cvUrl(profile, l).replace(/^\//, ""))];
+    const allPages = [
+      "index.html",
+      ...notFoundPage,
+      ...locales.map((l) => cvUrl(profile, l).replace(/^\//, "")),
+    ];
     for (const page of allPages) {
       const html = read(page);
-      expect(html, `${page} theme-color`).toContain(`<meta name="theme-color" content="${manifest.theme_color}" />`);
-      expect(html, `${page} manifest link`).toContain(`<link rel="manifest" href="/site.webmanifest" />`);
-      expect(html, `${page} touch icon size`).toContain(`<link rel="apple-touch-icon" sizes="180x180"`);
+      expect(html, `${page} theme-color`).toContain(
+        `<meta name="theme-color" content="${manifest.theme_color}" />`,
+      );
+      expect(html, `${page} manifest link`).toContain(
+        `<link rel="manifest" href="/site.webmanifest" />`,
+      );
+      expect(html, `${page} touch icon size`).toContain(
+        `<link rel="apple-touch-icon" sizes="180x180"`,
+      );
       for (const size of ["16x16", "32x32", "120x120"]) {
-        expect(html, `${page} favicon ${size}`).toContain(`sizes="${size}" href="/assets/icons/favicon-${size}.png"`);
-        expect(existsSync(join(process.cwd(), "public/assets/icons", `favicon-${size}.png`)), `favicon-${size}.png missing from public/`).toBe(true);
+        expect(html, `${page} favicon ${size}`).toContain(
+          `sizes="${size}" href="/assets/icons/favicon-${size}.png"`,
+        );
+        expect(
+          existsSync(join(process.cwd(), "public/assets/icons", `favicon-${size}.png`)),
+          `favicon-${size}.png missing from public/`,
+        ).toBe(true);
       }
     }
   });
@@ -212,13 +260,16 @@ suite("built output", () => {
     const lang = profile.terminal.defaultLocale;
     const meta = (html: string) => /<meta name="description" content="([^"]*)" \/>/.exec(html)?.[1];
     expect(meta(read("index.html"))).toBe(escapeHtml(profile.seo.description![lang]));
-    if (profile.seo.enable404) expect(meta(read("404.html"))).toBe(escapeHtml(translate(lang, "notFound.description")));
+    if (profile.seo.enable404)
+      expect(meta(read("404.html"))).toBe(escapeHtml(translate(lang, "notFound.description")));
     for (const l of locales) {
       const html = read(cvUrl(profile, l).replace(/^\//, ""));
       const expected = profile.cv?.description?.[l] ?? profile.seo.description![l];
       expect(meta(html), `${l} CV description`).toBe(escapeHtml(expected));
       if (profile.cv?.description) {
-        expect(meta(html), "the CV should not describe itself as the terminal").not.toBe(escapeHtml(profile.seo.description![l]));
+        expect(meta(html), "the CV should not describe itself as the terminal").not.toBe(
+          escapeHtml(profile.seo.description![l]),
+        );
       }
     }
   });
@@ -244,8 +295,11 @@ suite("built output", () => {
       const html = read(cvUrl(profile, locale).replace(/^\//, ""));
       const block = /<footer>([\s\S]*?)<\/footer>/.exec(html)?.[1] ?? "";
       expect(block.includes("©"), `${locale}: © vs footer.copyright`).toBe(footer.copyright);
-      expect(block.includes('<a href="/">'), `${locale}: back link vs footer.backToTerminal`).toBe(footer.backToTerminal);
-      if (footer.bottomText) expect(block).toContain(`<div class="footer-bottom">${footer.bottomText}</div>`);
+      expect(block.includes('<a href="/">'), `${locale}: back link vs footer.backToTerminal`).toBe(
+        footer.backToTerminal,
+      );
+      if (footer.bottomText)
+        expect(block).toContain(`<div class="footer-bottom">${footer.bottomText}</div>`);
       else expect(block).not.toContain("footer-bottom");
     }
   });
@@ -275,7 +329,7 @@ suite("built output", () => {
     // The non-portrait images are untouched by the pruning — except the 404
     // cat, which goes with its page (asserted above).
     const source = readdirSync(join(process.cwd(), "public/assets/img")).filter(
-      (f) => /\.(png|jpe?g|webp|svg)$/.test(f) && (profile.seo.enable404 || f !== "404-cat.png")
+      (f) => /\.(png|jpe?g|webp|svg)$/.test(f) && (profile.seo.enable404 || f !== "404-cat.png"),
     );
     for (const f of source) {
       expect(existsSync(join(DIST, "assets/img", f)), `${f} was dropped from dist`).toBe(true);
@@ -313,7 +367,7 @@ suite("built output", () => {
       const marker = source.match(/availableCommands: "([^"]+)"/)?.[1];
       expect(marker, `${code}.ts has no availableCommands string to look for`).toBeTruthy();
       expect(bundle, `${code} was not selected but its text is in the bundle`).not.toContain(
-        marker as string
+        marker as string,
       );
     }
   });
@@ -349,13 +403,17 @@ suite("built output", () => {
       const canonical = /rel="canonical" href="([^"]+)"/.exec(html)?.[1] ?? "";
       expect(
         canonical.endsWith(cvUrl(profile, locale)),
-        `${locale} canonicalises to ${canonical || "nothing"}`
+        `${locale} canonicalises to ${canonical || "nothing"}`,
       ).toBe(true);
     }
   });
 
   it("applies the theme before first paint on every page", () => {
-    const pages = ["index.html", ...notFoundPage, ...locales.map((l) => cvUrl(profile, l).replace(/^\//, ""))];
+    const pages = [
+      "index.html",
+      ...notFoundPage,
+      ...locales.map((l) => cvUrl(profile, l).replace(/^\//, "")),
+    ];
     for (const page of pages) {
       expect(read(page), `${page} has no theme bootstrap`).toContain("terminal-portfolio:theme");
     }
@@ -375,7 +433,9 @@ suite("built output", () => {
     it("lists only pages that were actually built", () => {
       for (const loc of [...xml.matchAll(/<loc>([^<]+)<\/loc>/g)].map((m) => m[1] as string)) {
         const path = new URL(loc).pathname.replace(/^\//, "") || "index.html";
-        expect(existsSync(join(DIST, path)), `sitemap lists ${path}, which is not built`).toBe(true);
+        expect(existsSync(join(DIST, path)), `sitemap lists ${path}, which is not built`).toBe(
+          true,
+        );
       }
     });
 
@@ -407,11 +467,12 @@ suite("built output", () => {
         expect(loc).toContain(profile.cv?.photo);
         // The image must actually have shipped.
         const path = new URL(loc).pathname.replace(/^\//, "");
-        expect(existsSync(join(DIST, path)), `sitemap lists ${path}, which is not built`).toBe(true);
-        expect(
-          /<image:title>[^<]+<\/image:title>/.test(block),
-          "the portrait has no title"
-        ).toBe(true);
+        expect(existsSync(join(DIST, path)), `sitemap lists ${path}, which is not built`).toBe(
+          true,
+        );
+        expect(/<image:title>[^<]+<\/image:title>/.test(block), "the portrait has no title").toBe(
+          true,
+        );
       }
     });
 
@@ -443,13 +504,21 @@ suite("built output", () => {
       expect(txt).toContain(`- Role: ${profile.seo.role![lang]}`);
       const contact = /^- Contact: (.+)$/m.exec(txt)?.[1];
       expect(contact, "no contact line").toBeTruthy();
-      const known = new Set([mailtoFor(profile)?.replace(/^mailto:/, ""), ...socialsFor(profile, "cv").map((s) => s.display)]);
-      expect(known.has(contact as string), `contact "${contact}" is not one of the socials`).toBe(true);
+      const known = new Set([
+        mailtoFor(profile)?.replace(/^mailto:/, ""),
+        ...socialsFor(profile, "cv").map((s) => s.display),
+      ]);
+      expect(known.has(contact as string), `contact "${contact}" is not one of the socials`).toBe(
+        true,
+      );
     });
 
     it("has one section per shipped language, named in that language, linking its CV", () => {
       for (const l of locales) {
-        const section = new RegExp(`^## ${languageName(l).replace(/[.*+?^${}()|[\]\\]/g, "\\$&")}$`, "m");
+        const section = new RegExp(
+          `^## ${languageName(l).replace(/[.*+?^${}()|[\]\\]/g, "\\$&")}$`,
+          "m",
+        );
         expect(txt, `no section for ${l}`).toMatch(section);
         expect(txt).toContain(`${cvUrl(profile, l)}): ${profile.seo.role![l]}`);
       }
@@ -459,7 +528,9 @@ suite("built output", () => {
       const lines = txt.split("\n");
       expect(lines[0], "first line is not an H1").toMatch(/^# \S/);
       // Every selected locale's name is on the H1, once each.
-      const spellings = [...new Set(Object.keys(MESSAGES).map((l) => profile.author[l as keyof typeof MESSAGES]))];
+      const spellings = [
+        ...new Set(Object.keys(MESSAGES).map((l) => profile.author[l as keyof typeof MESSAGES])),
+      ];
       expect(lines[0]).toBe(`# ${spellings.join(" / ")}`);
       const quote = lines.slice(1).find((l) => l.trim() !== "");
       expect(quote, "no blockquote summary after the title").toMatch(/^> \S/);
@@ -473,7 +544,10 @@ suite("built output", () => {
     it("uses only H1 and H2 headings", () => {
       const headings = [...txt.matchAll(/^(#+)\s/gm)].map((m) => (m[1] as string).length);
       expect(headings[0]).toBe(1);
-      expect(headings.filter((h) => h > 2), "headings deeper than H2").toEqual([]);
+      expect(
+        headings.filter((h) => h > 2),
+        "headings deeper than H2",
+      ).toEqual([]);
       expect(headings.filter((h) => h === 1).length, "more than one H1").toBe(1);
     });
 
@@ -487,7 +561,7 @@ suite("built output", () => {
       for (const item of items) {
         expect(
           item,
-          `not a markdown link — "Label: url" text does not conform: ${item.slice(0, 50)}`
+          `not a markdown link — "Label: url" text does not conform: ${item.slice(0, 50)}`,
         ).toMatch(/^\[[^\]]+\]\([^)]+\)(:\s.*)?$/);
       }
     });
@@ -507,7 +581,9 @@ suite("built output", () => {
       for (const url of [...txt.matchAll(/\]\((https?:\/\/[^)]+)\)/g)].map((m) => m[1] as string)) {
         if (new URL(url).origin !== origin) continue;
         const path = new URL(url).pathname.replace(/^\//, "") || "index.html";
-        expect(existsSync(join(DIST, path)), `llms.txt links ${path}, which is not built`).toBe(true);
+        expect(existsSync(join(DIST, path)), `llms.txt links ${path}, which is not built`).toBe(
+          true,
+        );
       }
     });
 
@@ -549,7 +625,9 @@ suite("built output", () => {
       expect(manifest.icons.length).toBeGreaterThan(0);
       for (const icon of manifest.icons) {
         const path = String(icon.src).replace(/^\//, "");
-        expect(existsSync(join(DIST, path)), `manifest lists ${path}, which is not built`).toBe(true);
+        expect(existsSync(join(DIST, path)), `manifest lists ${path}, which is not built`).toBe(
+          true,
+        );
       }
     });
 
@@ -564,7 +642,9 @@ suite("built output", () => {
 
     it("points at the sitemap only when one is emitted", () => {
       if (!profile.seo.enableSitemap) {
-        expect(robots, "robots.txt points at a sitemap that is switched off").not.toContain("Sitemap:");
+        expect(robots, "robots.txt points at a sitemap that is switched off").not.toContain(
+          "Sitemap:",
+        );
         return;
       }
       expect(robots).toContain("Sitemap:");
@@ -575,8 +655,17 @@ suite("built output", () => {
     // Named explicitly so access doesn't hinge on how each crawler reads the
     // wildcard group — these are the ones that actually matter for a CV.
     it("names the search and AI crawlers, and allows them", () => {
-      for (const bot of ["GPTBot", "ClaudeBot", "Claude-User", "PerplexityBot",
-        "Googlebot", "Google-Extended", "Bingbot", "Applebot", "YandexBot"]) {
+      for (const bot of [
+        "GPTBot",
+        "ClaudeBot",
+        "Claude-User",
+        "PerplexityBot",
+        "Googlebot",
+        "Google-Extended",
+        "Bingbot",
+        "Applebot",
+        "YandexBot",
+      ]) {
         expect(robots, `${bot} is not named`).toContain(`User-agent: ${bot}`);
       }
       const namedGroup = robots.slice(0, robots.indexOf("User-agent: *"));
@@ -602,7 +691,10 @@ suite("built output", () => {
     it("names a real crawler on every user-agent line", () => {
       const agents = [...robots.matchAll(/^User-agent:(.*)$/gm)].map((m) => (m[1] ?? "").trim());
       expect(agents.length).toBeGreaterThan(10);
-      expect(agents.filter((a) => a === ""), "empty User-agent line").toEqual([]);
+      expect(
+        agents.filter((a) => a === ""),
+        "empty User-agent line",
+      ).toEqual([]);
       expect(new Set(agents).size, "a crawler is listed twice").toBe(agents.length);
     });
   });
@@ -615,13 +707,13 @@ describe("renderContentSignal", () => {
 
   it("renders every combination in the spec's spelling", () => {
     expect(renderContentSignal(withSignal({ search: true, aiTrain: true, aiInput: true }))).toBe(
-      "search=yes, ai-train=yes, ai-input=yes"
+      "search=yes, ai-train=yes, ai-input=yes",
     );
     expect(renderContentSignal(withSignal({ search: true, aiTrain: false, aiInput: true }))).toBe(
-      "search=yes, ai-train=no, ai-input=yes"
+      "search=yes, ai-train=no, ai-input=yes",
     );
     expect(renderContentSignal(withSignal({ search: false, aiTrain: false, aiInput: false }))).toBe(
-      "search=no, ai-train=no, ai-input=no"
+      "search=no, ai-train=no, ai-input=no",
     );
   });
 });

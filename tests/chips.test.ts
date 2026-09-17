@@ -1,11 +1,16 @@
 import { describe, expect, it } from "vitest";
-import { firstWordCandidates, isCompleteArgument, scriptCandidates, splitInput } from "../src/core/complete.ts";
-import { LOCALES, nextLocale } from "../src/i18n/locales.ts";
-import { loadCommands } from "../src/core/registry.ts";
-import { createFakeContext } from "./helpers.ts";
+import profile from "../profile.config.ts";
+import {
+  firstWordCandidates,
+  isCompleteArgument,
+  scriptCandidates,
+  splitInput,
+} from "../src/core/complete.ts";
 import { commandDescription } from "../src/core/describe.ts";
 import type { ProfileConfig } from "../src/core/profile.ts";
-import profile from "../profile.config.ts";
+import { loadCommands } from "../src/core/registry.ts";
+import { LOCALES, nextLocale } from "../src/i18n/locales.ts";
+import { createFakeContext } from "./helpers.ts";
 
 const commands = loadCommands();
 
@@ -78,7 +83,10 @@ describe("first-word completion", () => {
   });
 
   it("keeps narrowing through ./ and beyond", () => {
-    expect(firstWordCandidates("./", commands, scripts)).toEqual(["./milk-quest.sh", "./deploy.sh"]);
+    expect(firstWordCandidates("./", commands, scripts)).toEqual([
+      "./milk-quest.sh",
+      "./deploy.sh",
+    ]);
     expect(firstWordCandidates("./d", commands, scripts)).toEqual(["./deploy.sh"]);
     expect(firstWordCandidates("./x", commands, scripts)).toEqual([]);
   });
@@ -160,9 +168,15 @@ describe("completion labels", () => {
  * name or a turn of phrase, without editing the message catalogues.
  */
 describe("command descriptions", () => {
-  const base = { ...profile, commands: { ...profile.commands, descriptions: undefined } } as ProfileConfig;
+  const base = {
+    ...profile,
+    commands: { ...profile.commands, descriptions: undefined },
+  } as ProfileConfig;
   const withOverride = (over: Record<string, Record<string, string>>): ProfileConfig =>
-    ({ ...profile, commands: { ...profile.commands, descriptions: over } }) as unknown as ProfileConfig;
+    ({
+      ...profile,
+      commands: { ...profile.commands, descriptions: over },
+    }) as unknown as ProfileConfig;
 
   // Driven by the configured locales rather than by hardcoded Russian, so
   // the suite still passes for a fork that ships a single language.
@@ -217,7 +231,13 @@ describe("command descriptions", () => {
     const help = commands.find((c) => c.name === "help")!;
     const ctx = createFakeContext("en");
     ctx.commands = () => commands;
-    await help.run(ctx, { name: "help", raw: "", positional: [], flags: new Set(), normalized: "" });
+    await help.run(ctx, {
+      name: "help",
+      raw: "",
+      positional: [],
+      flags: new Set(),
+      normalized: "",
+    });
     expect(ctx.lines.join(" ")).toContain(commandDescription(profile, "en", "about"));
   });
 });

@@ -48,7 +48,10 @@ export default defineCommand({
     }
 
     if (sub.startsWith(DESCRIBE)) {
-      const pod = args.raw.trim().slice(sub.indexOf(DESCRIBE) + DESCRIBE.length).trim();
+      const pod = args.raw
+        .trim()
+        .slice(sub.indexOf(DESCRIBE) + DESCRIBE.length)
+        .trim();
       if (!pod) {
         ctx.print(ctx.t("kubectl.describeUsage"));
         return;
@@ -61,9 +64,11 @@ export default defineCommand({
       ctx.print(`<div><span class="accent">Name:</span> ${ctx.escape(pod)}</div>`);
       ctx.print(`<div><span class="accent">Status:</span> ${ctx.escape(detail.status)}</div>`);
       ctx.print(
-        `<div><span class="accent">${ctx.t("kubectl.reason")}:</span> ${ctx.escape(detail.reason)}</div>`
+        `<div><span class="accent">${ctx.t("kubectl.reason")}:</span> ${ctx.escape(detail.reason)}</div>`,
       );
-      ctx.print(`<div><span class="accent">Restarts:</span> ${pod === "condensed-milk-store-0" ? "47" : "0"}</div>`);
+      ctx.print(
+        `<div><span class="accent">Restarts:</span> ${pod === "condensed-milk-store-0" ? "47" : "0"}</div>`,
+      );
       ctx.print(`<div class="dim">${ctx.t("kubectl.events")}:</div>`);
       for (const event of detail.events) ctx.print(`<div class="dim">  ${ctx.escape(event)}</div>`);
       return;

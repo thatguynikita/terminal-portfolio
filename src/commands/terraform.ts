@@ -1,20 +1,57 @@
-import { defineCommand } from "../core/types.ts";
 import type { CommandContext } from "../core/types.ts";
+import { defineCommand } from "../core/types.ts";
 
 const RESOURCES = [
-  { addr: "condensed_milk_reserve.cat_stash", block: `resource "condensed_milk_reserve" "cat_stash" { cans = 30 }`, id: "cans-0030", secs: 2 },
-  { addr: "on_call_pager.sanity", block: `resource "on_call_pager" "sanity" {}`, id: "sanity-0001", secs: 3 },
-  { addr: "personal_time.weekend", block: `resource "personal_time" "weekend" {}`, id: "sat-sun-47", secs: 2 },
-  { addr: "aws_iam_role.impostor_syndrome", block: `resource "aws_iam_role" "impostor_syndrome" {}`, id: "self-esteem-8f21", secs: 4 },
-  { addr: "dns_record.last_two_brain_cells", block: `resource "dns_record" "last_two_brain_cells" {}`, id: "ttl-300s", secs: 3 },
-  { addr: "kubernetes_deployment.social_life", block: `resource "kubernetes_deployment" "social_life" {}`, id: "replicas-0", secs: 5 },
-  { addr: "aws_backup_plan.will_to_live", block: `resource "aws_backup_plan" "will_to_live" {}`, id: "retention-inf", secs: 23 },
+  {
+    addr: "condensed_milk_reserve.cat_stash",
+    block: `resource "condensed_milk_reserve" "cat_stash" { cans = 30 }`,
+    id: "cans-0030",
+    secs: 2,
+  },
+  {
+    addr: "on_call_pager.sanity",
+    block: `resource "on_call_pager" "sanity" {}`,
+    id: "sanity-0001",
+    secs: 3,
+  },
+  {
+    addr: "personal_time.weekend",
+    block: `resource "personal_time" "weekend" {}`,
+    id: "sat-sun-47",
+    secs: 2,
+  },
+  {
+    addr: "aws_iam_role.impostor_syndrome",
+    block: `resource "aws_iam_role" "impostor_syndrome" {}`,
+    id: "self-esteem-8f21",
+    secs: 4,
+  },
+  {
+    addr: "dns_record.last_two_brain_cells",
+    block: `resource "dns_record" "last_two_brain_cells" {}`,
+    id: "ttl-300s",
+    secs: 3,
+  },
+  {
+    addr: "kubernetes_deployment.social_life",
+    block: `resource "kubernetes_deployment" "social_life" {}`,
+    id: "replicas-0",
+    secs: 5,
+  },
+  {
+    addr: "aws_backup_plan.will_to_live",
+    block: `resource "aws_backup_plan" "will_to_live" {}`,
+    id: "retention-inf",
+    secs: 23,
+  },
 ];
 
 async function apply(ctx: CommandContext): Promise<void> {
   await ctx.sequence([
     { text: ctx.t("terraform.willPerform") },
-    { text: `  <span class="amber">~</span> resource "aws_instance" "sre_sleep_schedule" { hours = 0 -&gt; 8 }` },
+    {
+      text: `  <span class="amber">~</span> resource "aws_instance" "sre_sleep_schedule" { hours = 0 -&gt; 8 }`,
+    },
     { text: `  <span style="color:var(--red)">-</span> resource "personal_time" "weekend" {}` },
     { text: `  <span class="glow">+</span> resource "incident" "unplanned" { severity = "sev1" }` },
     { text: ctx.t("terraform.destroyWeekend"), delay: 500 },
@@ -54,8 +91,14 @@ async function destroy(ctx: CommandContext): Promise<void> {
     if (i < RESOURCES.length - 1) return [destroying, complete];
     return [
       destroying,
-      { text: `<span class="dim">${r.addr}: Still destroying... [id=${r.id}, 10s elapsed]</span>`, delay: 500 },
-      { text: `<span class="dim">${r.addr}: Still destroying... [id=${r.id}, 20s elapsed]</span>`, delay: 500 },
+      {
+        text: `<span class="dim">${r.addr}: Still destroying... [id=${r.id}, 10s elapsed]</span>`,
+        delay: 500,
+      },
+      {
+        text: `<span class="dim">${r.addr}: Still destroying... [id=${r.id}, 20s elapsed]</span>`,
+        delay: 500,
+      },
       complete,
     ];
   });

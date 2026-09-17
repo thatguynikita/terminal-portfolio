@@ -250,7 +250,7 @@ npm run deploy       # GitHub Pages
 npm run deploy:s3    # AWS S3 or Yandex Object Storage; see .env.example
 ```
 
-Both run the tests and the preflight first.
+Both run the linter, the tests and the preflight first.
 
 **[Full guide → Pages setup, DNS, S3, previewing without pushing](docs/deploy.md)**
 
@@ -267,8 +267,9 @@ Both run the tests and the preflight first.
 | `npm run test:watch` | suite in watch mode |
 | `npm run check` | config preflight only |
 | `npm run typecheck` | `tsc --noEmit` |
-| `npm run deploy` | test, build, publish to GitHub Pages |
-| `npm run deploy:s3` | test, build, sync to an S3-compatible bucket |
+| `npm run lint` | Biome — lint, formatting and import order (`lint:fix` applies) |
+| `npm run deploy` | lint, test, build, publish to GitHub Pages |
+| `npm run deploy:s3` | lint, test, build, sync to an S3-compatible bucket |
 | `npm run deploy:s3:dry-run` | build, then print the upload/delete plan without touching the bucket |
 
 ---

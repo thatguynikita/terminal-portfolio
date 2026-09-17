@@ -1,6 +1,6 @@
 import profile, { MESSAGES } from "../../profile.config.ts";
-import type { Messages } from "./messages/en.ts";
 import { LOCALES, type Locale } from "./locales.ts";
+import type { Messages } from "./messages/en.ts";
 
 /**
  * The message catalogues this site ships. The map lives in
@@ -11,7 +11,7 @@ import { LOCALES, type Locale } from "./locales.ts";
  */
 export const messages = MESSAGES;
 
-export type { Messages, Locale };
+export type { Locale, Messages };
 export { LOCALES };
 
 const DEFAULT_LOCALE = profile.terminal.defaultLocale;
@@ -30,7 +30,7 @@ function resolve(source: unknown, key: string): unknown {
 export function interpolate(template: string, vars?: Record<string, string | number>): string {
   if (!vars) return template;
   return template.replace(/\{(\w+)\}/g, (match, name: string) =>
-    name in vars ? String(vars[name]) : match
+    name in vars ? String(vars[name]) : match,
   );
 }
 
@@ -48,7 +48,7 @@ export function lookup(locale: Locale, key: string): unknown {
 export function translate(
   locale: Locale,
   key: string,
-  vars?: Record<string, string | number>
+  vars?: Record<string, string | number>,
 ): string {
   const value = lookup(locale, key);
   return typeof value === "string" ? interpolate(value, vars) : key;
@@ -57,7 +57,7 @@ export function translate(
 export function translateList(
   locale: Locale,
   key: string,
-  vars?: Record<string, string | number>
+  vars?: Record<string, string | number>,
 ): string[] {
   const value = lookup(locale, key);
   if (!Array.isArray(value)) return [];

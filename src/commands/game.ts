@@ -1,5 +1,5 @@
-import { defineCommand } from "../core/types.ts";
 import profile from "../../profile.config.ts";
+import { defineCommand } from "../core/types.ts";
 
 /**
  * Shortcut for `sudo ./<game.script>` — same filesystem node, same exec.

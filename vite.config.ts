@@ -1,8 +1,16 @@
-import { defineConfig, loadEnv, type Plugin } from "vite";
-import { existsSync, mkdirSync, readdirSync, readFileSync, rmSync, unlinkSync, writeFileSync } from "node:fs";
 import { execFileSync } from "node:child_process";
+import {
+  existsSync,
+  mkdirSync,
+  readdirSync,
+  readFileSync,
+  rmSync,
+  unlinkSync,
+  writeFileSync,
+} from "node:fs";
 import { basename, dirname, join, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
+import { defineConfig, loadEnv, type Plugin } from "vite";
 
 const HERE = dirname(fileURLToPath(import.meta.url));
 
@@ -13,14 +21,21 @@ const HERE = dirname(fileURLToPath(import.meta.url));
  */
 const PAGES = resolve(HERE, "pages");
 const page = (name: string): string => resolve(PAGES, name);
+
 import profile from "./profile.config.ts";
-import { mailtoFor, renderContentSignal, renderFooter, skillsFor, socialsFor } from "./src/core/profile.ts";
-import { LOCALES, languageName, posixLocale, type Locale } from "./src/i18n/locales.ts";
+import { buildCvJsonLd, buildIndexJsonLd } from "./src/core/jsonld.ts";
+import {
+  mailtoFor,
+  renderContentSignal,
+  renderFooter,
+  skillsFor,
+  socialsFor,
+} from "./src/core/profile.ts";
 import { StorageKey } from "./src/core/storage.ts";
 import { cvByteSize, renderCv, renderCvTopbar } from "./src/cv/render.ts";
-import { buildCvJsonLd, buildIndexJsonLd } from "./src/core/jsonld.ts";
 import { cvLocales, cvUrl, photoAltFor } from "./src/cv/url.ts";
 import { translate } from "./src/i18n/index.ts";
+import { LOCALES, type Locale, languageName, posixLocale } from "./src/i18n/locales.ts";
 
 /**
  * Where the site is published — the origin for every absolute URL the build
@@ -37,7 +52,9 @@ import { translate } from "./src/i18n/index.ts";
  * localhost — and refused for a build, below.
  */
 const SITE_URL = (
-  process.env["SITE_URL"] ?? loadEnv("production", process.cwd(), "")["SITE_URL"] ?? ""
+  process.env["SITE_URL"] ??
+  loadEnv("production", process.cwd(), "")["SITE_URL"] ??
+  ""
 ).replace(/\/$/, "");
 // profile.config.ts is imported above, before this line ran; its default
 // hostname is a getter reading process.env.SITE_URL, so publish it here.
@@ -45,7 +62,11 @@ if (SITE_URL && !process.env["SITE_URL"]) process.env["SITE_URL"] = SITE_URL;
 const DEFAULT_LOCALE = profile.terminal.defaultLocale;
 
 function escapeHtml(s: string): string {
-  return s.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;");
+  return s
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;");
 }
 
 /**
@@ -76,8 +97,10 @@ function themeBootstrap(): string {
 function stripDisabledChrome(html: string, isIndex: boolean): string {
   if (!isIndex) return html;
   let out = html;
-  if (!profile.terminal.bootScreen) out = out.replace(/[ \t]*<div id="boot"[^>]*>[^<]*<\/div>\n?/, "");
-  if (!profile.terminal.chips) out = out.replace(/[ \t]*<div class="chips" id="chips"><\/div>\n?/, "");
+  if (!profile.terminal.bootScreen)
+    out = out.replace(/[ \t]*<div id="boot"[^>]*>[^<]*<\/div>\n?/, "");
+  if (!profile.terminal.chips)
+    out = out.replace(/[ \t]*<div class="chips" id="chips"><\/div>\n?/, "");
   return out;
 }
 
@@ -110,7 +133,7 @@ function noscriptHtml(lang: Locale): string {
           socials.map((s) => [
             escapeHtml(s.label),
             `<a href="${escapeHtml(s.href)}" rel="me noopener noreferrer">${escapeHtml(s.display)}</a>`,
-          ])
+          ]),
         )}`
       : "",
   ].filter(Boolean);
@@ -175,10 +198,10 @@ function themeColorTag(): string {
 function hreflangCluster(locales: Locale[]): string {
   if (locales.length < 2) return "";
   const links = locales.map(
-    (l) => `<link rel="alternate" hreflang="${l}" href="${SITE_URL}${cvUrl(profile, l)}" />`
+    (l) => `<link rel="alternate" hreflang="${l}" href="${SITE_URL}${cvUrl(profile, l)}" />`,
   );
   links.push(
-    `<link rel="alternate" hreflang="x-default" href="${SITE_URL}${cvUrl(profile, DEFAULT_LOCALE)}" />`
+    `<link rel="alternate" hreflang="x-default" href="${SITE_URL}${cvUrl(profile, DEFAULT_LOCALE)}" />`,
   );
   return links.join("\n  ");
 }
@@ -243,10 +266,15 @@ function assertLocaleReady(locale: Locale): void {
   // A skills/socials row tagged only for the CV, with no CV, can never
   // render: a half-removed résumé. Loud, like a missing translation.
   if (!profile.cv) {
-    for (const [list, rows] of [["skills", profile.skills], ["socials", profile.socials]] as const) {
+    for (const [list, rows] of [
+      ["skills", profile.skills],
+      ["socials", profile.socials],
+    ] as const) {
       rows.forEach((row, i) => {
         if (row.contexts?.length && row.contexts.every((c) => c === "cv")) {
-          throw new Error(`profile.config.ts: ${list}[${i}] is tagged for the CV, but no cv is configured.`);
+          throw new Error(
+            `profile.config.ts: ${list}[${i}] is tagged for the CV, but no cv is configured.`,
+          );
         }
       });
     }
@@ -256,9 +284,11 @@ function assertLocaleReady(locale: Locale): void {
   if (profile.seo.description) required.push(["seo.description", profile.seo.description[locale]]);
   if (profile.bio) required.push(["bio", profile.bio[locale]]);
   if (profile.cv?.description) required.push(["cv.description", profile.cv.description[locale]]);
-  if (profile.commands?.game) required.push(["commands.game.title", profile.commands.game.title[locale]]);
+  if (profile.commands?.game)
+    required.push(["commands.game.title", profile.commands.game.title[locale]]);
   // Optional sections are only checked when the author supplied them.
-  if (profile.terminal.footer.hint) required.push(["terminal.footer.hint", profile.terminal.footer.hint[locale]]);
+  if (profile.terminal.footer.hint)
+    required.push(["terminal.footer.hint", profile.terminal.footer.hint[locale]]);
   if (profile.cv?.tagline) required.push(["cv.tagline", profile.cv.tagline[locale]]);
   if (profile.cv?.about) required.push(["cv.about", profile.cv.about[locale]]);
   if (profile.cv?.metaLine) required.push(["cv.metaLine", profile.cv.metaLine[locale]]);
@@ -268,7 +298,7 @@ function assertLocaleReady(locale: Locale): void {
     if (typeof value !== "string" || value === "") {
       throw new Error(
         `profile.config.ts: ${field} has no "${locale}" translation. ` +
-          `Every locale in MESSAGES needs one.`
+          `Every locale in MESSAGES needs one.`,
       );
     }
   }
@@ -293,7 +323,7 @@ function fillCv(html: string, locale: Locale): string {
     .replace("<!--CV_TOPBAR-->", renderCvTopbar(profile, locale))
     .replace(
       "<!--CV_TITLE-->",
-      escapeHtml(`${profile.terminal.handle}@${profile.terminal.hostname} — open cv.html`)
+      escapeHtml(`${profile.terminal.handle}@${profile.terminal.hostname} — open cv.html`),
     )
     .replace("<!--CV-->", renderCv(profile, locale))
     .replace("<!--CV_FOOTER-->", footer);
@@ -340,7 +370,7 @@ function sitemapXml(): string {
       const alternates = locales
         .map(
           (l) =>
-            `\n    <xhtml:link rel="alternate" hreflang="${l}" href="${SITE_URL}${cvUrl(profile, l)}"/>`
+            `\n    <xhtml:link rel="alternate" hreflang="${l}" href="${SITE_URL}${cvUrl(profile, l)}"/>`,
         )
         .join("");
       return (
@@ -423,7 +453,7 @@ function siteWebmanifest(): string {
       background_color: background,
     },
     null,
-    2
+    2,
   );
 }
 
@@ -461,18 +491,19 @@ function llmsTxt(): string {
     `- [Terminal portfolio](${SITE_URL}/): interactive terminal; the same facts are in its noscript fallback.`,
     ...locales.map(
       (l) =>
-        `- [CV (${l})](${SITE_URL}${cvUrl(profile, l)}): full résumé as static HTML, no JavaScript required.`
+        `- [CV (${l})](${SITE_URL}${cvUrl(profile, l)}): full résumé as static HTML, no JavaScript required.`,
     ),
   ];
 
-  const contacts = socialsFor(profile, "cv").map(
-    (s) => `- [${s.label}](${s.href}): ${s.display}`
-  );
+  const contacts = socialsFor(profile, "cv").map((s) => `- [${s.label}](${s.href}): ${s.display}`);
 
   // Key facts, one line each — only what the config actually states.
-  const primary = mailtoFor(profile)?.replace(/^mailto:/, "") ?? socialsFor(profile, "cv")[0]?.display;
+  const primary =
+    mailtoFor(profile)?.replace(/^mailto:/, "") ?? socialsFor(profile, "cv")[0]?.display;
   const role = profile.seo.role?.[lang];
-  const facts = [role ? `- Role: ${role}` : "", primary ? `- Contact: ${primary}` : ""].filter(Boolean);
+  const facts = [role ? `- Role: ${role}` : "", primary ? `- Contact: ${primary}` : ""].filter(
+    Boolean,
+  );
 
   // One section per shipped language, named in itself, pointing at that
   // language's CV — an agent reading in Russian finds the Russian résumé.
@@ -491,7 +522,10 @@ function llmsTxt(): string {
   // The summary is the bio when there is one, else the description, else
   // the role — the spec wants a blockquote, and the name alone isn't one.
   const summary =
-    profile.bio?.[lang].replace(/\s+/g, " ").trim() ?? profile.seo.description?.[lang] ?? role ?? "";
+    profile.bio?.[lang].replace(/\s+/g, " ").trim() ??
+    profile.seo.description?.[lang] ??
+    role ??
+    "";
   const description = profile.bio && profile.seo.description ? profile.seo.description[lang] : "";
   const lines = [
     `# ${names}`,
@@ -558,146 +592,156 @@ function profileHtmlPlugin(): Plugin {
   let cvTemplate: string | null = null;
 
   return {
-      name: "profile-html",
+    name: "profile-html",
 
-      transformIndexHtml(html, ctx) {
-        const withBootstrap = html.replace("</head>", `  ${themeBootstrap()}\n</head>`);
+    transformIndexHtml(html, ctx) {
+      const withBootstrap = html.replace("</head>", `  ${themeBootstrap()}\n</head>`);
 
-        if (ctx.filename.endsWith("cv.html")) {
-          // Keep the shell (placeholders intact) so other locales can reuse
-          // it with Vite's hashed asset tags already injected.
-          cvTemplate = withBootstrap;
-          // In dev the locale comes from the URL the middleware below asked
-          // for — `path` when the call is ours, `originalUrl` when it came
-          // through Vite's own HTML middleware. At build time there is no URL
-          // at all, and this is the default page.
-          const requested = localeFromUrl(ctx.originalUrl) ?? localeFromUrl(ctx.path);
-          return fillCv(withBootstrap, requested ?? lang);
-        }
+      if (ctx.filename.endsWith("cv.html")) {
+        // Keep the shell (placeholders intact) so other locales can reuse
+        // it with Vite's hashed asset tags already injected.
+        cvTemplate = withBootstrap;
+        // In dev the locale comes from the URL the middleware below asked
+        // for — `path` when the call is ours, `originalUrl` when it came
+        // through Vite's own HTML middleware. At build time there is no URL
+        // at all, and this is the default page.
+        const requested = localeFromUrl(ctx.originalUrl) ?? localeFromUrl(ctx.path);
+        return fillCv(withBootstrap, requested ?? lang);
+      }
 
-        const isIndex = ctx.filename.endsWith("index.html");
-        // Every page is titled `what — hostname`, the two pages about a person
-        // `name — what — hostname`: the CV is "— CV —", the terminal is
-        // "— terminal —" (ui.pageTitle, localized). The share card drops the
-        // hostname: og:site_name already carries it.
-        const what = isIndex ? translate(lang, "ui.pageTitle") : "404";
-        const cardTitle = isIndex ? `${profile.author[lang]} — ${what}` : `${what} — ${profile.terminal.hostname}`;
-        const title = isIndex ? `${cardTitle} — ${profile.terminal.hostname}` : cardTitle;
-        // The 404 describes itself; the terminal's description is about the terminal.
-        const description = isIndex
-          ? profile.seo.description?.[lang]
-          : translate(lang, "notFound.description");
-        const ogImage = profile.seo.ogImage ? `${SITE_URL}${profile.seo.ogImage}` : "";
+      const isIndex = ctx.filename.endsWith("index.html");
+      // Every page is titled `what — hostname`, the two pages about a person
+      // `name — what — hostname`: the CV is "— CV —", the terminal is
+      // "— terminal —" (ui.pageTitle, localized). The share card drops the
+      // hostname: og:site_name already carries it.
+      const what = isIndex ? translate(lang, "ui.pageTitle") : "404";
+      const cardTitle = isIndex
+        ? `${profile.author[lang]} — ${what}`
+        : `${what} — ${profile.terminal.hostname}`;
+      const title = isIndex ? `${cardTitle} — ${profile.terminal.hostname}` : cardTitle;
+      // The 404 describes itself; the terminal's description is about the terminal.
+      const description = isIndex
+        ? profile.seo.description?.[lang]
+        : translate(lang, "notFound.description");
+      const ogImage = profile.seo.ogImage ? `${SITE_URL}${profile.seo.ogImage}` : "";
 
-        const { enableSocialCards, enableJsonLd, enableNoscript } = profile.seo;
-        const head = [
-          `<title>${escapeHtml(title)}</title>`,
-          description ? `<meta name="description" content="${escapeHtml(description)}" />` : "",
-          profile.seo.noindex ? `<meta name="robots" content="noindex" />` : "",
-          themeColorTag(),
-          isIndex ? `<link rel="canonical" href="${SITE_URL}/" />` : "",
-          ...(enableSocialCards
-            ? socialCardTags({
-                type: "website",
-                title: cardTitle,
-                description,
-                url: `${SITE_URL}/`,
-                image: ogImage,
-                locale: lang,
-                twitterCard: "summary_large_image",
-              })
-            : []),
-          isIndex && enableJsonLd ? personJsonLd(lang) : "",
-        ]
-          .filter(Boolean)
-          .join("\n  ");
-
-        return stripDisabledChrome(withBootstrap, isIndex)
-          .replace("</head>", `  ${head}\n</head>`)
-          .replace("<!--NOSCRIPT-->", isIndex && enableNoscript ? noscriptHtml(lang) : "");
-      },
-
-      /**
-       * Serve the non-default CV locales in dev.
-       *
-       * They only exist as files after `writeBundle`, so without this
-       * `npm run dev` would 404 on /ru/cv.html and fall through to the
-       * terminal — which is exactly what the language chip links to.
-       */
-      configureServer(server) {
-        server.middlewares.use((req, res, next) => {
-          const locale = localeFromUrl(req.url);
-          if (!locale || locale === DEFAULT_LOCALE) return next();
-
-          void server
-            .transformIndexHtml(req.url as string, readFileSync(page("cv.html"), "utf8"))
-            .then((html) => {
-              res.setHeader("Content-Type", "text/html; charset=utf-8");
-              res.end(html);
+      const { enableSocialCards, enableJsonLd, enableNoscript } = profile.seo;
+      const head = [
+        `<title>${escapeHtml(title)}</title>`,
+        description ? `<meta name="description" content="${escapeHtml(description)}" />` : "",
+        profile.seo.noindex ? `<meta name="robots" content="noindex" />` : "",
+        themeColorTag(),
+        isIndex ? `<link rel="canonical" href="${SITE_URL}/" />` : "",
+        ...(enableSocialCards
+          ? socialCardTags({
+              type: "website",
+              title: cardTitle,
+              description,
+              url: `${SITE_URL}/`,
+              image: ogImage,
+              locale: lang,
+              twitterCard: "summary_large_image",
             })
-            .catch(next);
-        });
-      },
+          : []),
+        isIndex && enableJsonLd ? personJsonLd(lang) : "",
+      ]
+        .filter(Boolean)
+        .join("\n  ");
 
-      generateBundle() {
-        // Custom domain, so `base: "/"` is correct and 404.html's
-        // root-absolute paths resolve at any URL depth.
-        this.emitFile({ type: "asset", fileName: "CNAME", source: `${new URL(SITE_URL).hostname}\n` });
-        // Pages would otherwise run Jekyll over dist/ and drop its dotfiles.
-        this.emitFile({ type: "asset", fileName: ".nojekyll", source: "" });
+      return stripDisabledChrome(withBootstrap, isIndex)
+        .replace("</head>", `  ${head}\n</head>`)
+        .replace("<!--NOSCRIPT-->", isIndex && enableNoscript ? noscriptHtml(lang) : "");
+    },
 
-        // Each discovery file is its own switch in `seo`; off means the file
-        // is simply not emitted (and robots.txt stops pointing at the sitemap).
-        const { enableSitemap, enableRobotsTxt, enableLlmsTxt } = profile.seo;
-        if (enableSitemap) this.emitFile({ type: "asset", fileName: "sitemap.xml", source: sitemapXml() });
-        if (enableRobotsTxt) this.emitFile({ type: "asset", fileName: "robots.txt", source: robotsTxt() });
-        if (enableLlmsTxt) this.emitFile({ type: "asset", fileName: "llms.txt", source: llmsTxt() });
-        this.emitFile({ type: "asset", fileName: "site.webmanifest", source: siteWebmanifest() });
-      },
+    /**
+     * Serve the non-default CV locales in dev.
+     *
+     * They only exist as files after `writeBundle`, so without this
+     * `npm run dev` would 404 on /ru/cv.html and fall through to the
+     * terminal — which is exactly what the language chip links to.
+     */
+    configureServer(server) {
+      server.middlewares.use((req, res, next) => {
+        const locale = localeFromUrl(req.url);
+        if (!locale || locale === DEFAULT_LOCALE) return next();
 
-      /**
-       * One CV page per configured locale.
-       *
-       * Vite needs its HTML inputs to exist on disk, so the locale list can't
-       * drive rolldownOptions.input; instead the *processed* cv.html — the one
-       * with Vite's hashed asset tags already injected — is cloned per
-       * locale. That works because `base` is "/", so those asset URLs are
-       * root-absolute and resolve just as well from /ru/.
-       *
-       * Written here rather than in generateBundle because Vite's own HTML
-       * plugin populates the template during that same phase, and plugin
-       * order would decide whether it exists yet.
-       */
-      writeBundle(options) {
-        const outDir = options.dir ?? "dist";
-        // Runs for every config, CV or not — public/ is already in outDir here.
-        prunePortraits(outDir);
-        pruneNotFound(outDir);
+        void server
+          .transformIndexHtml(req.url as string, readFileSync(page("cv.html"), "utf8"))
+          .then((html) => {
+            res.setHeader("Content-Type", "text/html; charset=utf-8");
+            res.end(html);
+          })
+          .catch(next);
+      });
+    },
 
-        if (!cvTemplate) return;
-        for (const locale of cvLocales(profile)) {
-          if (locale === DEFAULT_LOCALE) continue;
-          const file = join(outDir, locale, "cv.html");
-          mkdirSync(dirname(file), { recursive: true });
-          writeFileSync(file, fillCv(cvTemplate, locale));
-        }
-      },
-    };
+    generateBundle() {
+      // Custom domain, so `base: "/"` is correct and 404.html's
+      // root-absolute paths resolve at any URL depth.
+      this.emitFile({
+        type: "asset",
+        fileName: "CNAME",
+        source: `${new URL(SITE_URL).hostname}\n`,
+      });
+      // Pages would otherwise run Jekyll over dist/ and drop its dotfiles.
+      this.emitFile({ type: "asset", fileName: ".nojekyll", source: "" });
+
+      // Each discovery file is its own switch in `seo`; off means the file
+      // is simply not emitted (and robots.txt stops pointing at the sitemap).
+      const { enableSitemap, enableRobotsTxt, enableLlmsTxt } = profile.seo;
+      if (enableSitemap)
+        this.emitFile({ type: "asset", fileName: "sitemap.xml", source: sitemapXml() });
+      if (enableRobotsTxt)
+        this.emitFile({ type: "asset", fileName: "robots.txt", source: robotsTxt() });
+      if (enableLlmsTxt) this.emitFile({ type: "asset", fileName: "llms.txt", source: llmsTxt() });
+      this.emitFile({ type: "asset", fileName: "site.webmanifest", source: siteWebmanifest() });
+    },
+
+    /**
+     * One CV page per configured locale.
+     *
+     * Vite needs its HTML inputs to exist on disk, so the locale list can't
+     * drive rolldownOptions.input; instead the *processed* cv.html — the one
+     * with Vite's hashed asset tags already injected — is cloned per
+     * locale. That works because `base` is "/", so those asset URLs are
+     * root-absolute and resolve just as well from /ru/.
+     *
+     * Written here rather than in generateBundle because Vite's own HTML
+     * plugin populates the template during that same phase, and plugin
+     * order would decide whether it exists yet.
+     */
+    writeBundle(options) {
+      const outDir = options.dir ?? "dist";
+      // Runs for every config, CV or not — public/ is already in outDir here.
+      prunePortraits(outDir);
+      pruneNotFound(outDir);
+
+      if (!cvTemplate) return;
+      for (const locale of cvLocales(profile)) {
+        if (locale === DEFAULT_LOCALE) continue;
+        const file = join(outDir, locale, "cv.html");
+        mkdirSync(dirname(file), { recursive: true });
+        writeFileSync(file, fillCv(cvTemplate, locale));
+      }
+    },
+  };
+}
+
+export default defineConfig(({ command }) => {
+  // Absolute URLs with no origin would ship a sitemap and canonicals that
+  // point nowhere. Refuse to build rather than publish that.
+  if (command === "build" && !SITE_URL) {
+    throw new Error(
+      "SITE_URL is not set. Put `SITE_URL=https://your.domain` in .env (see .env.example) " +
+        "or export it in the shell — it is the origin for every absolute URL the build emits.",
+    );
   }
-
-  export default defineConfig(({ command }) => {
-    // Absolute URLs with no origin would ship a sitemap and canonicals that
-    // point nowhere. Refuse to build rather than publish that.
-    if (command === "build" && !SITE_URL) {
-      throw new Error(
-        "SITE_URL is not set. Put `SITE_URL=https://your.domain` in .env (see .env.example) " +
-          "or export it in the shell — it is the origin for every absolute URL the build emits."
-      );
-    }
-    if (command === "build" && !/^https?:\/\/[^/]+$/.test(SITE_URL)) {
-      throw new Error(`SITE_URL must be an origin with no path, e.g. https://your.domain — got "${SITE_URL}".`);
-    }
-    return {
+  if (command === "build" && !/^https?:\/\/[^/]+$/.test(SITE_URL)) {
+    throw new Error(
+      `SITE_URL must be an origin with no path, e.g. https://your.domain — got "${SITE_URL}".`,
+    );
+  }
+  return {
     root: PAGES,
     publicDir: "../public",
     base: "/",
@@ -714,9 +758,7 @@ function profileHtmlPlugin(): Plugin {
     define: {
       __SITE_URL__: JSON.stringify(SITE_URL),
       __BUILD_TIME__: JSON.stringify(new Date().toISOString()),
-      __CV_BYTES__: JSON.stringify(
-        profile.cv ? cvByteSize(profile, DEFAULT_LOCALE) : 0
-      ),
+      __CV_BYTES__: JSON.stringify(profile.cv ? cvByteSize(profile, DEFAULT_LOCALE) : 0),
     },
     plugins: [profileHtmlPlugin()],
     build: {

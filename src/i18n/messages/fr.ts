@@ -138,7 +138,10 @@ const fr: Messages = {
       "énergie de l'après-midi, ça tient bon",
     ],
     evening: ["navigation du soir, le meilleur moment", "heure de pointe du scroll, aucune honte"],
-    night: ["vous devriez sans doute dormir à cette heure", "un dernier onglet avant de dormir, bien sûr"],
+    night: [
+      "vous devriez sans doute dormir à cette heure",
+      "un dernier onglet avant de dormir, bien sûr",
+    ],
   },
 
   neofetch: {
@@ -222,10 +225,7 @@ const fr: Messages = {
       "sre-sanity-canary": {
         status: "Running",
         reason: "tient grâce au café et à l'entêtement",
-        events: [
-          "Started — conteneur démarré",
-          "Warning — niveau d'anxiété proche du critique",
-        ],
+        events: ["Started — conteneur démarré", "Warning — niveau d'anxiété proche du critique"],
       },
       "deploy-friday-afternoon": {
         status: "Evicted",
@@ -342,7 +342,7 @@ const fr: Messages = {
     game: [
       "#!/bin/bash",
       "# {script} — ne le lisez pas, lancez-le",
-      "# voir aussi : <a href=\"{url}\" target=\"_blank\" rel=\"noopener\">{url}</a>",
+      '# voir aussi : <a href="{url}" target="_blank" rel="noopener">{url}</a>',
       "# note : il vous faudra sudo",
       'echo "ouverture d\'une petite surprise..."',
       "xdg-open {url} 2&gt;/dev/null",
@@ -353,7 +353,8 @@ const fr: Messages = {
     message: "Aucun fichier ou dossier de ce type",
     description: "404 — page introuvable.",
     quip: "Oups ! On dirait que le chat a mangé tout le lait concentré... et cette page avec.",
-    catAlt: "Un chat roux couché sur le dos, fatigué, entouré de boîtes de lait concentré renversées.",
+    catAlt:
+      "Un chat roux couché sur le dos, fatigué, entouré de boîtes de lait concentré renversées.",
     back: "retour au terminal",
     unknownPage: "page-inconnue",
     switchTo: "Changer de langue",
@@ -370,7 +371,6 @@ const fr: Messages = {
     backToTerminal: "retour au terminal",
     switchLanguage: "Changer de langue",
   },
-
 };
 
 export default fr;

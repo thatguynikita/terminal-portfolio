@@ -128,16 +128,16 @@ const pl: Messages = {
       "wstałeś wcześnie, albo w ogóle się nie kładłeś — trudno powiedzieć",
       "skrajnie zalogowany ranny ptaszek",
     ],
-    morning: [
-      "rozsądne godziny, bardzo odpowiedzialnie",
-      "produktywna poranna energia, szanuję",
-    ],
+    morning: ["rozsądne godziny, bardzo odpowiedzialnie", "produktywna poranna energia, szanuję"],
     midday: ["przeglądanie w przerwie na lunch, klasyka", "złote okno prokrastynacji"],
     afternoon: [
       "dołek o 15, przeglądanie jako mechanizm obronny",
       "popołudniowa energia, trzyma się mocno",
     ],
-    evening: ["wieczorne przeglądanie, to, co najlepsze", "godziny szczytu scrollowania, bez wstydu"],
+    evening: [
+      "wieczorne przeglądanie, to, co najlepsze",
+      "godziny szczytu scrollowania, bez wstydu",
+    ],
     night: ["o tej porze pewnie powinieneś już spać", "jeszcze jedna karta przed snem, jasne"],
   },
 
@@ -342,7 +342,7 @@ const pl: Messages = {
     game: [
       "#!/bin/bash",
       "# {script} — nie czytaj, po prostu uruchom",
-      "# zobacz też: <a href=\"{url}\" target=\"_blank\" rel=\"noopener\">{url}</a>",
+      '# zobacz też: <a href="{url}" target="_blank" rel="noopener">{url}</a>',
       "# uwaga: będziesz potrzebować sudo",
       'echo "otwieram małą niespodziankę..."',
       "xdg-open {url} 2&gt;/dev/null",
@@ -353,7 +353,8 @@ const pl: Messages = {
     message: "Nie ma takiego pliku ani katalogu",
     description: "404 — nie znaleziono strony.",
     quip: "Ups! Wygląda na to, że kot zjadł całe mleko skondensowane... i tę stronę też.",
-    catAlt: "Rudy kot leży na plecach, zmęczony, otoczony rozlanymi puszkami mleka skondensowanego.",
+    catAlt:
+      "Rudy kot leży na plecach, zmęczony, otoczony rozlanymi puszkami mleka skondensowanego.",
     back: "wróć do terminala",
     unknownPage: "nieznana-strona",
     switchTo: "Zmień język",
@@ -370,7 +371,6 @@ const pl: Messages = {
     backToTerminal: "wróć do terminala",
     switchLanguage: "Zmień język",
   },
-
 };
 
 export default pl;

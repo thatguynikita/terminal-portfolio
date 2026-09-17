@@ -1,5 +1,5 @@
-import type { CommandContext } from "./types.ts";
 import { escapeHtml } from "./html.ts";
+import type { CommandContext } from "./types.ts";
 
 /**
  * The "Playing" row inside the neofetch card.

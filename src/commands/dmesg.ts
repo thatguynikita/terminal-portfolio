@@ -8,7 +8,7 @@ export default defineCommand({
       ctx.tList("boot.lines", {
         host: ctx.profile.terminal.hostname,
         user: ctx.profile.terminal.handle,
-      })
+      }),
     );
   },
 });

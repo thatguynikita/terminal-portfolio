@@ -1,8 +1,8 @@
+import { escapeHtml as esc } from "../core/html.ts";
 import type { ProfileConfig } from "../core/profile.ts";
 import { skillsFor, socialsFor } from "../core/profile.ts";
-import { LOCALES, type Locale } from "../i18n/locales.ts";
 import { translate } from "../i18n/index.ts";
-import { escapeHtml as esc } from "../core/html.ts";
+import { LOCALES, type Locale } from "../i18n/locales.ts";
 import { CV_LINK_LABEL, cvUrl, photoAltFor } from "./url.ts";
 
 /**
@@ -68,7 +68,7 @@ export function renderCv(profile: ProfileConfig, locale: Locale): string {
   const contacts = socialsFor(profile, "cv")
     .map(
       (s) =>
-        `<a href="${esc(s.href)}"${s.href.startsWith("http") ? ' target="_blank" rel="noopener"' : ""}>${esc(s.label)}</a>`
+        `<a href="${esc(s.href)}"${s.href.startsWith("http") ? ' target="_blank" rel="noopener"' : ""}>${esc(s.label)}</a>`,
     )
     .join('<span class="sep" aria-hidden="true"> · </span>');
 
@@ -107,10 +107,10 @@ export function renderCv(profile: ProfileConfig, locale: Locale): string {
       const bullets = job.bullets[locale].map((b: string) => `<li>${esc(b)}</li>`).join("");
       return `  <article class="job">
     <p class="job-meta"><span class="dates">${esc(job.dates[locale])}</span> <span class="span">(${esc(job.span[locale])})</span> <span class="sep" aria-hidden="true">&rsaquo;</span> <span class="co">${
-        job.org.url
-          ? `<a href="${esc(job.org.url)}" target="_blank" rel="noopener">${esc(job.org.name)}</a>`
-          : esc(job.org.name)
-      }</span> <span class="loc">${esc(job.org.location[locale])}</span></p>
+      job.org.url
+        ? `<a href="${esc(job.org.url)}" target="_blank" rel="noopener">${esc(job.org.name)}</a>`
+        : esc(job.org.name)
+    }</span> <span class="loc">${esc(job.org.location[locale])}</span></p>
     <h3 class="job-title">${esc(job.title[locale])}</h3>
     <ul class="bullets">${bullets}</ul>
     <p class="tech">${esc(t("techPrefix"))} ${esc(job.tech)}</p>
@@ -141,7 +141,7 @@ ${jobs}
   const certs = (cv.certs ?? [])
     .map(
       (c) =>
-        `    <li class="cert-row"><span class="marker" aria-hidden="true">[x]</span> <span class="yr">${esc(c.year)}</span> ${esc(c.name)}</li>`
+        `    <li class="cert-row"><span class="marker" aria-hidden="true">[x]</span> <span class="yr">${esc(c.year)}</span> ${esc(c.name)}</li>`,
     )
     .join("\n");
   if (certs) {
@@ -160,7 +160,7 @@ ${certs}
   const langs = (cv.languages ?? [])
     .map((l) => {
       const cells = Array.from({ length: LANG_METER_CELLS }, (_, i) =>
-        i < l.filled ? `<i class="on"></i>` : `<i></i>`
+        i < l.filled ? `<i class="on"></i>` : `<i></i>`,
       ).join("");
       return `    <li class="lang-row">
       <span class="lang-name">${esc(l.name[locale])}</span>
@@ -181,10 +181,7 @@ ${langs}
   /* ---------------- skills ---------------- */
 
   const skillRows = skillsFor(profile, "cv")
-    .map(
-      (s) =>
-        `    <tr><th scope="row">${esc(s.key[locale])}</th><td>${esc(s.value)}</td></tr>`
-    )
+    .map((s) => `    <tr><th scope="row">${esc(s.key[locale])}</th><td>${esc(s.value)}</td></tr>`)
     .join("\n");
   if (skillRows) {
     out.push(`<section class="section">
@@ -215,7 +212,7 @@ ${traits}
     out.push(
       `<p class="sign-off">$ <span class="accent">echo</span> ` +
         `<span class="amber">"${esc(cv.signOff[locale])}"</span>` +
-        `<span class="fake-cursor" aria-hidden="true"></span></p>`
+        `<span class="fake-cursor" aria-hidden="true"></span></p>`,
     );
   }
 

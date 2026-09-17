@@ -1,7 +1,7 @@
 import { defineProfile } from "./src/core/profile.ts";
+import de from "./src/i18n/messages/de.ts";
 import en from "./src/i18n/messages/en.ts";
 import es from "./src/i18n/messages/es.ts";
-import de from "./src/i18n/messages/de.ts";
 
 /**
  * The languages this site ships, in rotation order.

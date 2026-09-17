@@ -1,15 +1,15 @@
-import { defineCommand } from "../core/types.ts";
 import profile from "../../profile.config.ts";
 import { applyNowPlaying, startNowPlaying } from "../core/nowplaying.ts";
+import { defineCommand } from "../core/types.ts";
 
 export default defineCommand({
   name: "neofetch",
   enabled: Boolean(profile.neofetch),
   order: 40,
   run(ctx) {
-    // Registered only when a card is configured, so `!` is safe here.
-    const { terminal } = ctx.profile;
-    const neofetch = ctx.profile.neofetch!;
+    // Registered only when a card is configured; the guard is for the types.
+    const { terminal, neofetch } = ctx.profile;
+    if (!neofetch) return;
     const { nowPlaying } = neofetch;
 
     // Values are prose, escaped like prose; the amber highlight is a flag on

@@ -132,15 +132,9 @@ const ko: Messages = {
       "일찍 일어났거나, 아예 안 잤거나 — 판단하기 어렵네요",
       "극도로 온라인인 얼리버드",
     ],
-    morning: [
-      "합리적인 시간대, 아주 책임감 있으시네요",
-      "생산적인 아침 에너지, 존경합니다",
-    ],
+    morning: ["합리적인 시간대, 아주 책임감 있으시네요", "생산적인 아침 에너지, 존경합니다"],
     midday: ["점심시간 웹서핑, 클래식이죠", "미루기의 황금 시간대"],
-    afternoon: [
-      "오후 3시의 슬럼프, 대처 기제로서의 웹서핑",
-      "오후의 에너지, 잘 버티고 있네요",
-    ],
+    afternoon: ["오후 3시의 슬럼프, 대처 기제로서의 웹서핑", "오후의 에너지, 잘 버티고 있네요"],
     evening: ["저녁 웹서핑, 최고의 시간", "스크롤 황금 시간대, 부끄러워할 것 없어요"],
     night: ["이 시간이면 자고 있어야 할 텐데", "자기 전에 탭 하나만 더, 물론이죠"],
   },
@@ -226,10 +220,7 @@ const ko: Messages = {
       "sre-sanity-canary": {
         status: "Running",
         reason: "커피와 고집으로 버티는 중",
-        events: [
-          "Started — 컨테이너 시작됨",
-          "Warning — 불안 수준이 임계치에 근접",
-        ],
+        events: ["Started — 컨테이너 시작됨", "Warning — 불안 수준이 임계치에 근접"],
       },
       "deploy-friday-afternoon": {
         status: "Evicted",
@@ -346,7 +337,7 @@ const ko: Messages = {
     game: [
       "#!/bin/bash",
       "# {script} — 읽지 말고 그냥 실행하세요",
-      "# 참고: <a href=\"{url}\" target=\"_blank\" rel=\"noopener\">{url}</a>",
+      '# 참고: <a href="{url}" target="_blank" rel="noopener">{url}</a>',
       "# 주의: sudo가 필요합니다",
       'echo "작은 깜짝 선물을 여는 중..."',
       "xdg-open {url} 2&gt;/dev/null",
@@ -374,7 +365,6 @@ const ko: Messages = {
     backToTerminal: "터미널로 돌아가기",
     switchLanguage: "언어 전환",
   },
-
 };
 
 export default ko;

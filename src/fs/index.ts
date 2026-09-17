@@ -1,5 +1,5 @@
-import type { CommandContext, FileSystem, FsNode, FsRunResult } from "../core/types.ts";
 import { escapeHtml } from "../core/html.ts";
+import type { CommandContext, FileSystem, FsNode, FsRunResult } from "../core/types.ts";
 import type { FsDescriptor } from "./define.ts";
 
 /**
@@ -22,13 +22,10 @@ const rawFiles = import.meta.glob(["./*", "./.*", "!./*.ts", "!./.*.ts"], {
   eager: true,
 }) as Record<string, string>;
 
-const descriptorModules = import.meta.glob(
-  ["./*.ts", "./.*.ts", "!./index.ts", "!./define.ts"],
-  {
-    import: "default",
-    eager: true,
-  }
-) as Record<string, FsDescriptor>;
+const descriptorModules = import.meta.glob(["./*.ts", "./.*.ts", "!./index.ts", "!./define.ts"], {
+  import: "default",
+  eager: true,
+}) as Record<string, FsDescriptor>;
 
 const DEFAULT_PERMS = "-rw-r--r--";
 const EXEC_PERMS = "-rwxr--r--";
@@ -50,15 +47,17 @@ function byteLength(text: string): number {
  * wrong thing.
  */
 function visibleText(html: string): string {
-  return html
-    .replace(/<[^>]*>/g, "")
-    .replace(/&lt;/g, "<")
-    .replace(/&gt;/g, ">")
-    .replace(/&quot;/g, '"')
-    .replace(/&#39;/g, "'")
-    .replace(/&nbsp;/g, " ")
-    // Ampersand last, so "&amp;lt;" does not decode twice.
-    .replace(/&amp;/g, "&");
+  return (
+    html
+      .replace(/<[^>]*>/g, "")
+      .replace(/&lt;/g, "<")
+      .replace(/&gt;/g, ">")
+      .replace(/&quot;/g, '"')
+      .replace(/&#39;/g, "'")
+      .replace(/&nbsp;/g, " ")
+      // Ampersand last, so "&amp;lt;" does not decode twice.
+      .replace(/&amp;/g, "&")
+  );
 }
 
 interface Entry {

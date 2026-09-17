@@ -1,13 +1,19 @@
-import { afterEach, describe, expect, it, vi } from "vitest";
 import { readFileSync } from "node:fs";
 import { join } from "node:path";
+import { afterEach, describe, expect, it, vi } from "vitest";
 import profile from "../profile.config.ts";
-import { LOCALES, type Localized } from "../src/i18n/locales.ts";
-import { renderCv, renderCvTopbar } from "../src/cv/render.ts";
 import { buildCvJsonLd, buildIndexJsonLd } from "../src/core/jsonld.ts";
-import { CV_LINK_LABEL, cvLocales, cvUrl } from "../src/cv/url.ts";
-import { mailtoFor, renderCopyright, renderFooter, skillsFor, socialsFor } from "../src/core/profile.ts";
 import { leaveForTerminalOnKey } from "../src/core/leave.ts";
+import {
+  mailtoFor,
+  renderCopyright,
+  renderFooter,
+  skillsFor,
+  socialsFor,
+} from "../src/core/profile.ts";
+import { renderCv, renderCvTopbar } from "../src/cv/render.ts";
+import { CV_LINK_LABEL, cvLocales, cvUrl } from "../src/cv/url.ts";
+import { LOCALES, type Localized } from "../src/i18n/locales.ts";
 
 /**
  * The CV is optional, so these suites skip when it isn't configured — a
@@ -44,7 +50,9 @@ withCv("cv locales", () => {
       expect(cv!.about![locale]?.length, `${locale}: about is empty`).toBeGreaterThan(50);
       expect(cv!.traits![locale]?.length, `${locale}: no traits`).toBeGreaterThan(0);
       for (const job of cv!.jobs!) {
-        expect(job.bullets[locale]?.length, `${locale}: ${job.id} has no bullets`).toBeGreaterThan(0);
+        expect(job.bullets[locale]?.length, `${locale}: ${job.id} has no bullets`).toBeGreaterThan(
+          0,
+        );
       }
     }
   });
@@ -81,7 +89,7 @@ withCv("cv locales", () => {
   it("keeps section headings identical across locales", () => {
     const namesFor = (locale: (typeof locales)[number]): string[] =>
       [...renderCv(profile, locale).matchAll(/<span class="section-name">([^<]+)</g)].map(
-        (m) => m[1] as string
+        (m) => m[1] as string,
       );
     const first = namesFor(locales[0]!);
     expect(first.length).toBeGreaterThan(4);
@@ -107,7 +115,10 @@ withCv("cv locales", () => {
   });
 
   it("escapes the name in the copyright line", () => {
-    const p = { ...profile, author: { ...profile.author, [profile.terminal.defaultLocale]: "A <b>& B" } } as typeof profile;
+    const p = {
+      ...profile,
+      author: { ...profile.author, [profile.terminal.defaultLocale]: "A <b>& B" },
+    } as typeof profile;
     const line = renderCopyright(p, profile.terminal.defaultLocale, "https://x.test");
     expect(line).toContain("A &lt;b&gt;&amp; B");
     expect(line).not.toContain("<b>");
@@ -120,21 +131,39 @@ withCv("cv locales", () => {
   describe("renderFooter", () => {
     const locale = profile.terminal.defaultLocale;
     const withFooter = (footer: Partial<typeof profile.terminal.footer>) =>
-      ({ ...profile, terminal: { ...profile.terminal, footer: { copyright: true, backToTerminal: true, ...footer } } }) as typeof profile;
+      ({
+        ...profile,
+        terminal: {
+          ...profile.terminal,
+          footer: { copyright: true, backToTerminal: true, ...footer },
+        },
+      }) as typeof profile;
 
     it("joins the copyright and the page's tail with a separator", () => {
-      const html = renderFooter(withFooter({ bottomText: "" }), locale, "https://x.test", "<i>tail</i>");
+      const html = renderFooter(
+        withFooter({ bottomText: "" }),
+        locale,
+        "https://x.test",
+        "<i>tail</i>",
+      );
       expect(html).toContain(`>${profile.author[locale]}</a> · <i>tail</i>`);
       expect(html).not.toContain("footer-bottom");
     });
 
     it("drops the copyright and the separator when switched off", () => {
-      const html = renderFooter(withFooter({ copyright: false, bottomText: "" }), locale, "https://x.test", "<i>tail</i>");
+      const html = renderFooter(
+        withFooter({ copyright: false, bottomText: "" }),
+        locale,
+        "https://x.test",
+        "<i>tail</i>",
+      );
       expect(html).toBe("<i>tail</i>");
     });
 
     it("is empty when every part is off", () => {
-      expect(renderFooter(withFooter({ copyright: false, bottomText: "" }), locale, "", "")).toBe("");
+      expect(renderFooter(withFooter({ copyright: false, bottomText: "" }), locale, "", "")).toBe(
+        "",
+      );
     });
 
     it("renders bottomText verbatim, on its own line, the same in every locale", () => {
@@ -150,9 +179,10 @@ withCv("cv locales", () => {
   it("labels the CV the same way on every page", () => {
     // One constant, so index/404/cv can't disagree about what to call it.
     for (const file of ["src/main.ts", "src/notfound.ts", "src/cv/render.ts"]) {
-      expect(readFileSync(join(process.cwd(), file), "utf8"), `${file} hardcodes a label`).toContain(
-        "CV_LINK_LABEL"
-      );
+      expect(
+        readFileSync(join(process.cwd(), file), "utf8"),
+        `${file} hardcodes a label`,
+      ).toContain("CV_LINK_LABEL");
     }
     expect(CV_LINK_LABEL).toBe("cv.html");
   });
@@ -173,7 +203,7 @@ withCv("cv locales", () => {
       const topbar = renderCvTopbar(profile, locale);
       expect(topbar).toContain('id="langChip"');
       expect(topbar, `${locale} chip links to itself`).not.toContain(
-        `href="${cvUrl(profile, locale)}"`
+        `href="${cvUrl(profile, locale)}"`,
       );
     }
   });
@@ -214,9 +244,12 @@ withCv("cv renders without JavaScript", () => {
         // A job with no URL must not borrow another job's link.
         const unlinked = cv!.jobs!.filter((j) => !j.org.url);
         for (const job of unlinked) {
-          const block = html.slice(html.indexOf(job.org.name) - 200, html.indexOf(job.org.name) + 50);
+          const block = html.slice(
+            html.indexOf(job.org.name) - 200,
+            html.indexOf(job.org.name) + 50,
+          );
           expect(block, `${job.id} has no url but rendered a link`).not.toMatch(
-            new RegExp(`<a[^>]*>${job.org.name}`)
+            new RegExp(`<a[^>]*>${job.org.name}`),
           );
         }
       });
@@ -242,7 +275,7 @@ withCv("cv renders without JavaScript", () => {
       it("shows the CV's own contact set, not the terminal's", () => {
         for (const social of socialsFor(profile, "cv")) expect(html).toContain(social.href);
         const terminalOnly = profile.socials.filter(
-          (s) => s.contexts?.length === 1 && s.contexts[0] === "terminal"
+          (s) => s.contexts?.length === 1 && s.contexts[0] === "terminal",
         );
         for (const social of terminalOnly) {
           expect(html, `${social.label} should not appear on the CV`).not.toContain(social.href);
@@ -260,7 +293,7 @@ withCv("cv renders without JavaScript", () => {
           expect(name, "heading leaked the prompt or command").not.toMatch(/[$~:]|\s/);
           expect(name, "heading is not a filename").toMatch(/\.[a-z]+$/);
           expect(heading, "prompt should be hidden from assistive tech").toContain(
-            'aria-hidden="true"'
+            'aria-hidden="true"',
           );
         }
       });
@@ -300,13 +333,15 @@ withCv("cv structured data", () => {
   }
 
   it("lists only real URLs in sameAs", () => {
-    for (const url of person("en" as never)["sameAs"] as string[]) expect(url).toMatch(/^https?:\/\//);
+    for (const url of person("en" as never)["sameAs"] as string[])
+      expect(url).toMatch(/^https?:\/\//);
   });
 
   it("derives knowsAbout from the skills table, one technology per entry", () => {
     const about = person(locales[0]!)["knowsAbout"] as string[];
     expect(about.length).toBeGreaterThan(0);
-    for (const item of about) expect(item, "a comma-joined value leaked through").not.toContain(", ");
+    for (const item of about)
+      expect(item, "a comma-joined value leaked through").not.toContain(", ");
     const firstSkill = profile.skills[0]!.value.split(",")[0]!.trim();
     expect(about).toContain(firstSkill);
     expect(new Set(about).size, "duplicates").toBe(about.length);
@@ -326,14 +361,22 @@ withCv("cv structured data", () => {
       }
       if (cv!.certs) {
         expect(p["hasCredential"]).toHaveLength(cv!.certs.length);
-        expect(p["hasCredential"][0]).toMatchObject({ name: cv!.certs[0]!.name, dateCreated: cv!.certs[0]!.year });
+        expect(p["hasCredential"][0]).toMatchObject({
+          name: cv!.certs[0]!.name,
+          dateCreated: cv!.certs[0]!.year,
+        });
       }
       if (cv!.jobs) {
         // Present tense: only the current (first-listed) job is an occupation the person has.
-        expect(p["hasOccupation"]).toEqual({ "@type": "Occupation", name: cv!.jobs[0]!.title[locale] });
+        expect(p["hasOccupation"]).toEqual({
+          "@type": "Occupation",
+          name: cv!.jobs[0]!.title[locale],
+        });
         for (const past of cv!.jobs.slice(1)) {
           if (past.title[locale] === cv!.jobs[0]!.title[locale]) continue; // same title held twice
-          expect(p["hasOccupation"].name, "a past title in hasOccupation").not.toBe(past.title[locale]);
+          expect(p["hasOccupation"].name, "a past title in hasOccupation").not.toBe(
+            past.title[locale],
+          );
         }
         // Employers live on affiliation, deduped: Occupation has no employer
         // property, and the validator flags hiringOrganization there.
@@ -346,8 +389,21 @@ withCv("cv structured data", () => {
   });
 
   it("omits every CV-only section for an empty cv, rather than emitting it empty", () => {
-    const p = (buildCvJsonLd({ ...profile, cv: {} } as typeof profile, locales[0]!, "https://x.test") as Record<string, any>)["mainEntity"];
-    for (const key of ["alumniOf", "hasCredential", "hasOccupation", "affiliation", "knowsLanguage", "image"]) {
+    const p = (
+      buildCvJsonLd(
+        { ...profile, cv: {} } as typeof profile,
+        locales[0]!,
+        "https://x.test",
+      ) as Record<string, any>
+    )["mainEntity"];
+    for (const key of [
+      "alumniOf",
+      "hasCredential",
+      "hasOccupation",
+      "affiliation",
+      "knowsLanguage",
+      "image",
+    ]) {
       expect(key in p, `${key} present for an empty cv`).toBe(false);
     }
     expect(p["knowsAbout"], "skills live outside cv, so they survive").toBeTruthy();
@@ -356,7 +412,10 @@ withCv("cv structured data", () => {
 
 describe("index structured data", () => {
   const locale = profile.terminal.defaultLocale;
-  const graph = () => (buildIndexJsonLd(profile, locale, "https://example.com") as Record<string, any>)["@graph"] as Array<Record<string, any>>;
+  const graph = () =>
+    (buildIndexJsonLd(profile, locale, "https://example.com") as Record<string, any>)[
+      "@graph"
+    ] as Array<Record<string, any>>;
 
   it("is a graph of the site and its owner, linked by @id", () => {
     const [site, person] = graph();
@@ -397,7 +456,8 @@ withCv("cv print styles", () => {
    * prints in colour. !important removes the ordering dependency entirely.
    */
   it("overrides the palette regardless of stylesheet order", () => {
-    const rootBlock = /:root, :root\[data-theme\] \{([\s\S]*?)\n  \}/.exec(printBlock)?.[1] ?? "";
+    const rootBlock =
+      /:root,\s*:root\[data-theme\]\s*\{([\s\S]*?)\n {2}\}/.exec(printBlock)?.[1] ?? "";
     const declarations = [...rootBlock.matchAll(/(--[a-z0-9-]+)\s*:([^;]*);/g)];
     expect(declarations.length).toBeGreaterThan(20);
     const weak = declarations.filter((m) => !/!important/.test(m[2] ?? "")).map((m) => m[1]);
@@ -408,7 +468,7 @@ withCv("cv print styles", () => {
     const green = readFileSync(join(process.cwd(), "src/themes/green.css"), "utf8");
     const tokens = [...green.matchAll(/(--[a-z0-9-]+)\s*:/g)].map((m) => m[1] as string);
     const overridden = new Set(
-      [...printBlock.matchAll(/(--[a-z0-9-]+)\s*:/g)].map((m) => m[1] as string)
+      [...printBlock.matchAll(/(--[a-z0-9-]+)\s*:/g)].map((m) => m[1] as string),
     );
     const missing = tokens.filter((t) => !overridden.has(t));
     expect(missing, "tokens that would keep their theme colour on paper").toEqual([]);
@@ -456,15 +516,14 @@ withCv("cv print styles", () => {
       return true;
     });
 
-    expect(
-      offenders,
-      "a hardcoded colour the print blanket cannot neutralise"
-    ).toEqual([]);
+    expect(offenders, "a hardcoded colour the print blanket cannot neutralise").toEqual([]);
   });
 
   it("prints the portrait in grayscale, without its frame shadow", () => {
     expect(printBlock).toMatch(/\.avatar\s*\{[^}]*grayscale/);
-    expect(printBlock).toMatch(/\.avatar-frame::after[^{]*\{[^}]*display\s*:\s*none|\.avatar-frame::after/);
+    expect(printBlock).toMatch(
+      /\.avatar-frame::after[^{]*\{[^}]*display\s*:\s*none|\.avatar-frame::after/,
+    );
   });
 
   // The pixel render is screen-only. On paper the source photo comes back:
@@ -473,7 +532,9 @@ withCv("cv print styles", () => {
   // after it in dev and the swap must not depend on order.
   it("prints the source photo, discarding the pixel render", () => {
     expect(printBlock).toMatch(/\.avatar-pixel\s*\{[^}]*display\s*:\s*none\s*!important/);
-    expect(printBlock).toMatch(/\.is-pixelated\s+img\.avatar\s*\{[^}]*display\s*:\s*block\s*!important/);
+    expect(printBlock).toMatch(
+      /\.is-pixelated\s+img\.avatar\s*\{[^}]*display\s*:\s*block\s*!important/,
+    );
   });
 
   it("keeps the command visible in headings, hiding only the prompt", () => {
@@ -487,7 +548,7 @@ withCv("cv print styles", () => {
     }
     // Jobs may flow across pages; individual items may not split.
     expect(printBlock).toMatch(/ul\.bullets li[^{]*\{[^}]*break-inside\s*:\s*avoid/);
-    expect(printBlock).toMatch(/\.section, \.job \{[^}]*break-inside\s*:\s*auto/);
+    expect(printBlock).toMatch(/\.section,\s*\.job\s*\{[^}]*break-inside\s*:\s*auto/);
   });
 });
 
@@ -533,8 +594,11 @@ withCv("portrait style", () => {
   const locale = profile.terminal.defaultLocale;
   const styled = (photoStyle?: "pixel" | "tint" | "plain"): string =>
     renderCv(
-      { ...profile, cv: { ...cv, photo: "/assets/img/portraits/x.png", photoStyle } } as typeof profile,
-      locale
+      {
+        ...profile,
+        cv: { ...cv, photo: "/assets/img/portraits/x.png", photoStyle },
+      } as typeof profile,
+      locale,
     );
 
   it("defaults to plain — served as uploaded", () => {
@@ -561,7 +625,9 @@ withCv("portrait style", () => {
     const screen = css
       .replace(/\/\*[\s\S]*?\*\//g, "")
       .replace(/@media print\s*\{[\s\S]*\}\s*$/, "");
-    expect(screen).toMatch(/\.avatar-frame\.style-tint::after,\s*\.avatar-frame\.style-pixel::after\s*\{/);
+    expect(screen).toMatch(
+      /\.avatar-frame\.style-tint::after,\s*\.avatar-frame\.style-pixel::after\s*\{/,
+    );
     expect(screen).toMatch(/\.style-tint \.avatar,\s*\.style-pixel \.avatar\s*\{[^}]*grayscale/);
     // and no rule selects the plain style at all — it is the absence of styling
     expect(screen).not.toMatch(/style-plain/);
@@ -615,8 +681,11 @@ withCv("partial configs", () => {
   // So it's escaped like prose — markup in the config must not become markup.
   it("dresses the sign-off as a shell line and escapes the text", () => {
     const html = renderCv(
-      { ...profile, cv: { ...cv, signOff: { ...cv!.signOff, [locale]: 'a <b>bold</b> "claim"' } } } as typeof profile,
-      locale
+      {
+        ...profile,
+        cv: { ...cv, signOff: { ...cv!.signOff, [locale]: 'a <b>bold</b> "claim"' } },
+      } as typeof profile,
+      locale,
     );
     const line = /<p class="sign-off">(.*?)<\/p>/.exec(html)?.[1] ?? "";
     expect(line).toMatch(/^\$ <span class="accent">echo<\/span> <span class="amber">"/);
@@ -639,8 +708,14 @@ withCv("partial configs", () => {
     // The tagline lives in `cv` now, so an empty cv has no line under the name.
     expect(html).not.toContain('class="tagline"');
     // Skills come from profile.skills, not from `cv`, so they survive.
-    for (const heading of ["about.txt", "experience.log", "education.txt",
-      "certifications.txt", "languages.txt", "notes.txt"]) {
+    for (const heading of [
+      "about.txt",
+      "experience.log",
+      "education.txt",
+      "certifications.txt",
+      "languages.txt",
+      "notes.txt",
+    ]) {
       expect(html, `${heading} rendered from an empty cv`).not.toContain(heading);
     }
   });
@@ -711,7 +786,10 @@ describe("mailtoFor", () => {
   it("is undefined with no mailto: social, and JSON-LD then omits email", () => {
     const p = withSocials([{ label: "Web", href: "https://a.example", display: "a" }]);
     expect(mailtoFor(p)).toBeUndefined();
-    const data = buildCvJsonLd(p, profile.terminal.defaultLocale, "https://example.com") as Record<string, any>;
+    const data = buildCvJsonLd(p, profile.terminal.defaultLocale, "https://example.com") as Record<
+      string,
+      any
+    >;
     expect("email" in data["mainEntity"]).toBe(false);
   });
 

@@ -1,16 +1,16 @@
 import { afterEach, describe, expect, it, vi } from "vitest";
 import { MESSAGES } from "../profile.config.ts";
+import { systemOwner } from "../src/core/describe.ts";
+import { buildCvJsonLd, buildIndexJsonLd } from "../src/core/jsonld.ts";
 import {
   CREDIT_LINE,
   defineProfile,
+  type ProfileInput,
   renderContentSignal,
   renderFooter,
   skillsFor,
   socialsFor,
-  type ProfileInput,
 } from "../src/core/profile.ts";
-import { systemOwner } from "../src/core/describe.ts";
-import { buildCvJsonLd, buildIndexJsonLd } from "../src/core/jsonld.ts";
 import { renderCv } from "../src/cv/render.ts";
 import { LOCALES, type Locale } from "../src/i18n/locales.ts";
 
@@ -49,27 +49,42 @@ describe("defineProfile defaults", () => {
     expect(s.enable404).toBe(true);
     expect(s.contentSignal).toEqual({ search: true, aiTrain: true, aiInput: true });
     expect(renderContentSignal(resolved)).toBe("search=yes, ai-train=yes, ai-input=yes");
-    for (const key of ["role", "description", "noindex", "ogImage"]) expect(key in s, key).toBe(false);
+    for (const key of ["role", "description", "noindex", "ogImage"])
+      expect(key in s, key).toBe(false);
   });
 
   it("resolves omitted lists to [] and leaves absent features absent", () => {
     expect(resolved.skills).toEqual([]);
     expect(resolved.socials).toEqual([]);
-    for (const key of ["neofetch", "bio", "commands", "cv"]) expect(key in resolved, key).toBe(false);
+    for (const key of ["neofetch", "bio", "commands", "cv"])
+      expect(key in resolved, key).toBe(false);
   });
 
   it("lets an explicit value win over every default", () => {
     const custom = defineProfile(MESSAGES, {
       author,
-      terminal: { handle: "visitor", defaultTheme: "amber", chips: false, footer: { copyright: false, bottomText: "" } },
-      seo: { enableSitemap: false, enable404: false, contentSignal: { search: true, aiTrain: false, aiInput: true } },
+      terminal: {
+        handle: "visitor",
+        defaultTheme: "amber",
+        chips: false,
+        footer: { copyright: false, bottomText: "" },
+      },
+      seo: {
+        enableSitemap: false,
+        enable404: false,
+        contentSignal: { search: true, aiTrain: false, aiInput: true },
+      },
     });
     expect(custom.terminal.handle).toBe("visitor");
     expect(custom.terminal.defaultTheme).toBe("amber");
     expect(custom.terminal.chips).toBe(false);
     expect(custom.terminal.bootScreen).toBe(true); // untouched default beside an override
     // "" is the off switch for the credit line, and must survive as "".
-    expect(custom.terminal.footer).toEqual({ copyright: false, backToTerminal: true, bottomText: "" });
+    expect(custom.terminal.footer).toEqual({
+      copyright: false,
+      backToTerminal: true,
+      bottomText: "",
+    });
     expect(custom.seo.enableSitemap).toBe(false);
     expect(custom.seo.enable404).toBe(false);
     expect(renderContentSignal(custom)).toBe("search=yes, ai-train=no, ai-input=yes");
@@ -87,7 +102,8 @@ describe("defineProfile defaults", () => {
       // falls through to the environment, which vite.config.ts also sets.
       const p = defineProfile(MESSAGES, minimal);
       const expected = (() => {
-        const url = (typeof __SITE_URL__ !== "undefined" && __SITE_URL__) || process.env["SITE_URL"] || "";
+        const url =
+          (typeof __SITE_URL__ !== "undefined" && __SITE_URL__) || process.env["SITE_URL"] || "";
         return url ? new URL(url).hostname : "localhost";
       })();
       expect(p.terminal.hostname).toBe(expected);
@@ -97,9 +113,10 @@ describe("defineProfile defaults", () => {
     });
 
     it("is whatever the config says when the config says", () => {
-      expect(defineProfile(MESSAGES, { author, terminal: { hostname: "example.test" } }).terminal.hostname).toBe(
-        "example.test"
-      );
+      expect(
+        defineProfile(MESSAGES, { author, terminal: { hostname: "example.test" } }).terminal
+          .hostname,
+      ).toBe("example.test");
     });
   });
 });
@@ -126,9 +143,12 @@ describe("the smallest config", () => {
 
   it("builds valid JSON-LD with a name and nothing invented", () => {
     const index = buildIndexJsonLd(p, locale, "https://x.test") as Record<string, any>;
-    const person = (index["@graph"] as Array<Record<string, any>>).find((n) => n["@type"] === "Person")!;
+    const person = (index["@graph"] as Array<Record<string, any>>).find(
+      (n) => n["@type"] === "Person",
+    )!;
     expect(person["name"]).toBe("Ada Example");
-    for (const key of ["jobTitle", "email", "sameAs", "knowsAbout", "image"]) expect(key in person, key).toBe(false);
+    for (const key of ["jobTitle", "email", "sameAs", "knowsAbout", "image"])
+      expect(key in person, key).toBe(false);
     expect(() => JSON.parse(JSON.stringify(index))).not.toThrow();
   });
 
@@ -161,7 +181,9 @@ describe("with no seo.role", () => {
 
   it("omits jobTitle from both JSON-LD shapes", () => {
     const index = buildIndexJsonLd(p, locale, "https://x.test") as Record<string, any>;
-    const person = (index["@graph"] as Array<Record<string, any>>).find((n) => n["@type"] === "Person")!;
+    const person = (index["@graph"] as Array<Record<string, any>>).find(
+      (n) => n["@type"] === "Person",
+    )!;
     expect("jobTitle" in person).toBe(false);
     const cv = buildCvJsonLd(p, locale, "https://x.test") as Record<string, any>;
     expect("jobTitle" in cv["mainEntity"]).toBe(false);

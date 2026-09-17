@@ -220,10 +220,7 @@ const en = {
       "sre-sanity-canary": {
         status: "Running",
         reason: "held together by coffee and stubbornness",
-        events: [
-          "Started — container started",
-          "Warning — anxiety level approaching critical",
-        ],
+        events: ["Started — container started", "Warning — anxiety level approaching critical"],
       },
       "deploy-friday-afternoon": {
         status: "Evicted",
@@ -340,7 +337,7 @@ const en = {
     game: [
       "#!/bin/bash",
       "# {script} — don't read it, just run it",
-      "# see also: <a href=\"{url}\" target=\"_blank\" rel=\"noopener\">{url}</a>",
+      '# see also: <a href="{url}" target="_blank" rel="noopener">{url}</a>',
       "# note: you'll need sudo",
       'echo "opening a little surprise..."',
       "xdg-open {url} 2&gt;/dev/null",
@@ -368,7 +365,6 @@ const en = {
     backToTerminal: "back to terminal",
     switchLanguage: "Switch language",
   },
-
 };
 
 export type Messages = typeof en;

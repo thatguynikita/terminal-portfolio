@@ -1,5 +1,5 @@
-import { defineCommand } from "../core/types.ts";
 import { systemSince } from "../core/describe.ts";
+import { defineCommand } from "../core/types.ts";
 
 const pad = (n: number): string => String(n).padStart(2, "0");
 
@@ -26,7 +26,10 @@ export function uptimeLine(since: Date, users = 1): string {
   const hours = Math.floor((totalMinutes % 1440) / 60);
   const minutes = totalMinutes % 60;
   const time = `${pad(now.getHours())}:${pad(now.getMinutes())}:${pad(now.getSeconds())}`;
-  const up = days > 0 ? `${days} day${days === 1 ? "" : "s"}, ${hours}:${pad(minutes)}` : `${hours}:${pad(minutes)}`;
+  const up =
+    days > 0
+      ? `${days} day${days === 1 ? "" : "s"}, ${hours}:${pad(minutes)}`
+      : `${hours}:${pad(minutes)}`;
   const load = (): string => (Math.random() * 1.4 + 0.05).toFixed(2);
   return ` ${time} up ${up},  ${users} user${users === 1 ? "" : "s"},  load average: ${load()}, ${load()}, ${load()}`;
 }

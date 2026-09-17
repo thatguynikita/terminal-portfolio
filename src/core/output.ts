@@ -1,6 +1,5 @@
-import type { Output, SequenceStep } from "./types.ts";
 import { animationsEnabled, el, escapeHtml, sleep } from "./html.ts";
-
+import type { Output, SequenceStep } from "./types.ts";
 
 export interface OutputOptions {
   /** Prompt HTML for `promptEcho`, re-read on every call. */
@@ -17,7 +16,7 @@ export function createOutput(root: HTMLElement, opts: OutputOptions): Output {
   }
 
   function print(html: string, cls?: string): HTMLElement {
-    const line = el("div", "line" + (cls ? ` ${cls}` : ""), html);
+    const line = el("div", cls ? `line ${cls}` : "line", html);
     root.appendChild(line);
     scroll();
     return line;

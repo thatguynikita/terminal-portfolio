@@ -53,7 +53,7 @@ export function scriptCandidates(files: ReadonlyArray<{ name: string; exec?: unk
 export function firstWordCandidates(
   prefix: string,
   commandNames: readonly string[],
-  scripts: readonly string[]
+  scripts: readonly string[],
 ): string[] {
   const pool = prefix.startsWith(".") ? scripts : commandNames;
   return pool.filter((c) => c.startsWith(prefix));

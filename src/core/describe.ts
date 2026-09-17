@@ -13,11 +13,7 @@ import type { ProfileConfig } from "./profile.ts";
  * test assert that every visible command is described *somewhere*, rather
  * than checking only the catalogue and missing config-only descriptions.
  */
-export function commandDescription(
-  profile: ProfileConfig,
-  locale: Locale,
-  name: string
-): string {
+export function commandDescription(profile: ProfileConfig, locale: Locale, name: string): string {
   const override = profile.commands?.descriptions?.[name]?.[locale];
   if (typeof override === "string" && override.trim() !== "") return override;
 

@@ -1,5 +1,5 @@
-import { defineCommand } from "../core/types.ts";
 import { systemSince } from "../core/describe.ts";
+import { defineCommand } from "../core/types.ts";
 import { unameStamp } from "./uptime.ts";
 
 export default defineCommand({

@@ -10,7 +10,8 @@ import type { Messages } from "./en.ts";
  */
 const uk: Messages = {
   ui: {
-    welcome: "Ласкаво просимо до мого іграшкового термінала. Введіть 'help', щоб побачити, що тут є.",
+    welcome:
+      "Ласкаво просимо до мого іграшкового термінала. Введіть 'help', щоб побачити, що тут є.",
     welcomeWhisper: "(тс-с — 'help' скромничає. покопайтеся трохи.)",
     availableCommands: "Доступні команди:",
     notFound: `команду не знайдено: <span class="accent">{cmd}</span>`,
@@ -342,7 +343,7 @@ const uk: Messages = {
     game: [
       "#!/bin/bash",
       "# {script} — не читайте, просто запустіть",
-      "# див. також: <a href=\"{url}\" target=\"_blank\" rel=\"noopener\">{url}</a>",
+      '# див. також: <a href="{url}" target="_blank" rel="noopener">{url}</a>',
       "# примітка: знадобиться sudo",
       'echo "відкриваю маленький сюрприз..."',
       "xdg-open {url} 2&gt;/dev/null",
@@ -370,7 +371,6 @@ const uk: Messages = {
     backToTerminal: "назад до термінала",
     switchLanguage: "Змінити мову",
   },
-
 };
 
 export default uk;
