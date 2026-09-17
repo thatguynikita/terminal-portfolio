@@ -1,5 +1,5 @@
-import { defineCommand } from "../core/types";
-import profile from "../../profile.config";
+import { defineCommand } from "../core/types.ts";
+import profile from "../../profile.config.ts";
 
 export default defineCommand({
   name: "about",

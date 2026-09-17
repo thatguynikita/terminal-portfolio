@@ -1,6 +1,6 @@
-import { defineProfile } from "./src/core/profile";
-import en from "./src/i18n/messages/en";
-import ru from "./src/i18n/messages/ru";
+import { defineProfile } from "./src/core/profile.ts";
+import en from "./src/i18n/messages/en.ts";
+import ru from "./src/i18n/messages/ru.ts";
 
 export const MESSAGES = { en, ru };
 

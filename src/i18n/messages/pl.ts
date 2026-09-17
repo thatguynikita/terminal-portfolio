@@ -1,4 +1,4 @@
-import type { Messages } from "./en";
+import type { Messages } from "./en.ts";
 
 /**
  * Polish messages. Typed as `Messages`, so a missing key is a build error.

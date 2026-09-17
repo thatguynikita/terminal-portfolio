@@ -1,5 +1,5 @@
-import type { Output, SequenceStep } from "./types";
-import { animationsEnabled, el, escapeHtml, sleep } from "./html";
+import type { Output, SequenceStep } from "./types.ts";
+import { animationsEnabled, el, escapeHtml, sleep } from "./html.ts";
 
 
 export interface OutputOptions {

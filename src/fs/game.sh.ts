@@ -1,6 +1,6 @@
-import { defineFile } from "./define";
-import { openGame } from "../core/game";
-import profile from "../../profile.config";
+import { defineFile } from "./define.ts";
+import { openGame } from "../core/game.ts";
+import profile from "../../profile.config.ts";
 
 /**
  * The game's launcher. Its filename is `game.script` from profile.config.ts

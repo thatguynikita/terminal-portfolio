@@ -16,7 +16,7 @@ For a file that's rendered from your config, translated, or executable, add a
 
 ```ts
 // src/fs/deploy.sh.ts
-import { defineFile } from "./define";
+import { defineFile } from "./define.ts";
 
 export default defineFile({
   requiresSudo: true,                       // ./deploy.sh is denied; sudo works

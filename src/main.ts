@@ -1,13 +1,13 @@
 import "./styles/base.css";
 import "./styles/terminal.css";
 
-import profile from "../profile.config";
-import { createTerminal } from "./core/terminal";
-import { createInput } from "./core/input";
-import { boot, intro } from "./core/boot";
-import { initGameOverlay } from "./core/game";
-import { CV_LINK_LABEL, cvUrl } from "./cv/url";
-import { renderFooter } from "./core/profile";
+import profile from "../profile.config.ts";
+import { createTerminal } from "./core/terminal.ts";
+import { createInput } from "./core/input.ts";
+import { boot, intro } from "./core/boot.ts";
+import { initGameOverlay } from "./core/game.ts";
+import { CV_LINK_LABEL, cvUrl } from "./cv/url.ts";
+import { renderFooter } from "./core/profile.ts";
 
 const body = document.getElementById("termBody");
 const canvas = document.getElementById("matrix") as HTMLCanvasElement | null;

@@ -1,5 +1,5 @@
-import type { Command } from "./types";
-import type { ProfileConfig } from "./profile";
+import type { Command } from "./types.ts";
+import type { ProfileConfig } from "./profile.ts";
 
 /**
  * Command registry.

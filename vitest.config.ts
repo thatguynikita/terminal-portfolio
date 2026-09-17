@@ -1,7 +1,7 @@
 import { defineConfig } from "vitest/config";
 import { loadEnv } from "vite";
-import profile from "./profile.config";
-import { cvByteSize } from "./src/cv/render";
+import profile from "./profile.config.ts";
+import { cvByteSize } from "./src/cv/render.ts";
 
 // The discovery suite compares dist/ against SITE_URL, and vite.config.ts
 // reads SITE_URL from .env when the shell doesn't set it — so the tests

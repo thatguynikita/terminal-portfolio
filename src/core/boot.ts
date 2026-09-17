@@ -1,8 +1,8 @@
-import type { Terminal } from "./terminal";
-import type { InputController } from "./input";
-import { BOOTED_SESSION_KEY, readSession, writeSession } from "./storage";
-import { parseArgs } from "./args";
-import { animationsEnabled, sleep, untilVisible } from "./html";
+import type { Terminal } from "./terminal.ts";
+import type { InputController } from "./input.ts";
+import { BOOTED_SESSION_KEY, readSession, writeSession } from "./storage.ts";
+import { parseArgs } from "./args.ts";
+import { animationsEnabled, sleep, untilVisible } from "./html.ts";
 
 const TITLE_DELAY = 380;
 const BLANK_DELAY = 150;

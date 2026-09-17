@@ -1,7 +1,7 @@
-import { defineFile } from "./define";
-import { escapeHtml } from "../core/html";
-import { skillsFor } from "../core/profile";
-import profile from "../../profile.config";
+import { defineFile } from "./define.ts";
+import { escapeHtml } from "../core/html.ts";
+import { skillsFor } from "../core/profile.ts";
+import profile from "../../profile.config.ts";
 
 export default defineFile({
   enabled: skillsFor(profile, "terminal").length > 0,

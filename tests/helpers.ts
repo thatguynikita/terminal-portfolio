@@ -1,10 +1,10 @@
-import type { Args, CommandContext, FsNode, Mode } from "../src/core/types";
-import type { ProfileConfig } from "../src/core/profile";
-import profile from "../profile.config";
-import { translate, translateList } from "../src/i18n";
-import type { Locale } from "../src/i18n/locales";
-import { escapeAttr, escapeHtml } from "../src/core/html";
-import { parseArgs } from "../src/core/args";
+import type { Args, CommandContext, FsNode, Mode } from "../src/core/types.ts";
+import type { ProfileConfig } from "../src/core/profile.ts";
+import profile from "../profile.config.ts";
+import { translate, translateList } from "../src/i18n/index.ts";
+import type { Locale } from "../src/i18n/locales.ts";
+import { escapeAttr, escapeHtml } from "../src/core/html.ts";
+import { parseArgs } from "../src/core/args.ts";
 
 export interface FakeContext extends CommandContext {
   /** Everything printed so far, as plain text. */

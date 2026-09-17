@@ -1,8 +1,8 @@
 import { describe, expect, it } from "vitest";
-import { loadCommands } from "../src/core/registry";
-import { LOCALES } from "../src/i18n/locales";
-import { commandDescription } from "../src/core/describe";
-import profile from "../profile.config";
+import { loadCommands } from "../src/core/registry.ts";
+import { LOCALES } from "../src/i18n/locales.ts";
+import { commandDescription } from "../src/core/describe.ts";
+import profile from "../profile.config.ts";
 
 const commands = loadCommands();
 

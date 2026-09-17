@@ -1,6 +1,6 @@
-import { defineCommand } from "../core/types";
-import type { CommandContext, Mode } from "../core/types";
-import type { Persona } from "../core/profile";
+import { defineCommand } from "../core/types.ts";
+import type { CommandContext, Mode } from "../core/types.ts";
+import type { Persona } from "../core/profile.ts";
 
 /** Accepts either the bare key (`recruiter`) or the full host. */
 function resolvePersona(ctx: CommandContext, target: string): string | null {

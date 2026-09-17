@@ -1,11 +1,11 @@
 import { describe, expect, it, vi } from "vitest";
-import { createFileSystem } from "../src/fs";
-import { createFakeContext } from "./helpers";
-import { skillsFor, socialsFor } from "../src/core/profile";
-import profile from "../profile.config";
-import gameFile from "../src/fs/game.sh";
-import gameCommand from "../src/commands/game";
-import { messages } from "../src/i18n";
+import { createFileSystem } from "../src/fs/index.ts";
+import { createFakeContext } from "./helpers.ts";
+import { skillsFor, socialsFor } from "../src/core/profile.ts";
+import profile from "../profile.config.ts";
+import gameFile from "../src/fs/game.sh.ts";
+import gameCommand from "../src/commands/game.ts";
+import { messages } from "../src/i18n/index.ts";
 
 const ctx = createFakeContext("en");
 const fs = createFileSystem(() => ctx);
@@ -187,16 +187,16 @@ describe("game launcher", () => {
 describe("game launcher, with no game configured", () => {
   it("registers neither the file nor the command", async () => {
     vi.resetModules();
-    vi.doMock("../profile.config", async () => {
-      const real = await vi.importActual<typeof import("../profile.config")>("../profile.config");
+    vi.doMock("../profile.config.ts", async () => {
+      const real = await vi.importActual<typeof import("../profile.config.ts")>("../profile.config.ts");
       const { game: _game, ...commands } = real.default.commands ?? {};
       return { ...real, default: { ...real.default, commands } };
     });
-    const file = (await import("../src/fs/game.sh")).default;
-    const command = (await import("../src/commands/game")).default;
+    const file = (await import("../src/fs/game.sh.ts")).default;
+    const command = (await import("../src/commands/game.ts")).default;
     expect(file.enabled).toBe(false);
     expect(command.enabled).toBe(false);
-    vi.doUnmock("../profile.config");
+    vi.doUnmock("../profile.config.ts");
     vi.resetModules();
   });
 });
@@ -208,8 +208,8 @@ describe("game launcher, with no game configured", () => {
 describe("optional blocks, with each omitted", () => {
   const withoutKey = async (key: "neofetch" | "bio" | "skills" | "socials") => {
     vi.resetModules();
-    vi.doMock("../profile.config", async () => {
-      const real = await vi.importActual<typeof import("../profile.config")>("../profile.config");
+    vi.doMock("../profile.config.ts", async () => {
+      const real = await vi.importActual<typeof import("../profile.config.ts")>("../profile.config.ts");
       const { [key]: _gone, ...rest } = real.default;
       // skills/socials resolve to [] in a real defineProfile call; mirror that.
       const patched = key === "skills" || key === "socials" ? { ...rest, [key]: [] } : rest;
@@ -217,41 +217,41 @@ describe("optional blocks, with each omitted", () => {
     });
   };
   const restore = () => {
-    vi.doUnmock("../profile.config");
+    vi.doUnmock("../profile.config.ts");
     vi.resetModules();
   };
 
   it("no neofetch: the command is unregistered", async () => {
     await withoutKey("neofetch");
-    const command = (await import("../src/commands/neofetch")).default;
+    const command = (await import("../src/commands/neofetch.ts")).default;
     expect(command.enabled).toBe(false);
     restore();
   });
 
   it("no bio: neither `about` nor about.txt", async () => {
     await withoutKey("bio");
-    expect((await import("../src/commands/about")).default.enabled).toBe(false);
-    expect((await import("../src/fs/about.txt")).default.enabled).toBe(false);
+    expect((await import("../src/commands/about.ts")).default.enabled).toBe(false);
+    expect((await import("../src/fs/about.txt.ts")).default.enabled).toBe(false);
     restore();
   });
 
   it("no skills: neither `skills` nor skills.txt", async () => {
     await withoutKey("skills");
-    expect((await import("../src/commands/skills")).default.enabled).toBe(false);
-    expect((await import("../src/fs/skills.txt")).default.enabled).toBe(false);
+    expect((await import("../src/commands/skills.ts")).default.enabled).toBe(false);
+    expect((await import("../src/fs/skills.txt.ts")).default.enabled).toBe(false);
     restore();
   });
 
   it("no socials: neither `contact` nor contact.txt", async () => {
     await withoutKey("socials");
-    expect((await import("../src/commands/contact")).default.enabled).toBe(false);
-    expect((await import("../src/fs/contact.txt")).default.enabled).toBe(false);
+    expect((await import("../src/commands/contact.ts")).default.enabled).toBe(false);
+    expect((await import("../src/fs/contact.txt.ts")).default.enabled).toBe(false);
     restore();
   });
 
   it("with everything present, all of them are registered", async () => {
     vi.resetModules();
-    for (const m of ["../src/commands/neofetch", "../src/commands/about", "../src/commands/skills", "../src/commands/contact"]) {
+    for (const m of ["../src/commands/neofetch.ts", "../src/commands/about.ts", "../src/commands/skills.ts", "../src/commands/contact.ts"]) {
       expect((await import(m)).default.enabled, m).not.toBe(false);
     }
   });

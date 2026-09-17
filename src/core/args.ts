@@ -1,4 +1,4 @@
-import type { Args } from "./types";
+import type { Args } from "./types.ts";
 
 /**
  * Parses the text after a command name.

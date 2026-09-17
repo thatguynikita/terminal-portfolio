@@ -1,4 +1,4 @@
-import type { CommandContext, FsNode } from "../core/types";
+import type { CommandContext, FsNode } from "../core/types.ts";
 
 /**
  * What a `<filename>.ts` descriptor exports.

@@ -117,7 +117,7 @@ inputs at `pages/*.html` would emit `dist/pages/index.html` and break both
 GitHub Pages and the 404. Consequences worth knowing:
 
 - `build.outDir` is `../dist` and `publicDir` is `../public`, both relative to
-  `root`. `rollupOptions.input` needs resolved absolute paths.
+  `root`. `rolldownOptions.input` needs resolved absolute paths.
 - **The shells load `/src/main.ts` via `resolve.alias`**, never `../src/`. The
   relative form is right on disk and wrong in the browser: `..` above `/`
   clamps, the request arrives as `/src/main.ts` anyway, and the dev server
@@ -129,7 +129,7 @@ GitHub Pages and the 404. Consequences worth knowing:
   and it 500s the dev server on `/ru/cv.html` the moment that stops being true.
 
 Vite requires HTML inputs to exist on disk, so the locale list can't drive
-`rollupOptions.input`. One real `cv.html` entry is processed normally, then
+`rolldownOptions.input`. One real `cv.html` entry is processed normally, then
 cloned per additional locale in **`writeBundle`** — not `generateBundle`, where
 Vite's own HTML plugin is still populating the template and plugin order would
 decide whether it exists yet. Cloning works only because `base` is `/`, making
@@ -314,6 +314,12 @@ and gate their file *reads* too, since `describe.skip` still evaluates the body.
 
 ## Conventions
 
+- **Relative imports carry their `.ts` extension** (`from "./html.ts"`,
+  `from "../i18n/index.ts"` — never a bare directory). Vite 8 warns that its
+  next config loader is Node's own TS stripping, which resolves nothing
+  else; `allowImportingTsExtensions` in tsconfig makes `tsc` accept it. A
+  new file without the extension is what the warning on `npm run dev`
+  means.
 - The language toggle is load-bearing: any new visible text needs every
   enabled locale. Command *logic* lives in `src/commands/`; command *copy*
   lives in `src/i18n/messages/`; personal *data* lives in `profile.config.ts`.

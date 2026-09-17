@@ -1,6 +1,6 @@
-import { defineCommand } from "../core/types";
-import type { CommandContext } from "../core/types";
-import { scriptCandidates } from "../core/complete";
+import { defineCommand } from "../core/types.ts";
+import type { CommandContext } from "../core/types.ts";
+import { scriptCandidates } from "../core/complete.ts";
 
 const DANGEROUS = new Set(["/", "/*", "~", "/home", "."]);
 

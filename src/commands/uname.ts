@@ -1,6 +1,6 @@
-import { defineCommand } from "../core/types";
-import { systemSince } from "../core/describe";
-import { unameStamp } from "./uptime";
+import { defineCommand } from "../core/types.ts";
+import { systemSince } from "../core/describe.ts";
+import { unameStamp } from "./uptime.ts";
 
 export default defineCommand({
   name: "uname",

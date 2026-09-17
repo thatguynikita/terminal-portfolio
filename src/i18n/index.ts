@@ -1,6 +1,6 @@
-import profile, { MESSAGES } from "../../profile.config";
-import type { Messages } from "./messages/en";
-import { LOCALES, type Locale } from "./locales";
+import profile, { MESSAGES } from "../../profile.config.ts";
+import type { Messages } from "./messages/en.ts";
+import { LOCALES, type Locale } from "./locales.ts";
 
 /**
  * The message catalogues this site ships. The map lives in

@@ -1,7 +1,7 @@
-import { defineCommand } from "../core/types";
-import type { FsNode } from "../core/types";
-import { systemSince } from "../core/describe";
-import { lsStamp } from "./uptime";
+import { defineCommand } from "../core/types.ts";
+import type { FsNode } from "../core/types.ts";
+import { systemSince } from "../core/describe.ts";
+import { lsStamp } from "./uptime.ts";
 
 function humanSize(bytes: number): string {
   if (bytes < 1024) return String(bytes);

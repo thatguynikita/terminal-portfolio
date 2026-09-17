@@ -1,9 +1,9 @@
-import type { ProfileConfig } from "../core/profile";
-import { skillsFor, socialsFor } from "../core/profile";
-import { LOCALES, type Locale } from "../i18n/locales";
-import { translate } from "../i18n";
-import { escapeHtml as esc } from "../core/html";
-import { CV_LINK_LABEL, cvUrl, photoAltFor } from "./url";
+import type { ProfileConfig } from "../core/profile.ts";
+import { skillsFor, socialsFor } from "../core/profile.ts";
+import { LOCALES, type Locale } from "../i18n/locales.ts";
+import { translate } from "../i18n/index.ts";
+import { escapeHtml as esc } from "../core/html.ts";
+import { CV_LINK_LABEL, cvUrl, photoAltFor } from "./url.ts";
 
 /**
  * Renders the CV body as a string.

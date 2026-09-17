@@ -1,5 +1,5 @@
-import { defineCommand } from "../core/types";
-import { systemOwner } from "../core/describe";
+import { defineCommand } from "../core/types.ts";
+import { systemOwner } from "../core/describe.ts";
 
 export default defineCommand({
   name: "ps",

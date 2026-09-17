@@ -13,14 +13,14 @@ const HERE = dirname(fileURLToPath(import.meta.url));
  */
 const PAGES = resolve(HERE, "pages");
 const page = (name: string): string => resolve(PAGES, name);
-import profile from "./profile.config";
-import { mailtoFor, renderContentSignal, renderFooter, skillsFor, socialsFor } from "./src/core/profile";
-import { LOCALES, languageName, posixLocale, type Locale } from "./src/i18n/locales";
-import { StorageKey } from "./src/core/storage";
-import { cvByteSize, renderCv, renderCvTopbar } from "./src/cv/render";
-import { buildCvJsonLd, buildIndexJsonLd } from "./src/core/jsonld";
-import { cvLocales, cvUrl, photoAltFor } from "./src/cv/url";
-import { translate } from "./src/i18n";
+import profile from "./profile.config.ts";
+import { mailtoFor, renderContentSignal, renderFooter, skillsFor, socialsFor } from "./src/core/profile.ts";
+import { LOCALES, languageName, posixLocale, type Locale } from "./src/i18n/locales.ts";
+import { StorageKey } from "./src/core/storage.ts";
+import { cvByteSize, renderCv, renderCvTopbar } from "./src/cv/render.ts";
+import { buildCvJsonLd, buildIndexJsonLd } from "./src/core/jsonld.ts";
+import { cvLocales, cvUrl, photoAltFor } from "./src/cv/url.ts";
+import { translate } from "./src/i18n/index.ts";
 
 /**
  * Where the site is published — the origin for every absolute URL the build
@@ -659,7 +659,7 @@ function profileHtmlPlugin(): Plugin {
        * One CV page per configured locale.
        *
        * Vite needs its HTML inputs to exist on disk, so the locale list can't
-       * drive rollupOptions.input; instead the *processed* cv.html — the one
+       * drive rolldownOptions.input; instead the *processed* cv.html — the one
        * with Vite's hashed asset tags already injected — is cloned per
        * locale. That works because `base` is "/", so those asset URLs are
        * root-absolute and resolve just as well from /ru/.
@@ -722,7 +722,7 @@ function profileHtmlPlugin(): Plugin {
     build: {
       outDir: "../dist",
       emptyOutDir: true,
-      rollupOptions: {
+      rolldownOptions: {
         // The CV is opt-in: without a `cv` key in profile.config.ts the page
         // is never built, and the site is the terminal alone.
         input: {

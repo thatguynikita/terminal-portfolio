@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
-import { messages, interpolate } from "../src/i18n";
-import { LOCALES } from "../src/i18n/locales";
+import { messages, interpolate } from "../src/i18n/index.ts";
+import { LOCALES } from "../src/i18n/locales.ts";
 
 type Node = Record<string, unknown>;
 

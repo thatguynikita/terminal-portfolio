@@ -1,5 +1,5 @@
-import { defineCommand } from "../core/types";
-import { pick } from "../core/html";
+import { defineCommand } from "../core/types.ts";
+import { pick } from "../core/html.ts";
 
 export default defineCommand({
   name: "fortune",

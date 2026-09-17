@@ -1,5 +1,5 @@
-import { defineCommand } from "../core/types";
-import profile from "../../profile.config";
+import { defineCommand } from "../core/types.ts";
+import profile from "../../profile.config.ts";
 
 /**
  * Opens the CV in whatever language the session is in — `/cv.html` or

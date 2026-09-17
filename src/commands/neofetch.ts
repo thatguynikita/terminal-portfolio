@@ -1,6 +1,6 @@
-import { defineCommand } from "../core/types";
-import profile from "../../profile.config";
-import { applyNowPlaying, startNowPlaying } from "../core/nowplaying";
+import { defineCommand } from "../core/types.ts";
+import profile from "../../profile.config.ts";
+import { applyNowPlaying, startNowPlaying } from "../core/nowplaying.ts";
 
 export default defineCommand({
   name: "neofetch",
