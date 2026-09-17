@@ -1,5 +1,6 @@
 import { escapeHtml } from "../core/html.ts";
 import type { CommandContext, FileSystem, FsNode, FsRunResult } from "../core/types.ts";
+import bashrc from "./.bashrc.ts";
 import type { FsDescriptor } from "./define.ts";
 
 /**
@@ -16,16 +17,24 @@ import type { FsDescriptor } from "./define.ts";
  * A descriptor may accompany a plain file of the same name, in which case
  * it layers on top: `.bashrc` supplies the text, `.bashrc.ts` styles it.
  */
-const rawFiles = import.meta.glob(["./*", "./.*", "!./*.ts", "!./.*.ts"], {
+const rawFiles = import.meta.glob(["./*", "!./*.ts"], {
   query: "?raw",
   import: "default",
   eager: true,
 }) as Record<string, string>;
 
-const descriptorModules = import.meta.glob(["./*.ts", "./.*.ts", "!./index.ts", "!./define.ts"], {
-  import: "default",
-  eager: true,
-}) as Record<string, FsDescriptor>;
+// Rolldown's `import.meta.glob` never matches a dotfile in a production
+// build — not with `./.*`, not even named outright — while the dev server
+// and Vitest do, which is how a deploy once shipped without `.bashrc`. So
+// dotfiles are imported by name; a new one needs a line here, not a pattern.
+// `.bashrc.ts` carries its own text via an explicit `?raw` import.
+const descriptorModules: Record<string, FsDescriptor> = {
+  ...(import.meta.glob(["./*.ts", "!./index.ts", "!./define.ts"], {
+    import: "default",
+    eager: true,
+  }) as Record<string, FsDescriptor>),
+  "./.bashrc.ts": bashrc,
+};
 
 const DEFAULT_PERMS = "-rw-r--r--";
 const EXEC_PERMS = "-rwxr--r--";
