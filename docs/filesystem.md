@@ -52,8 +52,9 @@ and the `.bashrc` alias all disappear together.
 
 - **Adding a *new* plain file while `npm run dev` is running needs a restart.**
   Vite doesn't re-scan the raw glob on its own. `.ts` files hot-reload fine.
-- **Dotfiles need their own glob patterns** (`./.*`, `!./.*.ts`) — `*` does not
-  match a leading dot. That's how `.bashrc` is picked up.
+- **Dotfiles aren't picked up automatically.** The production build's file
+  scan skips them, so `.bashrc` is imported by name in `src/fs/index.ts`.
+  A new dotfile needs a line there too.
 
 ---
 
