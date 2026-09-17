@@ -2,7 +2,7 @@ import type { Terminal } from "./terminal";
 import type { InputController } from "./input";
 import { BOOTED_SESSION_KEY, readSession, writeSession } from "./storage";
 import { parseArgs } from "./args";
-import { animationsEnabled, sleep } from "./html";
+import { animationsEnabled, sleep, untilVisible } from "./html";
 
 const TITLE_DELAY = 380;
 const BLANK_DELAY = 150;
@@ -19,6 +19,13 @@ export async function boot(terminal: Terminal, input: InputController): Promise<
     host: ctx.profile.terminal.hostname,
     user: ctx.profile.terminal.handle,
   });
+
+  // Don't boot a page nobody is looking at yet (a prerender, a background
+  // tab): the sequence would be skipped as "hidden" and the visitor would
+  // open the tab onto a finished intro. Also keeps the booted flag out of a
+  // prerender's throwaway sessionStorage, which is how a second visit
+  // booted while the first didn't.
+  await untilVisible();
 
   const alreadyBooted = readSession(BOOTED_SESSION_KEY) === "1";
 

@@ -491,6 +491,43 @@ describe("terminal switches", () => {
       expect(ctx.lines.join("\n")).toContain(profile.terminal.hostname); // neofetch printed
     });
 
+    /**
+     * A prerendered page (Chrome, for a URL it expects you to open) or a
+     * background tab starts hidden: every paced sleep is skipped and the
+     * intro would land fully rendered before anyone looks. The boot waits
+     * for visibility instead — nothing runs, nothing is marked as shown,
+     * until the document is visible.
+     */
+    it("waits for the page to become visible before booting", async () => {
+      const { boot } = await import("../src/core/boot");
+      let hidden = true;
+      Object.defineProperty(document, "hidden", { configurable: true, get: () => hidden });
+      const ctx = createFakeContext("en", { terminal: { ...profile.terminal, bootScreen: true } });
+      const bootEl = document.createElement("div");
+      bootEl.id = "boot";
+      bootEl.textContent = "> booting ...";
+      document.body.append(bootEl, ctx.root);
+      const mount = vi.fn();
+      try {
+        const done = boot(stubTerminal(ctx), { mount } as never);
+        await new Promise((r) => setTimeout(r, 20));
+        expect(bootEl.textContent, "booted while hidden").toBe("> booting ...");
+        expect(session.has(BOOTED_SESSION_KEY), "marked as shown while hidden").toBe(false);
+        expect(mount).not.toHaveBeenCalled();
+
+        hidden = false;
+        document.dispatchEvent(new Event("visibilitychange"));
+        await done;
+        expect(session.get(BOOTED_SESSION_KEY)).toBe("1");
+        expect(bootEl.classList.contains("hidden")).toBe(true);
+        expect(mount).toHaveBeenCalledTimes(1);
+      } finally {
+        delete (document as { hidden?: unknown }).hidden;
+        bootEl.remove();
+        ctx.root.remove();
+      }
+    });
+
     // No card configured: the intro is the welcome lines and nothing else.
     // The registry does the unregistering; here the stub simply lacks it.
     it("prints only the welcome when there is no neofetch to print", async () => {
