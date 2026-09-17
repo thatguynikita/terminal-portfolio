@@ -324,7 +324,7 @@ and gate their file *reads* too, since `describe.skip` still evaluates the body.
   duplicate (the `vh`/`dvh` pair) carries a `biome-ignore` with its reason.
   `.githooks/` (git-native, `core.hooksPath` set by `prepare`) runs it on
   staged files at commit and typecheck + tests at push; `--no-verify`
-  skips. Dependabot files a weekly grouped PR for the devDependencies and
+  skips. Dependabot files a monthly grouped PR for the devDependencies and
   the actions.
 - **Relative imports carry their `.ts` extension** (`from "./html.ts"`,
   `from "../i18n/index.ts"` — never a bare directory). Vite 8 warns that its
