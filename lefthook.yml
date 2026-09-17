@@ -1,0 +1,13 @@
+# Git hooks, installed by `npm install` (the `prepare` script). Skip once
+# with `LEFTHOOK=0 git commit`, or for good with `npx lefthook uninstall`.
+pre-commit:
+  commands:
+    biome:
+      # Only what's staged, so a partial commit isn't blocked by the rest.
+      run: npx biome check --staged --no-errors-on-unmatched
+pre-push:
+  commands:
+    typecheck:
+      run: npm run typecheck
+    test:
+      run: npm test

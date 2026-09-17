@@ -1,0 +1,15 @@
+# Weekly, grouped: one PR for the toolchain, one for the actions, so a
+# bump that breaks something is bisectable and a quiet week costs nothing.
+version: 2
+updates:
+  - package-ecosystem: npm
+    directory: /
+    schedule:
+      interval: weekly
+    groups:
+      dev-dependencies:
+        dependency-type: development
+  - package-ecosystem: github-actions
+    directory: /
+    schedule:
+      interval: weekly

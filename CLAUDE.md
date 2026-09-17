@@ -322,6 +322,9 @@ and gate their file *reads* too, since `describe.skip` still evaluates the body.
   bracketed), `noImportantStyles` and `noDescendingSpecificity` (the print
   CSS relies on both) — and tests may use `!` and `any`. A deliberate
   duplicate (the `vh`/`dvh` pair) carries a `biome-ignore` with its reason.
+  `lefthook.yml` runs it on staged files at commit and typecheck + tests at
+  push (`npm install` installs the hooks via `prepare`); Dependabot files a
+  weekly grouped PR for the devDependencies and the actions.
 - **Relative imports carry their `.ts` extension** (`from "./html.ts"`,
   `from "../i18n/index.ts"` — never a bare directory). Vite 8 warns that its
   next config loader is Node's own TS stripping, which resolves nothing
