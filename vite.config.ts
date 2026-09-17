@@ -528,7 +528,8 @@ function llmsTxt(): string {
  * Only the file `cv.photo` names survives the build; with no photo
  * configured, none do. A photo configured *outside* this directory is left
  * alone and the directory is emptied. Nothing else under assets/img/ is
- * touched — the 404 cat and the link-preview card always ship.
+ * touched — the link-preview card always ships, and the 404 cat ships with
+ * the 404 page (`pruneNotFound`, below).
  */
 const PORTRAITS_DIR = "assets/img/portraits";
 
@@ -541,6 +542,19 @@ function prunePortraits(outDir: string): void {
     if (name !== keep) unlinkSync(join(dir, name));
   }
   if (readdirSync(dir).length === 0) rmSync(dir, { recursive: true });
+}
+
+/**
+ * The 404 cat is referenced only by 404.html and its stylesheet, so with
+ * `seo.enable404` off it would ship as an orphan. Same treatment as the
+ * portraits: not built, not shipped.
+ */
+const NOT_FOUND_CAT = "assets/img/404-cat.png";
+
+function pruneNotFound(outDir: string): void {
+  if (profile.seo.enable404) return;
+  const file = join(outDir, NOT_FOUND_CAT);
+  if (existsSync(file)) unlinkSync(file);
 }
 
 function profileHtmlPlugin(): Plugin {
@@ -662,6 +676,7 @@ function profileHtmlPlugin(): Plugin {
         const outDir = options.dir ?? "dist";
         // Runs for every config, CV or not — public/ is already in outDir here.
         prunePortraits(outDir);
+        pruneNotFound(outDir);
 
         if (!cvTemplate) return;
         for (const locale of cvLocales(profile)) {
@@ -716,7 +731,9 @@ function profileHtmlPlugin(): Plugin {
         // is never built, and the site is the terminal alone.
         input: {
           index: page("index.html"),
-          404: page("404.html"),
+          // So is the 404 page, behind `seo.enable404`: no entry, no page,
+          // and src/notfound.ts is never bundled.
+          ...(profile.seo.enable404 ? { 404: page("404.html") } : {}),
           ...(profile.cv ? { cv: page("cv.html") } : {}),
         },
       },

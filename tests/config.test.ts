@@ -308,7 +308,7 @@ describe.each([
     bool(footer?.["backToTerminal"], "terminal.footer.backToTerminal");
     for (const key of [
       "enableRobotsTxt", "enableSitemap", "enableLlmsTxt",
-      "enableJsonLd", "enableNoscript", "enableSocialCards",
+      "enableJsonLd", "enableNoscript", "enableSocialCards", "enable404",
     ]) {
       bool(seo?.[key], `seo.${key}`);
     }

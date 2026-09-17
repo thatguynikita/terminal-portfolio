@@ -34,102 +34,131 @@ export const MESSAGES = { en, es, de };
  * ─────────────────────────────────────────────────────────────────────
  */
 export default defineProfile(MESSAGES, {
-  // Your name, the way the site should say it — the CV's heading, every page
-  // title and share card, the © line, JSON-LD, llms.txt.
+  /**
+   * Your name, the way the site should say it — the CV's heading, every page
+   * title and share card, the © line, JSON-LD, llms.txt.
+   */
   author: {
     en: "Beatriz Ocaña Ruiz",
     es: "Beatriz Ocaña Ruiz",
     de: "Beatriz Ocaña Ruiz",
   },
 
-  // The fake shell itself: who's logged in, where, what it looks like on a
-  // first visit, and the chrome around the window.
+  /**
+   * The fake shell itself: who's logged in, where, what it looks like on a
+   * first visit, and the chrome around the window.
+   */
   terminal: {
-    // The visitor's account — the `guest` in guest@beatriz.example — used by the
-    // prompt, whoami, the boot greeting and the "logged in" half of who/w.
-    // Default "guest".
+    /**
+     * The visitor's account — the `guest` in guest@beatriz.example — used by the
+     * prompt, whoami, the boot greeting and the "logged in" half of who/w.
+     * Default "guest".
+     */
     // handle: "guest",
-    // Cosmetic — the prompt and `uname`. Defaults to the host of SITE_URL,
-    // which is where the site is published (every absolute URL, the CNAME).
+    /**
+     * Cosmetic — the prompt and `uname`. Defaults to the host of SITE_URL,
+     * which is where the site is published (every absolute URL, the CNAME).
+     */
     hostname: "beatriz.example",
-    // Which languages this site ships is MESSAGES, at the top of this file.
-    // The chip rotates in that order; this one is served unprefixed.
+    /**
+     * Which languages this site ships is MESSAGES, at the top of this file.
+     * The chip rotates in that order; this one is served unprefixed.
+     */
     // defaultLocale: "en",
-    // A theme name from src/themes/, or "random" to deal one per first visit. Default "green".
+    /** A theme name from src/themes/, or "random" to deal one per first visit. Default "green". */
     defaultTheme: "random",
-    // Background rain for a first-time visitor (default "on"); `matrix on|off` is remembered.
+    /** Background rain for a first-time visitor (default "on"); `matrix on|off` is remembered. */
     // defaultMatrix: "on",
-    // The fake dmesg sequence before the terminal, once per session. Default true.
+    /** The fake dmesg sequence before the terminal, once per session. Default true. */
     // bootScreen: true,
-    // The tappable command chips under the terminal. Default true.
+    /** The tappable command chips under the terminal. Default true. */
     // chips: true,
-    // Commands to leave out entirely — gone from help, completion and chips.
+    /** Commands to leave out entirely — gone from help, completion and chips. */
     // disabledCommands: ["terraform", "kubectl"],
-    // Extra topbar links. The CV link is added automatically when `cv` is
-    // configured, so this is for anything else you want up there.
+    /**
+     * Extra topbar links. The CV link is added automatically when `cv` is
+     * configured, so this is for anything else you want up there.
+     */
     links: [
       { label: "lab", href: "https://lab.beatriz.example" },
       { label: "talks", href: "https://talks.beatriz.example" },
     ],
-    // The footer under the window, on every page. Omit the block for the defaults.
+    /** The footer under the window, on every page. Omit the block for the defaults. */
     footer: {
-      // The generated `© year name`, linked to the site root. Default true.
+      /** The generated `© year name`, linked to the site root. Default true. */
       // copyright: true,
-      // Terminal page only, plain text. Omit for the built-in "type help to explore".
+      /** Terminal page only, plain text. Omit for the built-in "type help to explore". */
       // hint: { en: "…", es: "…", de: "…" },
-      // The `back to terminal` link on the CV and 404 pages. Default true.
+      /** The `back to terminal` link on the CV and 404 pages. Default true. */
       // backToTerminal: true,
-      // A line under the rest, same in every language. Rendered as HTML — keep it
-      // short. Default: the terminal-portfolio credit line; "" turns it off.
+      /**
+       * A line under the rest, same in every language. Rendered as HTML — keep it
+       * short. Default: the terminal-portfolio credit line; "" turns it off.
+       */
       // bottomText: "",
     },
   },
 
-  // What machines see: descriptions, structured data, the discovery files,
-  // and a switch for each.
+  /**
+   * What machines see: descriptions, structured data, the discovery files,
+   * and a switch for each.
+   */
   seo: {
-    // What you do, in one line, for machines: JSON-LD jobTitle, the no-JS
-    // fallback, llms.txt. Not shown on a page — that's cv.tagline and neofetch.
-    // Omit and each of those leaves it out.
+    /**
+     * What you do, in one line, for machines: JSON-LD jobTitle, the no-JS
+     * fallback, llms.txt. Not shown on a page — that's cv.tagline and neofetch.
+     * Omit and each of those leaves it out.
+     */
     role: {
       en: "Embedded Systems Engineer — Robotics",
       es: "Ingeniera de sistemas embebidos — Robótica",
       de: "Embedded-Systems-Entwicklerin — Robotik",
     },
-    // The meta and share-card description of the terminal page, the manifest,
-    // and llms.txt. The CV pages use cv.description; the 404 describes itself.
-    // Omit and the tags are left out — `npm run check` warns.
+    /**
+     * The meta and share-card description of the terminal page, the manifest,
+     * and llms.txt. The CV pages use cv.description; the 404 describes itself.
+     * Omit and the tags are left out — `npm run check` warns.
+     */
     description: {
       en: "Interactive terminal portfolio of an embedded systems engineer with 10 years in robotics. Type `help` to explore.",
       es: "Portfolio interactivo en terminal de una ingeniera de sistemas embebidos con 10 años en robótica. Escribe `help` para explorar.",
       de: "Interaktives Terminal-Portfolio einer Embedded-Systems-Entwicklerin mit 10 Jahren Robotik-Erfahrung. Tippe `help` zum Stöbern.",
     },
-    // Adds <meta name="robots" content="noindex"> to every page — for a staging deploy.
-    // noindex: true,
-    // Every switch below defaults to true; the whole seo block can be omitted.
-    // robots.txt: per-crawler rules, Content-Signal, and the sitemap line.
+    /**
+     * Every enable* switch below defaults to true; the whole seo block can be omitted.
+     * The 404 page (404.html) — what the host serves for a missing URL. Off
+     * for a host that serves its own; the 404 cat is then not shipped either.
+     */
+    // enable404: true,
+    /** robots.txt: per-crawler rules, Content-Signal, and the sitemap line. */
     // enableRobotsTxt: true,
-    // robots.txt Content-Signal: may the content be searched, train models, feed AI answers. Default all true.
+    /** Adds <meta name="robots" content="noindex"> to every page — for a staging deploy. */
+    // noindex: true,
+    /** robots.txt Content-Signal: may the content be searched, train models, feed AI answers. Default all true. */
     // contentSignal: { search: true, aiTrain: true, aiInput: true },
-    // sitemap.xml: the home page and every CV page, with the portrait.
+    /** sitemap.xml: the home page and every CV page, with the portrait. */
     // enableSitemap: true,
-    // llms.txt: the index for AI agents, per the llms.txt spec.
+    /** llms.txt: the index for AI agents, per the llms.txt spec. */
     // enableLlmsTxt: true,
-    // The Person JSON-LD on the terminal page and every CV page.
+    /** The Person JSON-LD on the terminal page and every CV page. */
     // enableJsonLd: true,
-    // The terminal's <noscript> fallback for crawlers and no-JS visitors.
+    /** The terminal's <noscript> fallback for crawlers and no-JS visitors. */
     // enableNoscript: true,
-    // The og:* and twitter:card share tags on every page; off makes ogImage inert.
+    /** The og:* and twitter:card share tags on every page; off makes ogImage inert. */
     // enableSocialCards: true,
-    // The share-card image for the terminal and 404 pages; the CV uses cv.photo.
+    /** The share-card image for the terminal and 404 pages; the CV uses cv.photo. */
     // ogImage: "/assets/img/og-terminal.png",
   },
 
-  // The card the terminal prints on boot and on `neofetch`. Omit it and there
-  // is no card: no `neofetch` command, the intro is just the welcome lines.
+  /**
+   * The card the terminal prints on boot and on `neofetch`. Omit it and there
+   * is no card: no `neofetch` command, the intro is just the welcome lines.
+   */
   neofetch: {
-    // The art on the left. Raw HTML: the .outline/.eye/.nose spans take the
-    // theme's colours; plain text works too.
+    /**
+     * The art on the left. Raw HTML: the .outline/.eye/.nose spans take the
+     * theme's colours; plain text works too.
+     */
     ascii: `<span class="outline">  ╭───────────╮
   │ </span><span class="eye">▪ ▪ ▪ ▪ ▪</span><span class="outline"> │
   ├───────────┤
@@ -137,8 +166,10 @@ export default defineProfile(MESSAGES, {
   ├───────────┤
   │ ░░░░░░░░░ │
   ╰───────────╯</span>`,
-    // The rows on the right, top to bottom. Plain text; `highlight` paints a
-    // value amber.
+    /**
+     * The rows on the right, top to bottom. Plain text; `highlight` paints a
+     * value amber.
+     */
     rows: [
       {
         key: { en: "Name", es: "Nombre", de: "Name" },
@@ -187,21 +218,25 @@ export default defineProfile(MESSAGES, {
       },
     ],
 
-    // The live "Playing" row in the neofetch card. Delete this whole block
-    // (or blank the endpoint) to turn the widget off: the row isn't rendered
-    // at all and no request is ever made — neofetch just ends at Status.
-    // An endpoint that's set but unreachable keeps the row and shows
-    // "spotify offline" instead.
+    /**
+     * The live "Playing" row in the neofetch card. Delete this whole block
+     * (or blank the endpoint) to turn the widget off: the row isn't rendered
+     * at all and no request is ever made — neofetch just ends at Status.
+     * An endpoint that's set but unreachable keeps the row and shows
+     * "spotify offline" instead.
+     */
     nowPlaying: {
-      // Returns JSON { is_playing, track, artist, url } — see src/core/nowplaying.ts.
+      /** Returns JSON { is_playing, track, artist, url } — see src/core/nowplaying.ts. */
       endpoint: "https://api.beatriz.example/now-playing",
-      // How often to ask it, in milliseconds.
+      /** How often to ask it, in milliseconds. */
       pollMs: 20000,
     },
   },
 
-  // Line breaks matter: `about` types this out one line at a time. Omit for
-  // no `about` command and no about.txt.
+  /**
+   * Line breaks matter: `about` types this out one line at a time. Omit for
+   * no `about` command and no about.txt.
+   */
   bio: {
     en: `Embedded engineer with ten years spent making machines move
 predictably.
@@ -227,8 +262,10 @@ Inbetriebnahme neuer Platinen, Timing-Fehler, die nur bei Kälte
 auftreten, und Prüfstände, die einen Defekt vor dem Lager bemerken.`,
   },
 
-  // `contexts` omitted means "everywhere". The CV shows the full table;
-  // the terminal shows the readable subset. Omit the list for no `skills` at all.
+  /**
+   * `contexts` omitted means "everywhere". The CV shows the full table;
+   * the terminal shows the readable subset. Omit the list for no `skills` at all.
+   */
   skills: [
     {
       key: { en: "Languages", es: "Lenguajes", de: "Sprachen" },
@@ -277,10 +314,12 @@ auftreten, und Prüfstände, die einen Defekt vor dem Lager bemerken.`,
     },
   ],
 
-  // Contact links: `contact`, `cat contact.txt`, the CV's contact row, the
-  // no-JS fallback, llms.txt, and JSON-LD sameAs (http ones) / email (the
-  // first mailto:). `contexts` omitted means everywhere. Omit the list for no
-  // `contact` at all.
+  /**
+   * Contact links: `contact`, `cat contact.txt`, the CV's contact row, the
+   * no-JS fallback, llms.txt, and JSON-LD sameAs (http ones) / email (the
+   * first mailto:). `contexts` omitted means everywhere. Omit the list for no
+   * `contact` at all.
+   */
   socials: [
     { label: "Email", href: "mailto:hola@beatriz.example", display: "hola@beatriz.example" },
     {
@@ -307,12 +346,16 @@ auftreten, und Prüfstände, die einen Defekt vor dem Lager bemerken.`,
     },
   ],
 
-  // Per-command settings: help descriptions, the fake machine, the game, ssh.
-  // Omit the whole block for every default and no game / ssh personas.
+  /**
+   * Per-command settings: help descriptions, the fake machine, the game, ssh.
+   * Omit the whole block for every default and no game / ssh personas.
+   */
   commands: {
-    // Overrides a command's one-line description in `help`. Anything not
-    // listed here falls back to `commands.<name>` in src/i18n/messages/.
-    // Use it for lines that carry your name or your voice.
+    /**
+     * Overrides a command's one-line description in `help`. Anything not
+     * listed here falls back to `commands.<name>` in src/i18n/messages/.
+     * Use it for lines that carry your name or your voice.
+     */
     descriptions: {
       about: {
         en: "who is this beatriz person anyway",
@@ -321,35 +364,47 @@ auftreten, und Prüfstände, die einen Defekt vor dem Lager bemerken.`,
       },
     },
 
-    // The fake-system commands (ps, who, w, env) show two accounts: the
-    // visitor, who is terminal.handle, and the machine's owner — you.
+    /**
+     * The fake-system commands (ps, who, w, env) show two accounts: the
+     * visitor, who is terminal.handle, and the machine's owner — you.
+     */
     system: {
-      // The account those commands show as the machine's owner. Not translated.
+      /** The account those commands show as the machine's owner. Not translated. */
       owner: "beatriz",
-      // When the machine came up: `uptime` counts from it, `uname -a` and
-      // `ls -l` stamp it. Omit to count from the build instead.
+      /**
+       * When the machine came up: `uptime` counts from it, `uname -a` and
+       * `ls -l` stamp it. Omit to count from the build instead.
+       */
       since: "2026-05-02T18:30:00+02:00",
-      // What the secret light theme is called once `claude "add light theme"` is
-      // asked twice. Omit and it isn't offered at all.
+      /**
+       * What the secret light theme is called once `claude "add light theme"` is
+       * asked twice. Omit and it isn't offered at all.
+       */
       secretTheme: "sunrise",
     },
 
-    // The hidden game: a page opened in a sandboxed CRT overlay. Omit the
-    // whole block to remove the `game` command and the launcher script.
+    /**
+     * The hidden game: a page opened in a sandboxed CRT overlay. Omit the
+     * whole block to remove the `game` command and the launcher script.
+     */
     game: {
-      // What the overlay's iframe loads.
+      /** What the overlay's iframe loads. */
       url: "https://game.beatriz.example/",
-      // Shown in the overlay's title bar and the "launching …" line.
+      /** Shown in the overlay's title bar and the "launching …" line. */
       title: { en: "Servo Rush", es: "Servo Rush", de: "Servo Rush" },
-      // The launcher: `ls -a` lists it, `sudo ./flash-firmware.sh` opens the game.
+      /** The launcher: `ls -a` lists it, `sudo ./flash-firmware.sh` opens the game. */
       script: "flash-firmware.sh",
     },
 
-    // `ssh <name>` connects to a persona that answers scripted questions —
-    // the recruiter screening call, without the call. Omit for none.
+    /**
+     * `ssh <name>` connects to a persona that answers scripted questions —
+     * the recruiter screening call, without the call. Omit for none.
+     */
     ssh: {
-      // One entry per name: the host shown in the prompt, and cmd → q → a
-      // triples the visitor types `cmd` to ask.
+      /**
+       * One entry per name: the host shown in the prompt, and cmd → q → a
+       * triples the visitor types `cmd` to ask.
+       */
       personas: {
         recruiter: {
           host: "recruiter@beatriz.example",
@@ -425,48 +480,58 @@ auftreten, und Prüfstände, die einen Defekt vor dem Lager bemerken.`,
     },
   },
 
-  // The CV. One page is generated per locale in MESSAGES, at the top.
-  // Delete this whole key and the CV disappears: no pages, no `cv` command,
-  // no cv.html in `ls`, no sitemap rows — just the terminal.
+  /**
+   * The CV. One page is generated per locale in MESSAGES, at the top.
+   * Delete this whole key and the CV disappears: no pages, no `cv` command,
+   * no cv.html in `ls`, no sitemap rows — just the terminal.
+   */
   cv: {
-    // The line under your name on the CV — the role, plus how long you've
-    // been at it. CV page only.
+    /**
+     * The line under your name on the CV — the role, plus how long you've
+     * been at it. CV page only.
+     */
     tagline: {
       en: "Embedded Systems Engineer — Robotics · 10y experience",
       es: "Ingeniera de sistemas embebidos — Robótica · 10 años de experiencia",
       de: "Embedded-Systems-Entwicklerin — Robotik · 10 Jahre Erfahrung",
     },
-    // The CV pages' meta and share-card description; omit to reuse seo.description.
+    /** The CV pages' meta and share-card description; omit to reuse seo.description. */
     description: {
       en: "Embedded Systems Engineer — CV / résumé. C, Rust, RTOS, ROS 2, robotics.",
       es: "Ingeniera de sistemas embebidos — CV. C, Rust, RTOS, ROS 2, robótica.",
       de: "Embedded-Systems-Entwicklerin — Lebenslauf. C, Rust, RTOS, ROS 2, Robotik.",
     },
 
-    // Portrait, root-absolute, under public/assets/img/portraits/ — only the
-    // file named here survives the build; the example portraits are pruned.
-    // Also the CV's og:image, JSON-LD image and sitemap image.
+    /**
+     * Portrait, root-absolute, under public/assets/img/portraits/ — only the
+     * file named here survives the build; the example portraits are pruned.
+     * Also the CV's og:image, JSON-LD image and sitemap image.
+     */
     photo: "/assets/img/portraits/beatriz-photo.png",
-    // "pixel": a posterized pixel render under the theme tint. "tint": just the
-    // grayscale + tint. Leave it out and the photo is served exactly as uploaded.
+    /**
+     * "pixel": a posterized pixel render under the theme tint. "tint": just the
+     * grayscale + tint. Leave it out and the photo is served exactly as uploaded.
+     */
     photoStyle: "pixel",
 
-    // The line under the contact row on the CV.
+    /** The line under the contact row on the CV. */
     metaLine: {
       en: "Munich, Germany · EU citizen · on-site for bring-up, remote for the rest",
       es: "Múnich, Alemania · ciudadanía de la UE · presencial para puesta en marcha, remoto para lo demás",
       de: "München, Deutschland · EU-Bürgerin · vor Ort für die Inbetriebnahme, sonst remote",
     },
 
-    // Shown at the top of the CV, under the contact row.
+    /** Shown at the top of the CV, under the contact row. */
     about: {
       en: "Embedded engineer with ten years spent making machines move predictably. I write firmware for robots that share a floor with people, from board bring-up through safety review to field updates. I care about the unglamorous parts — timing, thermals, and test rigs that catch a fault before a warehouse does. Looking for a team that treats firmware as a product with a lifecycle, not a binary that ships once.",
       es: "Ingeniera de embebidos con diez años haciendo que las máquinas se muevan de forma predecible. Escribo firmware para robots que comparten el suelo con personas, desde la puesta en marcha de la placa hasta la revisión de seguridad y las actualizaciones en campo. Me importan las partes poco lucidas: la temporización, el comportamiento térmico y los bancos de pruebas que detectan una avería antes que un almacén. Busco un equipo que trate el firmware como un producto con ciclo de vida, no como un binario que se entrega una sola vez.",
       de: "Embedded-Entwicklerin mit zehn Jahren Erfahrung darin, Maschinen vorhersagbar zu bewegen. Ich schreibe Firmware für Roboter, die sich den Boden mit Menschen teilen — von der Platinen-Inbetriebnahme über die Sicherheitsabnahme bis zu Updates im Feld. Mir liegen die unglamourösen Teile am Herzen: Timing, Thermik und Prüfstände, die einen Defekt vor dem Lager bemerken. Ich suche ein Team, das Firmware als Produkt mit Lebenszyklus begreift und nicht als Binary, das einmal ausgeliefert wird.",
     },
 
-    // Experience, most recent first. `id` is a stable anchor; `bullets` are
-    // one line each per locale; `org.url` empty or omitted renders no link.
+    /**
+     * Experience, most recent first. `id` is a stable anchor; `bullets` are
+     * one line each per locale; `org.url` empty or omitted renders no link.
+     */
     jobs: [
       {
         id: "halcyon",
@@ -633,7 +698,7 @@ auftreten, und Prüfstände, die einen Defekt vor dem Lager bemerken.`,
       },
     ],
 
-    // One line on the CV: university — place, year / field.
+    /** One line on the CV: university — place, year / field. */
     education: {
       university: {
         en: "Universitat Politècnica de València",
@@ -649,8 +714,10 @@ auftreten, und Prüfstände, die einen Defekt vor dem Lager bemerken.`,
       },
     },
 
-    // Certifications, as printed — names aren't translated. Also JSON-LD
-    // hasCredential.
+    /**
+     * Certifications, as printed — names aren't translated. Also JSON-LD
+     * hasCredential.
+     */
     certs: [
       { year: "2025", name: "Zephyr RTOS Certified Developer" },
       { year: "2024", name: "ROS 2 Industrial Developer" },
@@ -659,7 +726,7 @@ auftreten, und Prüfstände, die einen Defekt vor dem Lager bemerken.`,
       { year: "2018", name: "IPC-A-610 Certified Specialist" },
     ],
 
-    // `filled` is the 0–10 proficiency meter; `sub` is the text beside it.
+    /** `filled` is the 0–10 proficiency meter; `sub` is the text beside it. */
     languages: [
       {
         name: { en: "Spanish", es: "Español", de: "Spanisch" },
@@ -687,7 +754,7 @@ auftreten, und Prüfstände, die einen Defekt vor dem Lager bemerken.`,
       },
     ],
 
-    // The playful "notes.txt" list at the foot of the CV.
+    /** The playful "notes.txt" list at the foot of the CV. */
     traits: {
       en: [
         "will not ship firmware I haven't watched run cold",
@@ -724,7 +791,7 @@ auftreten, und Prüfstände, die einen Defekt vor dem Lager bemerken.`,
       ],
     },
 
-    // The closing line, plain text. Rendered as `$ echo "…"` with a blinking cursor.
+    /** The closing line, plain text. Rendered as `$ echo "…"` with a blinking cursor. */
     signOff: {
       en: "if you read this far, you'd probably enjoy working together.",
       es: "si has llegado hasta aquí, seguramente trabajaríamos bien juntos.",

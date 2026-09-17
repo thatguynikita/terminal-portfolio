@@ -51,7 +51,9 @@ root site — otherwise set `base` in `vite.config.ts` to `"/<repo>/"`.
 
 That constraint is deliberate: `404.html` is served at arbitrary URL depths, so
 its asset paths must be root-absolute. Relative paths would resolve against
-whatever directory the broken URL happened to be in.
+whatever directory the broken URL happened to be in. (Pages picks `404.html`
+up automatically; with `seo.enable404: false` there is none, and GitHub
+serves its own 404.)
 
 The build emits a `CNAME` file from `SITE_URL`'s host so your custom domain
 survives each deploy — replacing the branch would otherwise clear it. HTTPS takes
@@ -86,7 +88,9 @@ and these in `.env`:
 
 The bucket needs static-website hosting with **`index.html` as the index
 document and `404.html` as the error document**, and public read. The 404 page
-is served at arbitrary URL depths, which is why `base` is `/`.
+is served at arbitrary URL depths, which is why `base` is `/`. With
+`seo.enable404: false` the page isn't built: the error-document setting then
+points at nothing and S3 answers a missing URL with its own plain 404.
 
 ### What `scripts/deploy-s3.sh` does, and why it isn't one `aws s3 sync`
 
@@ -137,8 +141,8 @@ generated copyright, the terminal's hint, the CV/404 back link, and a raw-HTML
 page's `<head>`:
 `enableJsonLd` (the Person JSON-LD on the terminal and CV pages),
 `enableNoscript` (the terminal's no-JS fallback) and `enableSocialCards`
-(`og:*` and `twitter:card`). Everything in `public/` is copied
-verbatim.
+(`og:*` and `twitter:card`); `enable404` builds the 404 page itself (and
+ships its cat). Everything in `public/` is copied verbatim.
 
 ---
 

@@ -259,7 +259,10 @@ fallback from `profile.config.ts`. The noscript block matters: the terminal
 renders nothing without JavaScript. The last three are switches in `seo`
 (`enableSocialCards`, `enableJsonLd`, `enableNoscript`); off means the tags
 are absent, not stubbed, and `tests/discovery.test.ts` asserts every page both
-ways. `seo.ogImage` is inert with social cards off.
+ways. `seo.ogImage` is inert with social cards off. **The 404 page is a
+switch too** (`seo.enable404`): off drops the `404` rollup input, so neither
+the page nor `src/notfound.ts` is built, and `writeBundle` prunes the 404 cat
+the way it prunes portraits — the host then serves its own error page.
 
 **Structured data is derived, never hand-kept** (`src/core/jsonld.ts`). The
 terminal page is a `@graph` of `WebSite` (`inLanguage` = the selected
