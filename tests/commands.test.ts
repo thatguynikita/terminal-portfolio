@@ -76,7 +76,7 @@ describe("commands", () => {
 
   /**
    * Row values are prose, escaped like prose; the amber highlight is a flag
-   * on the row. The Status row used to carry its <span> in the config.
+   * on the row, never markup in the config.
    */
   describe("neofetch rows", () => {
     const neofetch = () => commands.find((c) => c.name === "neofetch")!;
@@ -250,10 +250,7 @@ describe("commands", () => {
   });
 });
 
-/**
- * `ps`, `who`, `w` and `env` all show a second account — the machine's
- * owner — which used to be hardcoded as one person's name.
- */
+/** `ps`, `who`, `w` and `env` all show a second account: the machine's owner, from config. */
 describe("system owner", () => {
   const OWNERED = ["ps", "who", "w", "env"];
 
@@ -298,8 +295,8 @@ describe("system owner", () => {
 /**
  * The title bar reads `guest@host — bash — 80×24` the moment the input
  * controller exists — during the boot screen and the intro — not only once
- * the intro ends and the prompt is mounted. It used to be the latter, which
- * showed as an empty bar that filled in (and grew) after the greeting.
+ * the prompt is mounted, or it shows as an empty bar that grows after the
+ * greeting.
  */
 describe("terminal title bar", () => {
   it("is filled in before the prompt is mounted", async () => {
@@ -332,9 +329,8 @@ describe("terminal title bar", () => {
 });
 
 /**
- * The launch date used to be three literals in three formats (`uptime`,
- * `uname -a`, `ls -l`). Now `commands.system.since` — or the build, when
- * it's omitted — feeds all three through `systemSince`.
+ * One launch date — `commands.system.since`, or the build when omitted —
+ * feeds `uptime`, `uname -a` and `ls -l` through `systemSince`.
  */
 describe("system since", () => {
   const SINCE = "2026-08-09T20:48:27+03:00";
@@ -352,7 +348,7 @@ describe("system since", () => {
   });
 
   it("stamps uname in UTC, the way uname prints it", () => {
-    // 20:48:27 at +03:00 is 17:48:27 UTC — the old literal said 20:48 UTC.
+    // 20:48:27 at +03:00 is 17:48:27 UTC.
     expect(unameStamp(new Date(SINCE))).toBe("Sun Aug 9 17:48:27 UTC 2026");
   });
 
@@ -587,7 +583,7 @@ describe("secret theme easter egg", () => {
   });
 });
 
-/** `env`'s LANG used to be `${lang}_US.UTF-8` — `ru_US` for a Russian session. */
+/** `env`'s LANG is a real POSIX locale, not `${lang}_US.UTF-8`. */
 describe("env LANG", () => {
   it("prints a real POSIX locale for the session language", async () => {
     const { posixLocale } = await import("../src/i18n/locales");

@@ -254,7 +254,8 @@ purely because of that confusion.)
 
 ## Build and deploy
 
-`base` is fixed at `/` and the build emits `CNAME` from the host of `SITE_URL`.
+`base` is fixed at `/` and the build emits `CNAME` from the host of `SITE_URL`
+(and an empty `.nojekyll`, so Pages serves `dist/` as-is).
 **GitHub Pages therefore needs a custom domain or a user/org root site** — a
 project site at `/repo-name/` would break. This is deliberate: `404.html` is
 served at arbitrary URL depths, so relative asset paths resolve against the

@@ -11,8 +11,9 @@ import de from "./src/i18n/messages/de";
  * `lang` completes all three, and the build emits /cv.html, /es/cv.html
  * and /de/cv.html with a matching hreflang cluster.
  *
- * Russian also lives in src/i18n/messages/ and is *not* imported, so none
- * of it reaches the bundle. Dropping a language here works the same way.
+ * Ten more catalogues live in src/i18n/messages/ and are *not* imported,
+ * so none of them reach the bundle. Dropping a language here works the
+ * same way.
  */
 export const MESSAGES = { en, es, de };
 
@@ -56,8 +57,9 @@ export default defineProfile(MESSAGES, {
      */
     // handle: "guest",
     /**
-     * Cosmetic — the prompt and `uname`. Defaults to the host of SITE_URL,
-     * which is where the site is published (every absolute URL, the CNAME).
+     * The prompt, `uname`, every page title, og:site_name and the manifest's
+     * short name. Defaults to the host of SITE_URL — where the site is
+     * published.
      */
     hostname: "beatriz.example",
     /**
@@ -101,7 +103,7 @@ export default defineProfile(MESSAGES, {
 
   /**
    * What machines see: descriptions, structured data, the discovery files,
-   * and a switch for each.
+   * the 404 page — and a switch for each.
    */
   seo: {
     /**
@@ -124,8 +126,8 @@ export default defineProfile(MESSAGES, {
       es: "Portfolio interactivo en terminal de una ingeniera de sistemas embebidos con 10 años en robótica. Escribe `help` para explorar.",
       de: "Interaktives Terminal-Portfolio einer Embedded-Systems-Entwicklerin mit 10 Jahren Robotik-Erfahrung. Tippe `help` zum Stöbern.",
     },
+    /** Every enable* switch below defaults to true; the whole seo block can be omitted. */
     /**
-     * Every enable* switch below defaults to true; the whole seo block can be omitted.
      * The 404 page (404.html) — what the host serves for a missing URL. Off
      * for a host that serves its own; the 404 cat is then not shipped either.
      */
@@ -521,7 +523,7 @@ auftreten, und Prüfstände, die einen Defekt vor dem Lager bemerken.`,
       de: "München, Deutschland · EU-Bürgerin · vor Ort für die Inbetriebnahme, sonst remote",
     },
 
-    /** Shown at the top of the CV, under the contact row. */
+    /** The first section of the CV, before the experience. */
     about: {
       en: "Embedded engineer with ten years spent making machines move predictably. I write firmware for robots that share a floor with people, from board bring-up through safety review to field updates. I care about the unglamorous parts — timing, thermals, and test rigs that catch a fault before a warehouse does. Looking for a team that treats firmware as a product with a lifecycle, not a binary that ships once.",
       es: "Ingeniera de embebidos con diez años haciendo que las máquinas se muevan de forma predecible. Escribo firmware para robots que comparten el suelo con personas, desde la puesta en marcha de la placa hasta la revisión de seguridad y las actualizaciones en campo. Me importan las partes poco lucidas: la temporización, el comportamiento térmico y los bancos de pruebas que detectan una avería antes que un almacén. Busco un equipo que trate el firmware como un producto con ciclo de vida, no como un binario que se entrega una sola vez.",

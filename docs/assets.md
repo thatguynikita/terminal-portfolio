@@ -8,7 +8,7 @@ previews someone else's terminal, and someone else's icon sits in the tab.
 
 | File | Used for | Size | If you don't replace it |
 |---|---|---|---|
-| `public/assets/img/portraits/` | The CV portrait — see below | 480×480 | **Only the one you configure ships**; the rest are pruned at build |
+| `public/assets/img/portraits/` | The CV portrait — see below | 480×480 | Only the one `cv.photo` names ships |
 | `public/assets/img/og-terminal.png` | Link previews on social, Slack, iMessage | 1200×630 | Someone else's terminal in every shared link |
 | `public/favicon.ico` + `public/assets/icons/*` | Browser tab, home screen, PWA | see below | Someone else's icon in the tab |
 | `public/assets/img/404-cat.png` | The 404 page | 821×357 | Nothing breaks — it's a joke, not an identity |
@@ -27,10 +27,9 @@ cv: {
 ```
 
 Drop your photo into `public/assets/img/portraits/` and point `cv.photo`
-at it. **That directory is the one place the build prunes**: it holds the
-author's portrait and both example personas', Vite copies `public/` verbatim,
-and only the file your config names survives into `dist/`. The other faces
-never ship. A test asserts exactly that.
+at it. The directory holds the author's portrait and both example personas',
+and **only the file your config names survives the build** — a test asserts
+that.
 
 **By default the photo is served exactly as uploaded** — colour, no filter,
 no tint. Print greys it, nothing else touches it. `photoStyle` opts in to

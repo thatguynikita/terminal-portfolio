@@ -1,22 +1,16 @@
 #!/usr/bin/env sh
 # Publish dist/ to an S3-compatible bucket (AWS S3 or Yandex Object Storage).
 #
-# Why not a bare `aws s3 sync`: sync guesses each object's Content-Type from
-# the extension and never adds a charset — so llms.txt, half Cyrillic, was
-# once served as plain text in the browser's default encoding and rendered
-# garbled — and it doesn't know .webmanifest at all. So every object's type
-# comes from the table below, one sync pass per extension, and a file with
-# an extension the table doesn't know fails the deploy rather than going up
-# as application/octet-stream.
+# Not a bare `aws s3 sync`: sync guesses Content-Type from the extension,
+# never adds a charset, and doesn't know .webmanifest. Every object's type
+# comes from TABLE below, one pass per extension; an unknown extension fails.
 #
 # Environment (from .env via `dotenv -e .env`, or the shell):
 #   S3_BUCKET     required
 #   S3_ENDPOINT   optional; blank for AWS proper
 #   S3_REGION     optional; exported as AWS_DEFAULT_REGION
-#   S3_KEEP       optional; space-separated key patterns the deploy must
-#                 neither upload nor delete — search-engine verification
-#                 files and the like. Each becomes an --exclude, which the
-#                 aws cli applies to both sides of a sync.
+#   S3_KEEP       optional; space-separated key patterns to neither upload
+#                 nor delete (each becomes an --exclude)
 #   SITE_URL      optional; when set, the run ends with header checks
 #   DRY_RUN=1     adds --dryrun to every aws call
 #

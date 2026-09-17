@@ -31,10 +31,6 @@ commands: { coffee: "make a coffee", ... }
 That's it — no registration, no list to update. `npm test` fails if you forget
 the help text in any enabled locale.
 
-> The original this was rebuilt from kept four hand-synced lists of commands,
-> and they already disagreed with each other. That's the reason for the
-> registry.
-
 ## The output API
 
 Commands never touch the DOM. Everything goes through `ctx`:
@@ -83,7 +79,9 @@ lines.
 Animations are skipped when the tab is hidden or the visitor has reduced-motion
 set — see `animationsEnabled()` in `src/core/html.ts`, and use `ctx.sleep` as the
 paced variant. A hidden tab clamps timers to once a second, then once a minute;
-without this the terminal strands itself mid-line.
+without this the terminal strands itself mid-line. The boot goes one step
+further and doesn't start until the document is visible (`untilVisible()`),
+since a prerendered page or a background tab starts hidden.
 
 ---
 

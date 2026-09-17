@@ -91,8 +91,7 @@ withCv("cv locales", () => {
   });
 
   // The © line is generated — year, name, and a link to the site root —
-  // and shared by all three pages. The CV used to build its own and lost
-  // the link on the name.
+  // and shared by all three pages.
   it("generates the copyright line from the year, the name and SITE_URL", () => {
     const year = String(new Date().getFullYear());
     for (const locale of locales) {
@@ -250,9 +249,8 @@ withCv("cv renders without JavaScript", () => {
         }
       });
 
-      // The predecessor's headings were entirely shell-speak — prompt and
-      // all — leaving no section name for a crawler or the document outline.
-      // The filename is now the heading text; the prompt is decoration.
+      // The filename is the heading text; the prompt is decoration, so a
+      // crawler and the document outline get a section name, not shell-speak.
       it("uses the filename as heading text, with the prompt only as decoration", () => {
         const headings = [...html.matchAll(/<h2[^>]*>([\s\S]*?)<\/h2>/g)].map((m) => m[1] ?? "");
         expect(headings.length).toBeGreaterThan(4);
@@ -382,8 +380,7 @@ describe("index structured data", () => {
 
 /**
  * A printed CV must be grayscale under any theme. Redefining the palette
- * tokens covers themes added later; the predecessor patched individual
- * classes and could not.
+ * tokens covers themes added later; patching classes would not.
  */
 withCv("cv print styles", () => {
   const css = readFileSync(join(process.cwd(), "src/styles/cv.css"), "utf8");

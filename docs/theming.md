@@ -3,7 +3,9 @@
 [← docs index](README.md)
 
 One CSS file in `src/themes/`. It joins the theme list, `theme`'s completions and
-the random first-visit pool automatically.
+the random first-visit pool automatically — the matrix-rain colours are
+`--matrix-color` / `--matrix-fade`, read with `getComputedStyle`, so one CSS
+file really is the whole theme.
 
 ```css
 /* src/themes/ocean.css */
@@ -19,13 +21,6 @@ the random first-visit pool automatically.
 `npm test` fails if a theme is missing any token. Nothing falls back to another
 theme, deliberately: a half-defined palette should be a failure, not a subtly
 wrong page.
-
-## There is no THEME_MAP
-
-The matrix-rain colours are `--matrix-color` / `--matrix-fade`, read via
-`getComputedStyle`. Canvas can't read CSS variables directly, which is why the
-predecessor kept a parallel JS colour map — `getComputedStyle` closes that gap,
-so one CSS file really is the whole theme.
 
 ## Two things to check before shipping a palette
 

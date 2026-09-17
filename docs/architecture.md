@@ -12,10 +12,10 @@ profile.config.ts       everything about you, including the whole CV
 pages/                  the three page shells — Vite's root
 src/core/               engine: registry, output API, input loop, modes, theme
 src/commands/           one file per command — auto-registered
-src/cv/                 CV renderer, URLs, JSON-LD
+src/cv/                 CV renderer and URLs
 src/fs/                 the fake filesystem
 src/i18n/locales.ts     the locale set, derived from MESSAGES
-src/i18n/messages/      one file per language — en, ru, es, de
+src/i18n/messages/      one file per language — thirteen ship
 src/themes/             one CSS file per theme — auto-registered
 src/styles/             shared chrome and per-page layout
 public/                 copied verbatim into dist/
@@ -24,8 +24,8 @@ public/                 copied verbatim into dist/
 ## The four contracts
 
 - **`Command`** — `src/commands/*.ts`, auto-registered via `import.meta.glob`.
-  `help`, Tab-completion and the chip bar all read the registry, so they cannot
-  drift. See [adding a command](commands.md).
+  `help`, Tab-completion and the chip bar all read the registry. See
+  [adding a command](commands.md).
 - **`CommandContext`** — the injected output and services API. Commands never
   touch the DOM and never close over module state, which is what makes them
   testable without a browser.
@@ -39,11 +39,8 @@ input row, keybindings, completion and chips.
 
 ## Why auto-registration
 
-The site this was rebuilt from was a single 1,890-line inline `<script>` whose
-`runCommand()` was a 550-line `switch`, with four hand-maintained lists of
-commands that had already fallen out of sync with each other.
-
-Everything that could be a list now reads from one registry instead: `help`,
+Hand-maintained lists of commands drift. Everything that could be a list
+reads from one registry instead: `help`,
 completion, the chip bar, `alias` (which reads `.bashrc` from the fake
 filesystem rather than keeping a second copy), and the boot intro (which calls
 the real `neofetch` command). The fake dmesg screen before the intro and the
@@ -120,7 +117,7 @@ naming the row — a dead row is a half-removed résumé.
 
 ## Testing
 
-281 tests across ten suites, run with Vitest and happy-dom. The ones worth
+394 tests across twelve suites, run with Vitest and happy-dom. The ones worth
 knowing about:
 
 - **`config.test.ts`** is `npm run check`, the preflight a fork runs before

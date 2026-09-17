@@ -386,20 +386,10 @@ const NAMED_CRAWLERS = [
 ];
 
 /**
- * Generated rather than shipped in public/, which had the author's name
- * and host baked in — a fork would have inherited them silently, since
- * nothing renders the manifest where you'd notice.
- */
-/**
- * The manifest's colours, taken from the palette a first-time visitor sees.
- *
- * These were hardcoded `#ffffff`, which put a white splash screen and a white
- * status bar in front of a site that is near-black in every theme but the
- * secret one. Reading `--bg` keeps them right for a fork that ships a
- * different default.
- *
- * `defaultTheme: "random"` has no single answer, so it falls back to green —
- * the reference palette every other theme is validated against.
+ * The manifest's colours: the `--bg` of the theme a first-time visitor
+ * sees, so the splash screen and status bar match the page rather than
+ * defaulting to white. `defaultTheme: "random"` has no single answer and
+ * falls back to green, the reference palette.
  *
  * Read with node:fs rather than a glob: this file is loaded by Node outside
  * Vite's transform pipeline, where `import.meta.glob` is not a function.
@@ -412,6 +402,10 @@ function defaultThemeBackground(): string {
   return /--bg:\s*([^;]+);/.exec(css)?.[1]?.trim() ?? "#050806";
 }
 
+/**
+ * Generated rather than shipped in public/: a static manifest carries one
+ * person's name and host, and nothing renders it where a fork would notice.
+ */
 function siteWebmanifest(): string {
   const background = defaultThemeBackground();
   return JSON.stringify(
@@ -649,6 +643,8 @@ function profileHtmlPlugin(): Plugin {
         // Custom domain, so `base: "/"` is correct and 404.html's
         // root-absolute paths resolve at any URL depth.
         this.emitFile({ type: "asset", fileName: "CNAME", source: `${new URL(SITE_URL).hostname}\n` });
+        // Pages would otherwise run Jekyll over dist/ and drop its dotfiles.
+        this.emitFile({ type: "asset", fileName: ".nojekyll", source: "" });
 
         // Each discovery file is its own switch in `seo`; off means the file
         // is simply not emitted (and robots.txt stops pointing at the sitemap).

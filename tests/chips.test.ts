@@ -28,9 +28,9 @@ describe("splitInput", () => {
 });
 
 /**
- * Regression cover for a chip that filled the input but never ran. The
- * predicate used to ask "do any candidates match?" instead of "is this
- * already complete?", so `lang ru` sat in the input awaiting a second tap.
+ * "Is this already complete?", not "do any candidates match?" — the
+ * difference between a chip that runs `lang ru` and one that leaves it in
+ * the input awaiting a second tap.
  */
 describe("isCompleteArgument", () => {
   it("submits an argument that exactly matches a candidate", () => {

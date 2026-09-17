@@ -1,23 +1,15 @@
 /**
- * Esc or `q` leaves the page for the terminal. A courtesy for terminal
- * users — the topbar link is the real way back, this just answers the
- * reflex: Esc for "get me out", `q` for "quit the pager", as in `less`.
+ * Esc or `q` leaves the page for the terminal — Esc for "get me out", `q`
+ * as in `less`. `q` is matched on the physical key too, so a non-Latin
+ * layout works; nothing fires while a field is being typed in, and
+ * modified, repeated, composing or already-handled presses are ignored, so
+ * anything that later claims one of these keys only has to
+ * `preventDefault()`.
  *
- * `q` is matched on the physical key as well as the character, so it works
- * under a non-Latin layout where the same key types `й`. Nothing fires
- * while a field is being typed in.
- *
- * Ignores modified, repeated, IME-composing and already-handled presses:
- * anything on the page that later claims one of these keys for itself only
- * has to `preventDefault()` and this stays out of the way.
- *
- * The `preventDefault()` here is load-bearing, not politeness. Esc is
- * Chrome's *Stop* accelerator, and Chrome runs it after the page declines
- * a key — which cancels the very navigation this handler just started.
- * It won a race often enough that the first press usually did nothing.
- *
- * What it can't fix: in fullscreen, Chrome takes Esc for itself *before*
- * the page sees it, by design. That's what `q` is for.
+ * The `preventDefault()` here is load-bearing: Esc is Chrome's Stop
+ * accelerator, run after the page declines the key, and Stop cancels the
+ * navigation just started. In fullscreen Chrome takes Esc before the page
+ * sees it — that is what `q` is for.
  */
 export function leaveForTerminalOnKey(go: () => void = () => location.assign("/")): () => void {
   const onKey = (e: KeyboardEvent): void => {

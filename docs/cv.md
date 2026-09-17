@@ -6,7 +6,7 @@
 `/cv.html` for `terminal.defaultLocale`, `/<locale>/cv.html` for the rest. The
 résumé is in the initial HTML, so it needs no JavaScript to read.
 
-That matters more than it used to: as of 2026 no major AI crawler executes
+That matters: as of 2026 no major AI crawler executes
 JavaScript. GPTBot, ClaudeBot and PerplexityBot fetch raw HTML and move on, and
 only Googlebot renders. A client-rendered CV is invisible to most of them.
 
@@ -64,8 +64,7 @@ Adding a language adds a CV page, an hreflang entry, a sitemap row and an
 full hreflang cluster including `x-default`.
 
 The cluster is generated rather than hand-written, since one malformed entry
-makes Google discard all of it — and roughly three quarters of hreflang
-implementations in the wild contain an error.
+makes Google discard all of it.
 
 `sitemap.xml`, `robots.txt` and `llms.txt` are emitted from the same page list
 that produces the pages, so they can't list a page that doesn't exist. Each is
@@ -87,32 +86,22 @@ own meta/share-card description; without it the terminal's is reused.
 ## Getting back
 
 Esc or `q` returns to the terminal — the same `/` the topbar link points at,
-`q` being what quits a pager like `less`. They're the only keyboard
-shortcuts on the page and they stay out of the way: a modified,
-auto-repeated or already-handled press is ignored, and nothing fires while
-a field is being typed in.
-
-`q` exists because Esc can't be relied on alone: in fullscreen, Chrome takes
-Esc to leave fullscreen *before* the page sees it, by design. Both keys
-match on the physical position too, so `q` works under a Russian layout.
+`q` being what quits a pager like `less`. Nothing fires while a field is
+being typed in. `q` exists because in fullscreen Chrome takes Esc for itself
+before the page sees it.
 
 ## Printing
 
-Grayscale under every theme: `@media print` redefines the palette tokens and
-strips shadows and glows wholesale. Long jobs flow across page breaks while
-individual bullets and rows stay whole, and link targets print inline so a paper
-copy is still usable.
+Grayscale under every theme (see [theming](theming.md#printing)). Long jobs
+flow across page breaks while individual bullets and rows stay whole, and link
+targets print inline so a paper copy is still usable.
 
 ## Why there are no `llm/` mirrors
 
-The predecessor rendered the CV with client-side JavaScript, so crawlers saw an
-empty div. It grew parallel `llm/` mirror pages plus a `<noscript>` block —
-three renderings of one résumé kept in sync by a template script, discoverable
-only through `sitemap.xml` because linking to them would read as cloaking.
-
-Prerendering makes the live page *be* the crawler-readable page. The mirrors, the
-duplicate-content risk and the cloaking concern went away together, and six
-sitemap URLs became three. **Don't reintroduce a mirror.**
+A client-rendered CV is invisible to crawlers, and the usual fix — a parallel
+crawler-only copy of the page — is duplicate content that has to be kept in
+sync and reads as cloaking. Prerendering makes the live page *be* the
+crawler-readable page. **Don't reintroduce a mirror.**
 
 ---
 
