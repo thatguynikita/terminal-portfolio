@@ -295,7 +295,7 @@ public/                 copied verbatim into dist/
 
 ## Contributing
 
-Issues and pull requests are welcome. `npm install` sets up git hooks that
+Issues and pull requests are welcome. `npm install` points git at hooks that
 lint on commit and test on push; the conventions — one command per file,
 copy in the catalogues, data only in `profile.config.ts` — are in
 **[CONTRIBUTING.md](CONTRIBUTING.md)**.

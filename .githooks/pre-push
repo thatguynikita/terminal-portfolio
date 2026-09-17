@@ -1,0 +1,3 @@
+#!/usr/bin/env sh
+# What CI runs, before the push instead of after. `git push --no-verify` skips.
+npm run typecheck && npm test
