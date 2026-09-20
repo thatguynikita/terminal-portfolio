@@ -224,3 +224,33 @@ footer a:hover {
 .footer-bottom {
   margin-top: 4px;
 }
+
+/* ---------- static summary (terminal page, without JavaScript) ---------- */
+/* Plain readable content when scripts are off; main.ts adds .sr-only. */
+.static-summary {
+  padding: 22px 24px;
+  line-height: 1.6;
+}
+.static-summary.sr-only {
+  padding: 0; /* .sr-only is declared earlier; keep the hidden box at 1px */
+}
+.static-summary h1 {
+  font-size: 18px;
+  margin: 0 0 8px;
+}
+.static-summary h2 {
+  font-size: 15px;
+  margin: 18px 0 6px;
+}
+.static-summary table {
+  border-collapse: collapse;
+}
+.static-summary th {
+  text-align: left;
+  padding-right: 14px;
+  color: var(--fg-dim);
+  font-weight: normal;
+}
+.static-summary a {
+  color: var(--fg);
+}

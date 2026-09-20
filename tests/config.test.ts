@@ -342,7 +342,7 @@ describe.each([
       "enableSitemap",
       "enableLlmsTxt",
       "enableJsonLd",
-      "enableNoscript",
+      "enableStaticSummary",
       "enableSocialCards",
       "enable404",
     ]) {

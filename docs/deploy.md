@@ -109,7 +109,7 @@ Alongside `index.html` and the CV pages:
 | `site.webmanifest`, `CNAME`, `.nojekyll` | always |
 
 Three more switches govern the `<head>` of every page: `enableJsonLd`,
-`enableNoscript` and `enableSocialCards`. Everything in `public/` is copied
+`enableStaticSummary` (the terminal page's crawler/no-JS summary) and `enableSocialCards`. Everything in `public/` is copied
 as is.
 
 ---

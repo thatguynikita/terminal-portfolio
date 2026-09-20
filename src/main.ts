@@ -28,6 +28,10 @@ if (!body || !canvas) {
   throw new Error("terminal markup is missing #termBody or #matrix");
 }
 
+// The static summary is for crawlers, no-JS visitors and screen readers;
+// with the terminal running it stays in the accessibility tree only.
+document.getElementById("staticSummary")?.classList.add("sr-only");
+
 const terminal = createTerminal({ profile, body, canvas });
 const input = createInput(terminal);
 
@@ -54,10 +58,13 @@ function renderChrome(): void {
   const brand = document.getElementById("topbarBrand");
   if (brand) brand.textContent = profile.terminal.hostname;
 
+  // Prerendered in the default language; follows the visitor's choice, and
+  // says so, since the summary around it stays in the default language.
   const heading = document.getElementById("pageHeading");
   if (heading) {
     const role = profile.seo.role?.[lang];
     heading.textContent = role ? `${profile.author[lang]} — ${role}` : profile.author[lang];
+    heading.lang = lang;
   }
 
   const links = document.getElementById("topbarLinks");
