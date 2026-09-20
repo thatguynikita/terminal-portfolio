@@ -244,6 +244,7 @@ and SRE practices into reality.`,
     },
     photo: "/assets/img/portraits/nikita-photo.png",
     photoStyle: "tint",
+    ogImage: "/assets/img/og-terminal.png",
     metaLine: {
       en: "Saint Petersburg, Russia · Citizenship: Russia · hybrid, full day · not available for relocation or business trips",
       ru: "Санкт-Петербург, Россия · Гражданство: Россия · гибридный график, полный день · не готов к переезду или командировкам",

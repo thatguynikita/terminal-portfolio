@@ -36,7 +36,8 @@ function personNode(
     "@id": `${origin}/#owner`,
     name: profile.author[locale],
     ...(profile.seo.role ? { jobTitle: profile.seo.role[locale] } : {}),
-    ...(mailtoFor(profile) ? { email: mailtoFor(profile) } : {}),
+    // A bare address: the property is text, and every spec example is one.
+    ...(mailtoFor(profile) ? { email: mailtoFor(profile)?.replace(/^mailto:/, "") } : {}),
     url: `${origin}/`,
   };
   if (cv?.photo) person["image"] = `${origin}${cv.photo}`;
@@ -95,6 +96,7 @@ export function buildIndexJsonLd(
   profile: ProfileConfig,
   locale: Locale,
   origin: string,
+  dateModified?: string,
 ): Record<string, unknown> {
   return {
     "@context": "https://schema.org",
@@ -105,21 +107,27 @@ export function buildIndexJsonLd(
         name: profile.terminal.hostname,
         url: `${origin}/`,
         inLanguage: [...LOCALES],
+        ...(dateModified ? { dateModified } : {}),
       },
       personNode(profile, locale, origin, false),
     ],
   };
 }
 
-/** A CV page: a profile page about the owner, with the résumé's facts. */
+/**
+ * A CV page: a profile page about the owner, with the résumé's facts.
+ * `dateModified` (YYYY-MM-DD, the last commit) says the page is maintained.
+ */
 export function buildCvJsonLd(
   profile: ProfileConfig,
   locale: Locale,
   origin: string,
+  dateModified?: string,
 ): Record<string, unknown> {
   return {
     "@context": "https://schema.org",
     "@type": "ProfilePage",
+    ...(dateModified ? { dateModified } : {}),
     mainEntity: personNode(profile, locale, origin, true),
   };
 }

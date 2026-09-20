@@ -159,6 +159,14 @@ suite("built output", () => {
             : data["mainEntity"];
         expect(person?.["@type"], `${page} has no Person node`).toBe("Person");
         expect(person?.["name"]).toBe(profile.author[locale]);
+        // The last commit's date, on the WebSite and on each ProfilePage: the
+        // signal that the page is maintained.
+        const dated =
+          page === "index.html"
+            ? (data["@graph"] as Array<Record<string, any>>).find((n) => n["@type"] === "WebSite")
+            : data;
+        expect(dated?.["dateModified"], `${page} dateModified`).toMatch(/^\d{4}-\d{2}-\d{2}$/);
+        if (person?.["email"]) expect(person["email"]).not.toMatch(/^mailto:/);
       }
     });
 
@@ -197,10 +205,39 @@ suite("built output", () => {
         expect(html, `${page} twitter:description`).toMatch(
           /<meta name="twitter:description" content="[^"]+" \/>/,
         );
-        const hasOgImage = /<meta property="og:image"/.test(html);
+        const hasOgImage = /<meta property="og:image" content=/.test(html);
         expect(/<meta name="twitter:image"/.test(html), `${page} twitter:image vs og:image`).toBe(
           hasOgImage,
         );
+        if (!hasOgImage) continue;
+        // An image comes with its size (so a platform can lay the card out
+        // before fetching it) and an alt, on both og: and twitter:.
+        const px = (k: string) =>
+          Number(new RegExp(`og:image:${k}" content="(\\d+)"`).exec(html)?.[1]);
+        expect(px("width"), `${page} og:image:width`).toBeGreaterThan(0);
+        expect(px("height"), `${page} og:image:height`).toBeGreaterThan(0);
+        expect(html, `${page} og:image:alt`).toMatch(
+          /<meta property="og:image:alt" content="[^"]+" \/>/,
+        );
+        expect(html, `${page} twitter:image:alt`).toMatch(
+          /<meta name="twitter:image:alt" content="[^"]+" \/>/,
+        );
+        // The card type follows the image's shape: wide → large card.
+        const card = /twitter:card" content="([^"]+)"/.exec(html)?.[1];
+        expect(card, `${page} twitter:card vs image shape`).toBe(
+          px("width") >= px("height") * 1.5 ? "summary_large_image" : "summary",
+        );
+      }
+    });
+
+    // The CV's card is the portrait unless `cv.ogImage` points elsewhere.
+    it("CV pages share the image cv.ogImage names, else the portrait", () => {
+      const { enableSocialCards } = profile.seo;
+      const expected = profile.cv?.ogImage ?? profile.cv?.photo;
+      if (!enableSocialCards || !expected) return;
+      for (const l of locales) {
+        const html = read(cvUrl(profile, l).replace(/^\//, ""));
+        expect(html).toContain(`<meta property="og:image" content="${SITE_URL}${expected}" />`);
       }
     });
 

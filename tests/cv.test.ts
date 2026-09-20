@@ -324,8 +324,9 @@ withCv("cv structured data", () => {
       expect(p["name"]).toBe(profile.author[locale]);
       expect(p["jobTitle"]).toBe(profile.seo.role![locale]);
       // Derived from the socials, so the address a crawler reads is the one
-      // a visitor sees; absent when there's no mailto: social at all.
-      expect(p["email"]).toBe(mailtoFor(profile));
+      // a visitor sees; absent when there's no mailto: social at all. A bare
+      // address — the property is text, not a URL.
+      expect(p["email"]).toBe(mailtoFor(profile)?.replace(/^mailto:/, ""));
       // Location was dropped from config; nothing may resurrect it.
       expect("address" in p).toBe(false);
       expect(() => JSON.parse(JSON.stringify(data))).not.toThrow();

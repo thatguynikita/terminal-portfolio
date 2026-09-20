@@ -76,6 +76,11 @@ export interface CvConfig {
    * Print shows the source photo in grayscale whichever is set.
    */
   photoStyle?: "pixel" | "tint" | "plain";
+  /**
+   * The CV pages' share image, root-relative under public/. Omit to use the
+   * portrait. Set it to `seo.ogImage`'s path to share the terminal card.
+   */
+  ogImage?: string;
 
   /** The line under the contact row: location, availability, and so on. */
   metaLine?: Localized;

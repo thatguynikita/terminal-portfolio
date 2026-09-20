@@ -515,6 +515,8 @@ auftreten, und Prüfstände, die einen Defekt vor dem Lager bemerken.`,
      * grayscale + tint. Leave it out and the photo is served exactly as uploaded.
      */
     photoStyle: "pixel",
+    /** The CV pages' share image. Omit for the portrait; the terminal card is one option. */
+    // ogImage: "/assets/img/og-terminal.png",
 
     /** The line under the contact row on the CV. */
     metaLine: {

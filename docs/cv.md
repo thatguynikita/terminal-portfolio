@@ -18,6 +18,7 @@ cv: {
   description: { en: "…" },                                      // meta/share-card text; falls back to seo.description
   photo:     "/assets/img/portraits/you.png",
   photoStyle: "pixel",                                            // or "tint", or leave it out
+  ogImage:   "/assets/img/og-terminal.png",                       // share-card image; omit for the portrait
   metaLine:  { en: "Saint Petersburg · hybrid, full day", ru: "…" },
   about:     { en: "DevOps/SRE with eleven years…", ru: "…" },
   jobs: [
