@@ -2,56 +2,46 @@
 
 [← docs index](README.md)
 
-Drop any file into `src/fs/`. It shows up in `ls` with its **real byte size** and
-`cat` prints it. No configuration.
+Drop a file into `src/fs/` and it's in `ls`, with its real size, and `cat`
+prints it. Nothing to configure.
 
 ```
 src/fs/projects.txt     →  ls, cat projects.txt
 ```
 
-## Dynamic and executable files
+## Files that do something
 
-For a file that's rendered from your config, translated, or executable, add a
-`<filename>.ts` descriptor beside it:
+For a file that's built from your config, translated, or runs, add a
+`<filename>.ts` next to it:
 
 ```ts
 // src/fs/deploy.sh.ts
 import { defineFile } from "./define.ts";
 
 export default defineFile({
-  requiresSudo: true,                       // ./deploy.sh is denied; sudo works
+  requiresSudo: true,                       // ./deploy.sh is denied; sudo ./deploy.sh runs
   exec: (ctx) => ctx.print("deploying..."),
 });
 ```
 
-A descriptor can accompany a plain file of the same name and layer on top of it —
-`.bashrc` supplies the text, `.bashrc.ts` dims its comments.
+What it can declare: `read` (the lines `cat` prints — return `null` and a
+`hint` for a file that isn't text), `exec` and `requiresSudo`, `hidden`
+(only in `ls -a`), `perms`, `size`, `enabled: false`, and `name` when the
+filename should come from config. A `.ts` beside a plain file of the same
+name layers on top of it — `.bashrc` is the text, `.bashrc.ts` dims its
+comments.
 
-## Files that aren't text
+Executables run the same way whether typed as `./name`, `sudo ./name` or
+through a command, and Tab completes them: `.` Tab lists them, so does
+`sudo ` Tab.
 
-Return `null` from `read` and add a `hint` telling the reader how to open it
-instead:
-
-```ts
-read: () => null,
-hint: (ctx) => ctx.t("cv.catHint"),   // cat: cv.html: not a text file — use `cv`
-```
-
-`ctx.runFile` is shared by `./name`, `sudo ./name` and the `game` shortcut, so
-an executable behaves the same however it's reached. Tab knows about them too:
-a first word starting with `.` completes against the executables as `./name`
-(so `.` Tab Tab lists them), and `sudo ` Tab offers the same list — both come
-from `scriptCandidates` in `src/core/complete.ts`.
-
-The game's own launcher is the one executable whose *name* comes from config:
-`commands.game.script` in `profile.config.ts` decides what `ls -a` lists and what
-`sudo ./<script>` runs. Omit `commands.game` and the file, the `game` command
-and the `.bashrc` alias all disappear together.
+The game launcher is the one file named by the config —
+`commands.game.script` — and disappears with the `game` command when no
+game is configured.
 
 ## Two things that bite
 
-- **Adding a *new* plain file while `npm run dev` is running needs a restart.**
-  Vite doesn't re-scan the raw glob on its own. `.ts` files hot-reload fine.
+- **A new plain file needs a dev-server restart**; `.ts` files hot-reload.
 - **Dotfiles aren't picked up automatically.** The production build's file
   scan skips them, so `.bashrc` is imported by name in `src/fs/index.ts`.
   A new dotfile needs a line there too.
