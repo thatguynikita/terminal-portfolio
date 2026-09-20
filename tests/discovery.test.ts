@@ -336,6 +336,17 @@ suite("built output", () => {
     }
   });
 
+  // Rolldown's import.meta.glob skips dotfiles in a build while dev and
+  // Vitest match them — so `.bashrc` is imported by name, and this is the
+  // test that would have caught the deploy that went out without it.
+  it("bundles .bashrc, which the fs glob cannot see", () => {
+    const js = readdirSync(join(DIST, "assets"))
+      .filter((f) => f.endsWith(".js"))
+      .map((f) => read(`assets/${f}`))
+      .join("\n");
+    expect(js, "the .bashrc text is not in any chunk").toContain("alias ll='ls -l'");
+  });
+
   it("leaves no llm/ mirror behind", () => {
     expect(existsSync(join(DIST, "llm"))).toBe(false);
   });

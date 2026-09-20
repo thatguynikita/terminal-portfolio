@@ -63,8 +63,12 @@ input row, keybindings, completion and chips.
   an unselected catalogue is one import away from being live.
 - **Adding a new plain file to `src/fs/` needs a dev-server restart.** Vite
   doesn't re-scan the `?raw` glob on its own. `.ts` files hot-reload fine.
-- **Dotfiles need their own glob patterns** (`./.*`, `!./.*.ts`) — `*` does not
-  match a leading dot. That's how `.bashrc` is picked up.
+- **Dotfiles in `src/fs/` are imported by name, not globbed.** Rolldown's
+  `import.meta.glob` never matches a dotfile in a production build — not
+  with `./.*`, not even named outright — while dev and Vitest do, which is
+  how a deploy once shipped without `.bashrc`. `src/fs/index.ts` imports
+  `.bashrc.ts` explicitly and the discovery suite asserts the bundle
+  carries it. A new dotfile needs a line there, not a pattern.
 - **Animations are skipped when the tab is hidden or reduced-motion is set**
   (`animationsEnabled()` in `src/core/html.ts`, and `ctx.sleep` is the paced
   variant). A hidden tab clamps timers to 1/second, then 1/minute — without
