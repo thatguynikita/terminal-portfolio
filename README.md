@@ -2,19 +2,17 @@
 
 # terminal-portfolio
 
-**An interactive terminal portfolio you can fork for your own name, domain and CV.**
-Vite + TypeScript, no UI framework, no runtime dependencies.
+**Your own terminal-style website — with a CV page, hidden commands and easter eggs — built from one config file.**
 
 [![CI](https://github.com/thatguynikita/terminal-portfolio/actions/workflows/ci.yml/badge.svg)](https://github.com/thatguynikita/terminal-portfolio/actions/workflows/ci.yml)
+[![Tests](https://img.shields.io/badge/Tests-395-brightgreen)](tests/)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
-[![Node](https://img.shields.io/badge/node-%3E%3D22.12-brightgreen)](package.json)
+[![Node](https://img.shields.io/badge/Node-%3E%3D22.12-brightgreen)](package.json)
 [![TypeScript](https://img.shields.io/badge/TypeScript-7-3178c6?logo=typescript&logoColor=white)](tsconfig.json)
 [![Vite](https://img.shields.io/badge/Vite-8-646cff?logo=vite&logoColor=white)](vite.config.ts)
-[![Live Demo](https://img.shields.io/badge/demo-nikita.sh-0a7)](https://nikita.sh)
+[![Live Demo](https://img.shields.io/badge/Live%20Demo-nikita.sh-0a7)](https://nikita.sh)
 
-<img src="docs/demo.gif" width="800" alt="A recorded session: the boot sequence and neofetch card, help, a fake top, switching to the ubuntu theme, then ls -lah revealing milk-quest.sh and running it with sudo">
-
-**[Try it live →](https://nikita.sh)**
+<img src="docs/img/demo.gif" width="800" alt="A recorded session: the boot sequence and neofetch card, then help, about, skills, ls -lh revealing milk-quest.sh, cat contact.txt, switching to the ubuntu theme and back to green, asking claude to add tests, whoami, and logging out">
 
 </div>
 
@@ -22,19 +20,28 @@ Vite + TypeScript, no UI framework, no runtime dependencies.
 
 ## Features
 
-- **One file per command.** Drop `src/commands/whatever.ts` in and it registers itself — `help`, Tab-completion and the touch chips all read the same registry, so they can't drift. → [guide](docs/commands.md)
-- **38 commands, and 18 of them never show up in `help`.** `ls`, `cat`, `kubectl`, `terraform`, a fake `top`, an `ssh` persona that answers recruiter questions — plus a pile you have to find. The boot message warns you: *psst — 'help' is being modest.*
-- **The hidden half is where the jokes are.** `sudo` reports the incident, deletes something precious, then admits it was kidding. `terraform destroy` warns it'll destroy your weekend. Ask `claude` for a light theme twice and it grudgingly ships you a secret one.
-- **There's a game in here.** `ls -a` turns up a launcher script — `milk-quest.sh` on this site, whatever you name it on yours; running it is denied until you `sudo`. It opens in a CRT-tinted frame that picks up whatever theme you're on — the demo runs [condensed-milk-quest](https://github.com/thatguynikita/condensed-milk-quest), a vanilla-JS Canvas platformer.
-- **Live "now playing" from Spotify** in the neofetch card. Backend setup is [spotify-now-playing](https://github.com/thatguynikita/spotify-now-playing) — or leave the endpoint blank and the row never renders and never makes a request.
-- **7 themes**, one CSS file each, auto-registered. A random one greets each first-time visitor. → [guide](docs/theming.md)
-- **A real fake filesystem** — files show up in `ls` with their true byte sizes, and can be dynamic or executable. → [guide](docs/filesystem.md)
-- **A static CV**, prerendered per language, readable with JavaScript off and by AI crawlers that never run it. → [guide](docs/cv.md)
-- **Built to be read by machines.** The résumé is in the raw HTML; the build emits `sitemap.xml`, `robots.txt` (with per-crawler rules and `Content-Signal`) and `llms.txt` from the same page list, plus a self-canonical hreflang cluster and JSON-LD. Scan it yourself with [Lighthouse](https://pagespeed.web.dev/) or [isitagentready.com](https://isitagentready.com/).
-- **Thirteen languages ship, and adding one is a single file.** English, Russian, Ukrainian, Spanish, Portuguese, French, Italian, German, Polish, Turkish, Chinese, Japanese, Korean. You pick which ones build; the rest never reach the bundle. → [guide](docs/i18n.md)
-- **Everything about you lives in one file** — `profile.config.ts`. Name, bio, skills, socials, CV, personas, SEO.
-- **394 tests** and a config preflight, `npm run check`.
-- **Deploys anywhere static** — GitHub Pages and S3-compatible hosts (AWS, Yandex Object Storage) are one command each; the S3 path sets every object's content type explicitly, with a dry run that shows the full plan first. → [guide](docs/deploy.md)
+- 🖥️ **Terminal that feels real** — boot sequence, Tab-completion, history, Ctrl shortcuts, matrix rain
+- 🕵️ **38 built-in commands** — a fake `kubectl`, `terraform`, `claude`, an `ssh` that answers recruiter questions and many more
+- 🧩 **Easy to extend** — drop a file in and it's a new command, theme or language; the fake filesystem takes anything you put there
+- 🎨 **7 themes, each a single CSS file** — set a default, deal them at random, or write your own
+- 🌍 **Multilingual** — a language chip switches the whole site, bundled with 13 languages
+- 📄 **CV that looks like the terminal** — every section is a shell command, your photo can go pixel-art, it follows the visitor's theme on screen and prints clean grayscale on paper
+- 🎮 **Hidden game** — poke around the filesystem to find it; the demo hides [condensed-milk-quest](https://github.com/thatguynikita/condensed-milk-quest), yours can hide anything
+- 🎵 **Live "now playing"** — your current Spotify track in the info card, via [spotify-now-playing](https://github.com/thatguynikita/spotify-now-playing)
+- 📱 **Works on a phone** — tappable command chips, minimal keyboard interaction
+- 🔍 **Indexable by design** — real HTML for crawlers, plus sitemap, robots.txt, llms.txt and structured data
+- 💍 **One file to rule them all** — name, bio, skills, links, CV, jokes, all from `profile.config.ts`
+- 🚀 **Deploys with a single command** — GitHub Pages or any S3-compatible bucket
+
+## Screenshots
+
+| The terminal | The CV |
+|---|---|
+| <img src="docs/img/terminal.png" alt="The terminal after boot: the neofetch card, the welcome lines and the prompt"> | <img src="docs/img/cv.png" alt="The CV page: name, contact links and portrait, then the about and experience sections as shell commands"> |
+
+| Featured themes | The 404 |
+|---|---|
+| <img src="docs/img/themes.gif" alt="The same terminal cycling through all seven themes: green, amber, solarized, commodore, ubuntu, pascal and the secret light one"> | <img src="docs/img/404.png" alt="The 404 page: a fake ls error for the missing path, and the cat that ate the page"> |
 
 ---
 
@@ -44,114 +51,54 @@ Vite + TypeScript, no UI framework, no runtime dependencies.
 git clone https://github.com/thatguynikita/terminal-portfolio.git
 cd terminal-portfolio
 npm install
-npm run dev                 # http://localhost:5173
+npm run dev                 # open http://localhost:5173
 ```
 
-Make it yours, then ship it:
+## Make it yours
+
+**1. Start from an example.** Two complete, fictional configs ship next to
+the real one: `profile.config.example.ts` (English) and
+`profile.config.multilingual.example.ts` (English, Spanish, German).
 
 ```bash
-cp profile.config.example.ts profile.config.ts   # start from a filled-in example
-$EDITOR profile.config.ts                        # your name, bio, CV, socials
-cp .env.example .env                             # then set SITE_URL to where it'll live
-npm run check                                    # preflight — catches a half-done rebrand
-npm run build                                    # typecheck, then build to dist/
-npm run deploy                                   # publish to GitHub Pages…
-npm run deploy:s3                                # …or to an S3 bucket (AWS, Yandex)
+cp profile.config.example.ts profile.config.ts
 ```
 
-That's the whole loop. Everything below is detail.
-
-> **GitHub Pages needs a custom domain** (or a `<user>.github.io` root site).
-> `base` is fixed at `/`, so a project site at `<user>.github.io/<repo>/` would
-> 404 on every asset. [Why, and how to change it →](docs/deploy.md#step-3-is-not-optional)
-
----
-
-## Configuration
-
-Edit **`profile.config.ts`**. That's the whole customisation surface: name, bio,
-skills, socials, the neofetch card, ssh personas, hostname, languages, default
-theme, whether the matrix rain starts on, SEO, and the entire CV.
-
-Two filled-in examples ship alongside it, both fictional and both on `.example`
-domains — copy either over `profile.config.ts` to start from something complete
-rather than editing real data:
-
-| File | Persona | Languages |
-|---|---|---|
-| `profile.config.example.ts` | data engineer | English |
-| `profile.config.multilingual.example.ts` | robotics firmware engineer | English, Spanish, German |
-
-```bash
-cp profile.config.multilingual.example.ts profile.config.ts
-```
-
-The only structural difference between them is how many catalogues `MESSAGES`
-imports. The trilingual one builds `/cv.html`, `/es/cv.html` and `/de/cv.html`
-with a matching hreflang cluster, and its language chip cycles all three.
-
-### The smallest config that builds
-
-Only your name is required. Everything else either has a default or is a
-feature that's simply absent when you leave it out:
+**2. Top of the file: your languages.**
 
 ```ts
-// profile.config.ts
-import { defineProfile } from "./src/core/profile.ts";
 import en from "./src/i18n/messages/en.ts";
+import es from "./src/i18n/messages/es.ts";
 
-export const MESSAGES = { en };
-
-export default defineProfile(MESSAGES, {
-  author: { en: "Ada Example" },
-});
+export const MESSAGES = { en, es };   // this line is the whole language setup
 ```
 
-That builds a green terminal at `guest@<your SITE_URL host>` with the boot
-screen, the chip bar, the hidden commands and the ssh egg — and no `about`,
-`skills`, `contact`, `neofetch` or `cv`, since there's nothing to show. `npm
-run check` will warn that `seo.description` is unset (search engines then
-write their own snippet); everything else is quiet. The examples show every
-knob: the ones at their default are commented out with the default in the
-comment, so uncommenting one is how you change it.
+Thirteen are ready to import; the rest never reach the site. Every field
+below then asks for each language you listed. → [languages](docs/i18n.md)
 
-### Replace the images
+**3. The rest of the file: you.** Name, bio, skills, links, the info card,
+the CV, the `ssh` personas. Only your name is required — leave anything
+else out and it simply isn't there. → [configuration guide](docs/configuration.md)
 
-Two of the shipped images are personal to the original author, and nothing
-warns you at build time, so it's worth doing early:
+**4. Two images.** They're the author's, and nothing warns you:
 
-| File | What it is | Size |
-|---|---|---|
-| `public/assets/img/portraits/` | the CV portrait — only the one `cv.photo` names is built | 480×480 |
-| `public/assets/img/og-terminal.png` | the link-preview card, itself just a screenshot of the terminal | 1200×630 |
-| `public/favicon.ico` + `public/assets/icons/*` | tab and home-screen icons | various |
+| File | What it is |
+|---|---|
+| `public/assets/img/portraits/` | your CV photo — point `cv.photo` at it |
+| `public/assets/img/og-terminal.png` | the preview card in shared links |
 
-**[Full guide → sizes, a script for the preview card, favicons](docs/assets.md)**
+Swapping the icons (`public/favicon.ico`, `public/assets/icons/`) is optional.
+→ [sizes and how to make them](docs/assets.md)
 
-### The preflight
+**5. `npm run check`.** It catches a half-finished rebrand — a missing
+translation, an image that isn't there, a link that isn't a link.
 
-```bash
-npm run check
-```
+## Add your own
 
-It verifies every user-visible field is translated into every enabled language,
-that referenced assets exist, that `SITE_URL` is a bare origin, and that social
-links are real URLs. (`SITE_URL` itself is covered in [deployment](docs/deploy.md).)
-
-It checks that images *exist*, not that they're *yours* — swapping the portrait
-and the preview card is on you.
-
-**This repo ships with the original author's real data**, so run it after
-rebranding — `npm run deploy` runs it for you and refuses to publish if it fails.
-
----
-
-## Customisation
-
-Four extension points. Each is one file, and none of them need registering.
+Each of these is one file, and nothing needs registering.
 
 <details>
-<summary><b>Add a command</b></summary>
+<summary><b>Command</b></summary>
 
 ```ts
 // src/commands/coffee.ts
@@ -164,162 +111,83 @@ export default defineCommand({
 });
 ```
 
-Add `commands: { coffee: "make a coffee" }` to each locale in
-`src/i18n/messages/` and you're done. `npm test` fails if you forget one.
-
-**[Full guide → the output API, arguments, sub-shells](docs/commands.md)**
+Add `commands: { coffee: "make a coffee" }` to each language and it shows up in `help`.
+→ [guide](docs/commands.md)
 
 </details>
 
 <details>
-<summary><b>Add a file to the filesystem</b></summary>
+<summary><b>File in the fake filesystem</b></summary>
 
-Drop anything into `src/fs/`. It appears in `ls` with its real byte size and
-`cat` prints it:
+Drop anything into `src/fs/` and it appears in `ls`, with `cat` printing it:
 
 ```
 src/fs/projects.txt     →  ls, cat projects.txt
 ```
 
-For files that are dynamic, translated or executable, add a `<filename>.ts`
-descriptor beside it.
-
-**[Full guide → descriptors, executables, non-text files](docs/filesystem.md)**
+→ [guide](docs/filesystem.md) — including files that run
 
 </details>
 
 <details>
-<summary><b>Add a theme</b></summary>
+<summary><b>Theme</b></summary>
 
 ```css
 /* src/themes/ocean.css */
 :root[data-theme="ocean"] {
   --bg: #04121c;
   --fg: #7fdbff;
-  /* ...every token green.css defines — nothing falls back... */
+  /* ...every colour green.css defines... */
 }
 ```
 
-It joins the theme list, `theme`'s completions and the random first-visit pool
-automatically. `npm test` fails if a token is missing.
-
-**[Full guide → contrast, the CRT flicker, print](docs/theming.md)**
+It joins the theme list (and the random pool, if that's what you configured) on its own.
+→ [guide](docs/theming.md)
 
 </details>
 
 <details>
-<summary><b>Add a language</b></summary>
+<summary><b>Language that isn't among the thirteen</b></summary>
 
-```ts
-// profile.config.ts
-import en from "./src/i18n/messages/en.ts";
-import es from "./src/i18n/messages/es.ts";
-
-export const MESSAGES = { en, es };   // this map is the whole locale setup
-```
-
-Adding one makes TypeScript name every config field that still needs
-translating, one error per field — so a half-translated site can't ship.
-
-**[Full guide → catalogues, why unselected ones don't ship](docs/i18n.md)**
+One file in `src/i18n/messages/`, translated from `en.ts`, plus its line in
+`MESSAGES`. TypeScript and the tests point out anything missing or mistranslated.
+→ [guide](docs/i18n.md#adding-a-language)
 
 </details>
 
----
+## Deploy
 
-## What's in the box
+Tell the build where the site will live — it's the base of every link,
+the sitemap and the preview cards:
 
-| The terminal | The CV |
-|---|---|
-| <img src="docs/img/terminal.png" alt="The terminal running neofetch"> | <img src="docs/img/cv.png" alt="The prerendered CV page"> |
-| 38 commands, Tab-completion, history, touch chips | Static per language, prints grayscale under any theme |
+```bash
+cp .env.example .env        # then set SITE_URL=https://your.domain
+```
 
-| Seven themes — four shown | The 404 |
-|---|---|
-| <img src="docs/img/themes.png" alt="The same terminal rendered in the green, amber, solarized and commodore themes"> | <img src="docs/img/404.png" alt="The 404 page"> |
-| One CSS file each, random on first visit | Served at any depth, keeps your theme |
-
----
-
-## Deploying
-
-The build is a plain static `dist/` — any host works.
+Then one command:
 
 ```bash
 npm run deploy       # GitHub Pages
-npm run deploy:s3    # AWS S3 or Yandex Object Storage; see .env.example
+npm run deploy:s3    # AWS S3 or Yandex Object Storage
 ```
 
-Both run the linter, the tests and the preflight first.
-
-**[Full guide → Pages setup, DNS, S3, previewing without pushing](docs/deploy.md)**
-
----
-
-## Scripts
-
-| | |
-|---|---|
-| `npm run dev` | dev server with HMR |
-| `npm run build` | typecheck, then build to `dist/` |
-| `npm run preview` | serve the built `dist/` |
-| `npm test` | full suite |
-| `npm run test:watch` | suite in watch mode |
-| `npm run check` | config preflight only |
-| `npm run typecheck` | `tsc --noEmit` |
-| `npm run lint` | Biome — lint, formatting and import order (`lint:fix` applies) |
-| `npm run deploy` | lint, test, build, publish to GitHub Pages |
-| `npm run deploy:s3` | lint, test, build, sync to an S3-compatible bucket |
-| `npm run deploy:s3:dry-run` | build, then print the upload/delete plan without touching the bucket |
-
----
-
-## Layout
-
-```
-profile.config.ts       everything about you, including the whole CV
-pages/                  the three page shells — Vite's root
-src/core/               engine: registry, output API, input loop, modes, theme
-src/commands/           one file per command — auto-registered
-src/cv/                 CV renderer and URLs
-src/fs/                 the fake filesystem
-src/i18n/messages/      one file per language — en, ru, uk, es, pt, fr, it, de, pl, tr, zh, ja, ko
-src/themes/             one CSS file per theme — auto-registered
-src/styles/             shared chrome and per-page layout
-public/                 copied verbatim into dist/
-```
-
-**[How it fits together →](docs/architecture.md)**
+Both check, test and build first. → [deployment guide](docs/deploy.md)
 
 ---
 
 ## Contributing
 
-Issues and pull requests are welcome. `npm install` points git at hooks that
-lint on commit and test on push; the conventions — one command per file,
-copy in the catalogues, data only in `profile.config.ts` — are in
-**[CONTRIBUTING.md](CONTRIBUTING.md)**.
-
----
+Issues and pull requests are welcome — see [CONTRIBUTING.md](CONTRIBUTING.md).
+More on how it's built: [docs](docs/README.md).
 
 ## Credits
 
-Rebuilt from [thatguynikita/nikita.sh](https://github.com/thatguynikita/nikita.sh),
-where the whole terminal was a single 1,890-line inline `<script>` and
-`runCommand()` was a 550-line `switch`. That repo is archived;
-[nikita.sh](https://nikita.sh) is deployed from this one.
+Rebuilt from [nikita.sh](https://github.com/thatguynikita/nikita.sh), which now
+deploys from here. Inspired by three terminal portfolios worth a look:
+[iamdhakrey/terminal-portfolio](https://github.com/iamdhakrey/terminal-portfolio),
+[micahkepe/term-website](https://github.com/micahkepe/term-website/) and
+[satnaing/terminal-portfolio](https://github.com/satnaing/terminal-portfolio).
 
-Shaped by three terminal portfolios worth reading:
-
-- [iamdhakrey/terminal-portfolio](https://github.com/iamdhakrey/terminal-portfolio)
-  — the README shape and the single-config-file approach
-- [micahkepe/term-website](https://github.com/micahkepe/term-website/)
-  — a minimal, configurable terminal website
-- [satnaing/terminal-portfolio](https://github.com/satnaing/terminal-portfolio)
-  — the terminal-as-portfolio idea, done in React
-
----
-
-## Licence
+## License
 
 MIT — see [LICENSE](LICENSE). Fork it, rename it, make it yours.

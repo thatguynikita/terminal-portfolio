@@ -113,9 +113,8 @@ body.panic-amber .crt {
   padding: 18px 20px 14px;
   font-size: 14px;
   line-height: 1.6;
-  /* Fixed, not min/max: the window is full height from the first paint
-     rather than growing as output arrives. */
-  height: 70vh;
+  min-height: 60vh;
+  max-height: 70vh;
   overflow-y: auto;
   scroll-behavior: smooth;
 }
@@ -357,18 +356,12 @@ table.tbl:not(.kv-tbl) tr:first-child td {
   justify-content: center;
   gap: 8px;
   padding: 12px 16px 14px;
-  /* One row of chips, always: the bar is the same height before the chips
-     render and when completion has nothing to offer. Only on a shell that
-     has the bar at all — `terminal.chips: false` strips it, so this never
-     reserves space there. 12 + 28 (chip) + 14 + 1 (border). */
-  min-height: 55px;
   border-top: 1px solid var(--border);
   background: var(--chips-bg);
 }
 .chip {
   font-family: inherit;
   font-size: 12px;
-  line-height: 16px;
   color: var(--fg-dim);
   background: rgba(var(--tint-rgb), 0.06);
   border: 1px solid var(--border);
@@ -496,7 +489,7 @@ footer {
 @media (max-width: 560px) {
   .term-body {
     font-size: 13px;
-    height: 65vh;
+    max-height: 65vh;
   }
   .neofetch {
     column-gap: 14px;

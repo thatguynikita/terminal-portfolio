@@ -90,30 +90,24 @@ through to the terminal — which is exactly what the language chip links to.
 
 `defineProfile(MESSAGES, { … })` in `src/core/profile.ts` is the one place
 defaults live: it takes what an author writes (`ProfileInput`) and returns
-what the code reads (`ProfileConfig`), with every default filled in. Readers
-never guard a defaulted field; they do guard the features that can be absent.
+what the code reads (`ProfileConfig`), with every default filled in. Only
+`author` is required; the full list of defaults, and what each omitted
+feature removes, is in [configuration](configuration.md).
 
-| field | when omitted |
+## Scripts
+
+| | |
 |---|---|
-| `author` | **required** — the one field with no possible default |
-| `terminal.defaultLocale` | the first key of `MESSAGES` |
-| `terminal.handle` | `"guest"` |
-| `terminal.hostname` | the host of `SITE_URL`; `localhost` in dev without one (read lazily, since `vite.config.ts` imports the config before it has computed `SITE_URL`) |
-| `terminal.defaultTheme` / `defaultMatrix` | `"green"` / `"on"` |
-| `terminal.bootScreen` / `chips` | `true` |
-| `terminal.footer` | `{ copyright: true, backToTerminal: true, bottomText: <the credit line> }` — `bottomText: ""` turns the credit off |
-| `seo.contentSignal` | all `yes` |
-| `seo.enable*` (seven, incl. `enable404`) | `true` — `enable404: false` builds no 404 page and ships no 404 cat |
-| `seo.role` | no JSON-LD `jobTitle`, no noscript/llms.txt role, plain portrait alt |
-| `seo.description` | no description tags, no manifest description, no llms.txt paragraph — **the preflight warns** |
-| `neofetch` | no card, no `neofetch` command, the intro is the welcome lines |
-| `bio` / `skills` / `socials` | no `about` / `skills` / `contact` command or file, and nothing in the CV, noscript, llms.txt or JSON-LD for it |
-| `commands` | default help lines, owner `root`, uptime from the build, no secret theme, no game, no ssh personas (the egg still plays) |
-| `cv` | no CV pages, command or file |
-
-One rule the preflight and the build both enforce: a `skills`/`socials` row
-tagged only `["cv"]` while no `cv` is configured can never render, and fails
-naming the row — a dead row is a half-removed résumé.
+| `npm run dev` | dev server with HMR |
+| `npm run build` | typecheck, then build to `dist/` |
+| `npm run preview` | serve the built `dist/` |
+| `npm test` / `npm run test:watch` | the full suite, once or in watch mode |
+| `npm run check` | config preflight only |
+| `npm run typecheck` | `tsc --noEmit` |
+| `npm run lint` / `npm run lint:fix` | Biome — lint, formatting and import order |
+| `npm run deploy` | lint, test, build, publish to GitHub Pages |
+| `npm run deploy:s3` | lint, test, build, sync to an S3-compatible bucket |
+| `npm run deploy:s3:dry-run` | build, then print the upload/delete plan without touching the bucket |
 
 ## Testing
 
