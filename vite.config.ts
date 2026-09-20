@@ -193,6 +193,12 @@ function socialCardTags(opts: {
   ];
 }
 
+/** Wider than 3:2 — the shape a `summary_large_image` card is drawn for. */
+function isWide(image: string): boolean {
+  const size = image ? imageSize(join(HERE, "public", image)) : null;
+  return size !== null && size.width >= size.height * 1.5;
+}
+
 /** PNG or JPEG pixel size from the file header; null for anything else or a missing file. */
 function imageSize(file: string): { width: number; height: number } | null {
   if (!existsSync(file)) return null;
@@ -254,7 +260,14 @@ function cvHead(locale: Locale): string {
   const cardTitle = `${name} — CV`;
   // The CV's own description when it has one; the terminal's otherwise; none if neither.
   const description = profile.cv?.description?.[locale] ?? profile.seo.description?.[locale];
-  const ogImage = profile.cv?.photo ?? "";
+  // The card image: `cv.ogImage` when set, else the portrait. The alt and the
+  // twitter card type follow the image — the portrait's alt and a square
+  // `summary` for the portrait, the page title and a wide card for a banner.
+  const ogImage = profile.cv?.ogImage ?? profile.cv?.photo ?? "";
+  const isPortrait = ogImage !== "" && ogImage === profile.cv?.photo;
+  const imageAlt = isPortrait
+    ? photoAltFor(profile, locale, (k, v) => translate(locale, k, v))
+    : cardTitle;
 
   const { enableSocialCards, enableJsonLd } = profile.seo;
   return [
@@ -271,10 +284,10 @@ function cvHead(locale: Locale): string {
           description,
           url: `${SITE_URL}${cvUrl(profile, locale)}`,
           image: ogImage,
-          imageAlt: photoAltFor(profile, locale, (k, v) => translate(locale, k, v)),
+          imageAlt,
           locale,
           alternates: cvLocales(profile),
-          twitterCard: "summary",
+          twitterCard: isWide(ogImage) ? "summary_large_image" : "summary",
         })
       : []),
     enableJsonLd

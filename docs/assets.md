@@ -12,7 +12,7 @@ keep them: every link you share would preview someone else's terminal.
 | `public/favicon.ico` + `public/assets/icons/` | the tab and home-screen icon — optional | see below |
 | `public/assets/img/404-cat.png` | the 404 page — a joke, keep it or swap it | 821×357 |
 
-`npm run check` fails if `cv.photo` or `seo.ogImage` point at a missing
+`npm run check` fails if `cv.photo`, `cv.ogImage` or `seo.ogImage` point at a missing
 file. It can't tell whether the images are *yours*.
 
 ## The CV portrait
@@ -55,8 +55,10 @@ seo: {
 }
 ```
 
-1200×630, the size every platform expects. The shipped one is a screenshot
-of the terminal itself, and one command makes yours:
+1200×630, the size every platform expects. The terminal and 404 pages use
+it; the CV pages use the portrait unless `cv.ogImage` points at this (or
+any other) image. The shipped one is a screenshot of the terminal itself,
+and one command makes yours:
 
 ```bash
 npm run og-card                 # needs Chrome or Chromium, nothing else

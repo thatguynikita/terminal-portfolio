@@ -123,7 +123,7 @@ function sharedRules(label: string, p: ProfileConfig): void {
   // — so without this a broken path ships a broken image on the CV and a
   // dead <image:loc> in sitemap.xml, and check stays green.
   it("points at assets that actually exist", () => {
-    const missing = [p.seo.ogImage, p.cv?.photo].filter(
+    const missing = [p.seo.ogImage, p.cv?.photo, p.cv?.ogImage].filter(
       (path): path is string =>
         Boolean(path?.startsWith("/")) && !existsSync(join(ROOT, "public", path!.slice(1))),
     );
@@ -304,7 +304,8 @@ describe.each([
 
   it("covers every cv section the real config has", () => {
     const keys = Object.keys(profile.cv ?? {});
-    const missing = keys.filter((k) => !new RegExp(`^    ${k}:`, "m").test(example));
+    // Live, or shown commented out the way optional fields are.
+    const missing = keys.filter((k) => !new RegExp(`^    (// )?${k}:`, "m").test(example));
     expect(missing, "cv sections missing from the example").toEqual([]);
   });
 

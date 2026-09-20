@@ -296,6 +296,10 @@ address, not a `mailto:` URL. Share cards carry `og:image:width/height`
 (read from the PNG/JPEG header at build, `imageSize()`) and an alt on both
 `og:` and `twitter:` — the portrait alt on the CV, `author — terminal` on
 the terminal and 404, since the card image is the terminal either way.
+The CV's image is `cv.ogImage ?? cv.photo`; the alt is the portrait's only
+when the image *is* the portrait, and `twitter:card` follows the shape
+(`isWide()`: ≥ 3:2 → `summary_large_image`), so a banner and a square
+portrait both get the right card.
 
 **Descriptions are per page kind**: `seo.description` is the terminal's,
 `cv.description` (optional, falls back) the CV's, `notFound.description` in

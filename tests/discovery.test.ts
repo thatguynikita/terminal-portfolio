@@ -222,6 +222,22 @@ suite("built output", () => {
         expect(html, `${page} twitter:image:alt`).toMatch(
           /<meta name="twitter:image:alt" content="[^"]+" \/>/,
         );
+        // The card type follows the image's shape: wide → large card.
+        const card = /twitter:card" content="([^"]+)"/.exec(html)?.[1];
+        expect(card, `${page} twitter:card vs image shape`).toBe(
+          px("width") >= px("height") * 1.5 ? "summary_large_image" : "summary",
+        );
+      }
+    });
+
+    // The CV's card is the portrait unless `cv.ogImage` points elsewhere.
+    it("CV pages share the image cv.ogImage names, else the portrait", () => {
+      const { enableSocialCards } = profile.seo;
+      const expected = profile.cv?.ogImage ?? profile.cv?.photo;
+      if (!enableSocialCards || !expected) return;
+      for (const l of locales) {
+        const html = read(cvUrl(profile, l).replace(/^\//, ""));
+        expect(html).toContain(`<meta property="og:image" content="${SITE_URL}${expected}" />`);
       }
     });
 
