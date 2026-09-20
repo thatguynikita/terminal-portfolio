@@ -499,7 +499,11 @@ suite("built output", () => {
     it("dates every url, and never in the future", () => {
       const urls = [...xml.matchAll(/<url>([\s\S]*?)<\/url>/g)].map((m) => m[1] as string);
       expect(urls.length).toBeGreaterThan(0);
-      const today = new Date().toISOString().slice(0, 10);
+      // Local date, not UTC: lastmod is `git log --format=%cs`, which is the
+      // committer's local calendar — a commit just after midnight in Moscow
+      // is "tomorrow" in UTC.
+      const now = new Date();
+      const today = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, "0")}-${String(now.getDate()).padStart(2, "0")}`;
       for (const url of urls) {
         const lastmod = /<lastmod>([^<]+)<\/lastmod>/.exec(url)?.[1] ?? "";
         expect(lastmod, `a url has no lastmod: ${url.slice(0, 60)}`).toMatch(/^\d{4}-\d{2}-\d{2}$/);
