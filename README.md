@@ -5,7 +5,7 @@
 **Your own terminal-style website — with a CV page, hidden commands and easter eggs — built from one config file.**
 
 [![CI](https://github.com/thatguynikita/terminal-portfolio/actions/workflows/ci.yml/badge.svg)](https://github.com/thatguynikita/terminal-portfolio/actions/workflows/ci.yml)
-[![Tests](https://img.shields.io/badge/Tests-395-brightgreen)](tests/)
+[![Tests](https://img.shields.io/badge/Tests-396-brightgreen)](tests/)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 [![Node](https://img.shields.io/badge/Node-%3E%3D22.12-brightgreen)](package.json)
 [![TypeScript](https://img.shields.io/badge/TypeScript-7-3178c6?logo=typescript&logoColor=white)](tsconfig.json)
