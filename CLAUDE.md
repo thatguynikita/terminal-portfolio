@@ -24,6 +24,7 @@ npm run preview        # serve the built dist/
 npm test               # vitest, all suites
 npm run check          # config preflight only
 npm run lint           # biome: lint + format + import order (lint:fix applies)
+npm run og-card        # scripts/og-card.sh → public/assets/img/og-terminal.png (needs Chrome)
 npm run deploy         # gh-pages
 npm run deploy:s3      # scripts/deploy-s3.sh → S3-compatible bucket (see .env.example)
 ```
@@ -299,6 +300,14 @@ pass per extension, an unknown extension fails the deploy, hashed assets get
 immutable cache headers, a `--delete --size-only` pass removes stale keys, and `S3_KEEP` patterns (search-engine verification files that
 live in the bucket, not the repo) are excluded from every pass. Nikita's own
 site is the S3 one; the Pages path exists for forks.
+
+**`?card[&theme=<name>]` on the terminal page is the link-preview layout**
+(`body.card` in `terminal.css`, read in `src/main.ts`): chrome hidden, the
+window filling the viewport, boot skipped, the theme from the query. The
+window uses `overflow: clip`, not `hidden` — hidden is still a scroll
+container and focusing the prompt scrolls the title bar out of the shot.
+`scripts/og-card.sh` opens it in headless Chrome at 750×394 × 1.6 for an
+exact 1200×630.
 
 `public/` is copied verbatim into `dist/` — with one exception.
 **`public/assets/img/portraits/` is pruned in `writeBundle`**: it holds every

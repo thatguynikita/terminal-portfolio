@@ -2,10 +2,8 @@
 
 [← docs index](README.md)
 
-Drop a file in `src/commands/`. It registers itself — `help`, Tab-completion and
-the touch chip bar all read the same registry, so they can't drift apart. (The
-chip bar itself is optional: `terminal.chips: false` removes it; completion and
-`help` are unaffected.)
+Drop a file in `src/commands/`. It registers itself: `help`, Tab-completion
+and the chip bar all read the same list.
 
 ```ts
 // src/commands/coffee.ts
@@ -13,8 +11,7 @@ import { defineCommand } from "../core/types.ts";
 
 export default defineCommand({
   name: "coffee",
-  usage: "<size>",          // optional; shown in `help`
-  order: 95,                // optional; where it sits in `help`
+  usage: "<size>",          // shown in `help`
   complete: () => ["small", "large"],
   run(ctx, args) {
     ctx.print(`brewing a <span class="accent">${ctx.escape(args.positional[0] ?? "small")}</span>`);
@@ -22,66 +19,60 @@ export default defineCommand({
 });
 ```
 
-Then add its help text to each locale in `src/i18n/messages/`:
+Then give it a help line in each language file under `src/i18n/messages/`:
 
 ```ts
 commands: { coffee: "make a coffee", ... }
 ```
 
-That's it — no registration, no list to update. `npm test` fails if you forget
-the help text in any enabled locale.
+That's all. `npm test` fails if a language is missing the line.
 
-## The output API
+Other things a command can declare: `aliases` (other names that run it),
+`hidden` (works, but stays out of `help` and the chips), `order` (where it
+sits in `help`), `enabled: false` (unregistered — for a feature the config
+doesn't have).
 
-Commands never touch the DOM. Everything goes through `ctx`:
+## Printing
 
-| Call | Does |
+Commands never touch the page directly; everything goes through `ctx`.
+
+| Call | Prints |
 |---|---|
-| `ctx.print(html, cls?)` | one line of **HTML** |
-| `ctx.printText(text, cls?)` | one line of **escaped text** |
-| `ctx.printLines(lines, cls?)` | several lines |
-| `ctx.type(text, {speed})` | typewriter effect (plain text only) |
-| `ctx.sequence(steps)` | scripted animation — `{text, delay?, typed?, cls?}` |
-| `ctx.table(header, rows)` | a table; pass `null` for no header |
-| `ctx.kv(pairs)` | two-column key/value table |
-| `ctx.clear()`, `ctx.sleep(ms)`, `ctx.escape()`, `ctx.escapeAttr()` | |
+| `ctx.print(html)` | one line of **HTML** — nothing is escaped for you |
+| `ctx.printText(text)` | one line of text, escaped |
+| `ctx.printLines(lines)` | several lines |
+| `ctx.type(text, { speed })` | with a typewriter effect |
+| `ctx.sequence(steps)` | a scripted sequence of `{ text, delay?, typed? }` |
+| `ctx.table(header, rows)`, `ctx.kv(pairs)` | a table, or two columns |
 
-Also on `ctx`: `lang`, `profile`, `t(key, vars)`, `tList(key)`, `fs`, `theme`,
-`history`, `runFile()`, `enterMode()`, `setLang()`, `navigate()`, `state`.
-
-**`print` takes HTML and `printText` escapes — pick deliberately.** Nothing
-escapes for you in `print`.
+Every call takes an optional CSS class as its last argument. Also on
+`ctx`: `t()` for translations, `profile`, `lang`, `fs`, `theme`, `history`,
+`sleep()`, `escape()`.
 
 ## Arguments
 
-`args` is `{ name, raw, positional, flags, normalized }`. `flags` holds both
-`-lah` characters and `--long-name` words; `name` is the name actually typed, so
-an alias can behave differently — that's how `ll` becomes `ls -l`.
+`args.positional` is the words, `args.flags` the `-l` letters and
+`--long` words, `args.name` the name actually typed — that's how `ll`
+knows to behave like `ls -l`.
 
-## Sub-shells
+## Taking over the input
 
-A command can take over the input line. See `src/commands/top.ts` (a
-live-refreshing view) and `src/commands/ssh.ts` (a Q&A mini-shell). Implement
-`Mode` and call `ctx.enterMode(...)`.
+`top` and `ssh` own the input line while they run: implement `Mode`
+(`src/core/types.ts`) and call `ctx.enterMode(...)`. Those two files are
+the examples.
 
 ## The fake machine
 
-`ps`, `who`, `w` and `env` show two accounts — the visitor (`terminal.handle`)
-and the machine's owner (`commands.system.owner`). `uptime` counts from
-`commands.system.since`, and `uname -a` and `ls -l` stamp the same date, so the
-three can't disagree; leave it out and the machine came up when the site was
-last built. The boot sequence before the terminal is `terminal.bootScreen`;
-switching it off goes straight to the greeting, and `dmesg` still prints the
-lines.
+`ps`, `who`, `w` and `env` show the visitor (`terminal.handle`) and the
+owner (`commands.system.owner`). `uptime`, `uname -a` and `ls -l` all use
+`commands.system.since` as the moment the machine came up — leave it out
+and it's the last build.
 
 ## Animations
 
-Animations are skipped when the tab is hidden or the visitor has reduced-motion
-set — see `animationsEnabled()` in `src/core/html.ts`, and use `ctx.sleep` as the
-paced variant. A hidden tab clamps timers to once a second, then once a minute;
-without this the terminal strands itself mid-line. The boot goes one step
-further and doesn't start until the document is visible (`untilVisible()`),
-since a prerendered page or a background tab starts hidden.
+Use `ctx.sleep` for pauses, not a bare timer: it's skipped when the tab is
+hidden or the visitor asked for reduced motion, so the terminal never
+strands itself mid-line.
 
 ---
 

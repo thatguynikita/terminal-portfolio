@@ -6,8 +6,20 @@ import { boot, intro } from "./core/boot.ts";
 import { initGameOverlay } from "./core/game.ts";
 import { createInput } from "./core/input.ts";
 import { renderFooter } from "./core/profile.ts";
+import { BOOTED_SESSION_KEY, StorageKey, writeSession, writeStored } from "./core/storage.ts";
 import { createTerminal } from "./core/terminal.ts";
 import { CV_LINK_LABEL, cvUrl } from "./cv/url.ts";
+
+// `?card[&theme=<name>]` frames the page for the link-preview screenshot
+// (scripts/og-card.sh): chrome hidden, boot skipped, theme as asked. Written
+// to storage before the terminal exists, since that is where both are read.
+const params = new URLSearchParams(location.search);
+if (params.has("card")) {
+  document.body.classList.add("card");
+  writeSession(BOOTED_SESSION_KEY, "1");
+  const theme = params.get("theme");
+  if (theme) writeStored(StorageKey.theme, theme);
+}
 
 const body = document.getElementById("termBody");
 const canvas = document.getElementById("matrix") as HTMLCanvasElement | null;

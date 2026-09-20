@@ -524,3 +524,39 @@ footer {
     flex-basis: 100%;
   }
 }
+
+/* ---------- link-preview card (`?card`, shot by scripts/og-card.sh) ---------- */
+/* The window alone, filling a 1200×630 viewport: no topbar, chips or footer. */
+body.card {
+  padding: 24px;
+  height: 100vh;
+  min-height: 0;
+}
+body.card .topbar,
+body.card #chips,
+body.card footer {
+  display: none;
+}
+body.card .wrap,
+body.card .term {
+  max-width: none;
+  height: 100%;
+}
+body.card .term {
+  display: flex;
+  flex-direction: column;
+  /* clip, not hidden: hidden is still a scroll container, and focusing the
+     prompt would scroll the title bar out of the shot. */
+  overflow: clip;
+}
+body.card .term-head {
+  flex: none;
+}
+body.card .term-body {
+  flex: 1;
+  min-height: 0;
+  height: auto;
+  /* Not scrollable, so the intro can't scroll the card off the top; the
+     window clips at the bottom instead. */
+  overflow: visible;
+}

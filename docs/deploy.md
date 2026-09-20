@@ -2,63 +2,54 @@
 
 [← docs index](README.md)
 
-The build is a plain static `dist/` — any host works.
+The build is a folder of static files, `dist/` — any host works. Two are
+one command each:
 
 ```bash
 npm run deploy       # GitHub Pages
-npm run deploy:s3    # AWS S3 or Yandex Object Storage; see .env.example
+npm run deploy:s3    # AWS S3 or Yandex Object Storage
 ```
 
-Both run the linter and the test suite first, then typecheck and build. The config preflight is
-part of that, **so a fork can't publish with the original author's name still in
-place.**
+Both lint, test and build first, so a half-finished rebrand never goes
+out. To publish past a failing test: `npm run build && npx gh-pages -d dist --dotfiles`.
 
-Before either: put `SITE_URL=https://your.domain` in `.env` (copy
-`.env.example`). It's the origin for every absolute URL the build emits — the
-sitemap, canonicals, `og:url`, `llms.txt` — and the host of the `CNAME` file.
-The build reads `.env` itself, so no wrapper is needed; a variable in the shell
-or in CI's `vars.SITE_URL` wins over the file. **With no `SITE_URL` at all,
-`vite build` refuses to run** rather than emit URLs that point nowhere.
+## `SITE_URL`
 
-The CI workflow only verifies the build compiles — nothing is deployed from
-it — so it falls back to a reserved placeholder origin when the repository
-variable isn't set. To have CI build against your real origin, set `SITE_URL`
-under **Settings → Secrets and variables → Actions → Variables**.
+Put `SITE_URL=https://your.domain` in `.env` (copy `.env.example`). It's
+the base of every link the build writes — sitemap, canonicals, share cards
+— and the build refuses to run without it. A variable in the shell wins
+over the file.
 
-To deploy past a failing test, skip the wrapper:
-
-```bash
-npm run build && npx gh-pages -d dist --dotfiles
-```
+CI builds against a placeholder origin unless you set `SITE_URL` under
+**Settings → Secrets and variables → Actions → Variables**; nothing is
+deployed from CI either way.
 
 ## GitHub Pages
 
-`npm run deploy` builds, then pushes `dist/` to a `gh-pages` branch. Your working
-tree and `main` are untouched; the branch is replaced wholesale each time.
-
-Set it up once:
+`npm run deploy` pushes `dist/` to a `gh-pages` branch, replacing it each
+time; `main` is untouched. Once, in this order:
 
 1. Make the repo public (Pages needs it on the free plan).
-2. **Settings → Pages → Deploy from a branch → `gh-pages` / `(root)`**.
-3. Add a DNS `CNAME` for your subdomain pointing at `<user>.github.io`.
+2. `npm run deploy` — this creates the `gh-pages` branch, which the next
+   step needs to exist.
+3. **Settings → Pages → Deploy from a branch → `gh-pages` / `(root)`**.
 4. **Settings → Pages → Custom domain** — the host from your `SITE_URL`.
+   Do this before DNS: GitHub warns that a domain pointed at Pages without
+   being claimed here can be taken over.
+5. At your registrar, add a `CNAME` record for your subdomain pointing at
+   `<user>.github.io` — the user, not the repo.
+6. Back in **Settings → Pages**, tick **Enforce HTTPS** once the
+   certificate shows as issued (a few minutes).
 
-### Step 3 is not optional
+### A custom domain is not optional
 
-`base` is fixed at `/`, so a project site served at `<user>.github.io/<repo>/`
-loads with every asset 404ing. You need a custom domain, or a `<user>.github.io`
-root site — otherwise set `base` in `vite.config.ts` to `"/<repo>/"`.
+The site expects to live at the root of a domain — a project page at
+`<user>.github.io/<repo>/` loads with every asset missing. Use a custom
+domain or a `<user>.github.io` site, or set `base` in `vite.config.ts` to
+`"/<repo>/"` and accept that the 404 page only works at the top level.
 
-That constraint is deliberate: `404.html` is served at arbitrary URL depths, so
-its asset paths must be root-absolute. Relative paths would resolve against
-whatever directory the broken URL happened to be in. (Pages picks `404.html`
-up automatically; with `seo.enable404: false` there is none, and GitHub
-serves its own 404.)
-
-The build emits a `CNAME` file from `SITE_URL`'s host so your custom domain
-survives each deploy — replacing the branch would otherwise clear it — and an
-empty `.nojekyll`, so Pages serves `dist/` as-is instead of running Jekyll over
-it. HTTPS takes a few minutes to provision the first time.
+The build emits the `CNAME` file for your domain and an empty `.nojekyll`,
+so nothing needs re-adding after a deploy.
 
 ### Previewing without pushing
 
@@ -66,58 +57,44 @@ it. HTTPS takes a few minutes to provision the first time.
 npm run build && npx gh-pages -d dist --dotfiles -n
 ```
 
-`gh-pages` keeps a clone under `node_modules/.cache`. If a run is interrupted, or
-you dry-run before the remote branch exists, the next one fails with
-`a branch named 'gh-pages' already exists` — clear it with `npx gh-pages-clean`.
+If a later run fails with `a branch named 'gh-pages' already exists`, run
+`npx gh-pages-clean`.
 
 ## S3 (AWS or Yandex Object Storage)
 
 ```bash
 npm run deploy:s3:dry-run   # the full upload and delete plan, nothing written
-npm run deploy:s3           # tests, build, publish
+npm run deploy:s3           # lint, test, build, publish
 ```
 
-Needs `aws-cli` (credentials in `~/.aws/credentials` or `AWS_*` variables)
-and these in `.env`:
+Needs the `aws` CLI (credentials in `~/.aws/credentials` or `AWS_*`
+variables) and these in `.env`:
 
 | variable | |
 |---|---|
 | `S3_BUCKET` | the bucket |
-| `S3_ENDPOINT` | `https://storage.yandexcloud.net` for Yandex; blank for AWS — that's the only difference |
+| `S3_ENDPOINT` | `https://storage.yandexcloud.net` for Yandex; blank for AWS |
 | `S3_REGION` | e.g. `ru-central1` |
-| `S3_KEEP` | optional: space-separated key patterns the deploy leaves untouched (see below) |
+| `S3_KEEP` | optional — see below |
 
-The bucket needs static-website hosting with **`index.html` as the index
-document and `404.html` as the error document**, and public read. The 404 page
-is served at arbitrary URL depths, which is why `base` is `/`. With
-`seo.enable404: false` the page isn't built: the error-document setting then
-points at nothing and S3 answers a missing URL with its own plain 404.
+The bucket needs static-website hosting with `index.html` as the index
+document and `404.html` as the error document, and public read.
 
-### Why it isn't one `aws s3 sync`
+The script isn't a bare `aws s3 sync`: it sets every file's content type
+and cache headers itself (sync guesses, and gets UTF-8 text and
+`.webmanifest` wrong), refuses to upload a file type it doesn't know,
+deletes what `dist/` no longer has, and ends by printing the live headers
+as proof. `scripts/deploy-s3.sh` has the details.
 
-`aws s3 sync` guesses each object's `Content-Type` from its extension and never
-adds a charset — a UTF-8 `llms.txt` comes back garbled, and `.webmanifest`
-isn't known at all. So `scripts/deploy-s3.sh` sets every object's type and
-cache header from its own table, one sync pass per extension, and **fails the
-deploy naming any file whose extension the table doesn't know** (add it there
-to allow it). Hashed assets get `immutable`, everything else `max-age=300`; a
-`--delete --size-only` pass removes stale keys without re-uploading; `CNAME`
-and `.nojekyll` are skipped; and a real run ends by printing the headers of
-`/`, `/cv.html`, `/llms.txt` and `/site.webmanifest` as proof. The script's
-comments cover the rest.
+### `S3_KEEP`
 
-### `S3_KEEP`: files the deploy must not touch
-
-Search-engine ownership proofs — Yandex Webmaster's `yandex_*.html`, Bing's
-`BingSiteAuth.xml`, an IndexNow key file — live in the bucket but not in the
-repo (they're yours, not the template's). List them as glob patterns:
+Files that live in the bucket but not in the repo — search-engine
+ownership proofs like `yandex_*.html` or `BingSiteAuth.xml` — would be
+deleted as stale. List them and the deploy leaves them alone:
 
 ```
-S3_KEEP="yandex_*.html BingSiteAuth.xml 03ed2fb0794e438a803df3efccfc7524.txt"
+S3_KEEP="yandex_*.html BingSiteAuth.xml"
 ```
-
-Each becomes an `--exclude` on every pass, and the aws cli applies excludes to
-both sides of a sync: the keys are neither uploaded nor deleted.
 
 ## What the build emits
 
@@ -125,17 +102,16 @@ Alongside `index.html` and the CV pages:
 
 | file | switch |
 |---|---|
-| `404.html` (and its cat) | `seo.enable404` |
+| `404.html` | `seo.enable404` |
 | `sitemap.xml` | `seo.enableSitemap` |
-| `robots.txt` — per-crawler rules and a `Content-Signal` line from `seo.contentSignal` | `seo.enableRobotsTxt` |
+| `robots.txt` — per-crawler rules and a `Content-Signal` line | `seo.enableRobotsTxt` |
 | `llms.txt` | `seo.enableLlmsTxt` |
 | `site.webmanifest`, `CNAME`, `.nojekyll` | always |
 
-A switched-off file is not emitted at all, and `robots.txt` stops pointing at a
-sitemap that isn't there. Three more switches govern the `<head>` of every
-page: `enableJsonLd`, `enableNoscript` and `enableSocialCards`. Everything in
-`public/` is copied verbatim.
+Three more switches govern the `<head>` of every page: `enableJsonLd`,
+`enableNoscript` and `enableSocialCards`. Everything in `public/` is copied
+as is.
 
 ---
 
-**See also:** [the CV](cv.md) · [architecture](architecture.md)
+**See also:** [configuration](configuration.md) · [the CV](cv.md)
