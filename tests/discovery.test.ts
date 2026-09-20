@@ -103,37 +103,46 @@ suite("built output", () => {
       ...locales.map((l): [string, typeof lang] => [cvUrl(profile, l).replace(/^\//, ""), l]),
     ];
 
-    it("noscript fallback: on the terminal page only, saying role, meta line and where the skills are", () => {
+    /**
+     * The terminal renders nothing without JavaScript, so the page carries
+     * a static summary: what crawlers (Google drops <noscript>, the AI
+     * crawlers never run scripts), no-JS visitors and screen readers get.
+     */
+    it("static summary: on the terminal page, with the heading, the bio and the CV link", () => {
       const index = read("index.html");
-      const noscript = /<noscript>([\s\S]*?)<\/noscript>/.exec(index)?.[1];
-      if (!profile.seo.enableNoscript) {
-        expect(noscript, "noscript emitted while switched off").toBeUndefined();
-        expect(index, "the placeholder should be consumed either way").not.toContain(
-          "<!--NOSCRIPT-->",
-        );
+      expect(index, "no <noscript> anywhere").not.toContain("<noscript>");
+      expect(index, "the placeholder should be consumed").not.toContain("<!--STATIC-->");
+      // Exactly one h1, and it names the author whether the summary is on or off.
+      const h1s = [...index.matchAll(/<h1[^>]*>([^<]*)<\/h1>/g)].map((m) => m[1]);
+      expect(h1s.length, "one h1").toBe(1);
+      expect(h1s[0]).toContain(escapeHtml(profile.author[lang]));
+      if (profile.seo.role) expect(h1s[0]).toContain(escapeHtml(profile.seo.role[lang]));
+
+      const summary = /<section id="staticSummary"[^>]*>([\s\S]*?)<\/section>/.exec(index)?.[1];
+      if (!profile.seo.enableStaticSummary) {
+        expect(summary, "summary emitted while switched off").toBeUndefined();
         return;
       }
-      expect(noscript, "no noscript block").toBeDefined();
-      expect(noscript, "noscript should lead with the role").toContain(
-        escapeHtml(profile.seo.role![lang]),
-      );
+      expect(summary, "no static summary").toBeDefined();
+      expect(summary).toContain("<h1");
+      if (profile.bio)
+        expect(summary).toContain(escapeHtml(profile.bio[lang].split("\n")[0]!.trim()));
       if (profile.cv?.metaLine) {
-        expect(noscript, "noscript should carry the CV meta line").toContain(
-          escapeHtml(profile.cv.metaLine[lang]),
-        );
+        expect(summary, "the CV meta line").toContain(escapeHtml(profile.cv.metaLine[lang]));
       }
       if (profile.cv) {
-        expect(noscript, "noscript should point at the CV's skills").toContain(
+        expect(summary, "a link to the CV").toContain(`href="${cvUrl(profile, lang)}"`);
+        expect(summary, "a link to the CV's skills").toContain(
           `href="${cvUrl(profile, lang)}#skills"`,
         );
       }
       if (profile.cv?.tagline) {
-        expect(noscript, "the CV tagline is CV-only").not.toContain(
+        expect(summary, "the CV tagline is CV-only").not.toContain(
           escapeHtml(profile.cv.tagline[lang]),
         );
       }
       for (const [page] of pages().filter(([p]) => p !== "index.html")) {
-        expect(read(page), `${page} has a noscript block`).not.toContain("<noscript>");
+        expect(read(page), `${page} has a static summary`).not.toContain('id="staticSummary"');
       }
     });
 

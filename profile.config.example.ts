@@ -128,8 +128,8 @@ export default defineProfile(MESSAGES, {
     // enableLlmsTxt: true,
     /** The Person JSON-LD on the terminal page and every CV page. */
     // enableJsonLd: true,
-    /** The terminal's <noscript> fallback for crawlers and no-JS visitors. */
-    // enableNoscript: true,
+    /** The terminal page's static summary — read by crawlers, shown without JS, screen-reader-only otherwise. */
+    // enableStaticSummary: true,
     /** The og:* and twitter:card share tags on every page; off makes ogImage inert. */
     // enableSocialCards: true,
     /** The share-card image for the terminal and 404 pages; the CV uses cv.photo. */

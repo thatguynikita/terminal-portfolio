@@ -33,7 +33,7 @@ import {
 } from "./src/core/profile.ts";
 import { StorageKey } from "./src/core/storage.ts";
 import { cvByteSize, renderCv, renderCvTopbar } from "./src/cv/render.ts";
-import { cvLocales, cvUrl, photoAltFor } from "./src/cv/url.ts";
+import { CV_LINK_LABEL, cvLocales, cvUrl, photoAltFor } from "./src/cv/url.ts";
 import { translate } from "./src/i18n/index.ts";
 import { LOCALES, type Locale, languageName, posixLocale } from "./src/i18n/locales.ts";
 
@@ -80,8 +80,12 @@ function escapeHtml(s: string): string {
  * drift from src/core/storage.ts.
  */
 function themeBootstrap(): string {
+  // `html.js` is how the stylesheet knows scripts run: without it the boot
+  // overlay and the terminal chrome stay hidden and the static summary is
+  // the page.
   return (
-    `<script>try{var t=localStorage.getItem(${JSON.stringify(StorageKey.theme)});` +
+    `<script>document.documentElement.classList.add("js");` +
+    `try{var t=localStorage.getItem(${JSON.stringify(StorageKey.theme)});` +
     `if(t)document.documentElement.dataset.theme=t}catch(e){}</script>`
   );
 }
@@ -104,26 +108,40 @@ function stripDisabledChrome(html: string, isIndex: boolean): string {
   return out;
 }
 
+/** The terminal page's `<h1>`: name and role, the same text `main.ts` keeps current. */
+function pageHeading(lang: Locale, cls = ""): string {
+  const role = profile.seo.role?.[lang];
+  const text = role ? `${profile.author[lang]} — ${role}` : profile.author[lang];
+  return `<h1 id="pageHeading"${cls ? ` class="${cls}"` : ""}>${escapeHtml(text)}</h1>`;
+}
+
 /**
- * Static fallback for crawlers and no-JS clients on the terminal page.
- * The CV needs no equivalent — its content is the page.
+ * The terminal page's static summary: what a crawler, a no-JS visitor and
+ * a screen reader get, since the terminal itself renders nothing without
+ * JavaScript. Always in the HTML — `main.ts` makes it screen-reader-only
+ * once the terminal is up — so Google (which drops `<noscript>`) and the
+ * crawlers that never run scripts read the same thing. Default language
+ * only; the other languages' CVs are their own pages.
  */
-function noscriptHtml(lang: Locale): string {
+function staticSummaryHtml(lang: Locale): string {
   const rows = (pairs: Array<[string, string]>): string =>
     `<table>${pairs.map(([k, v]) => `<tr><th>${k}</th><td>${v}</td></tr>`).join("")}</table>`;
 
   const metaLine = profile.cv?.metaLine?.[lang];
+  const cvLink = profile.cv
+    ? `<p><a href="${cvUrl(profile, lang)}">${escapeHtml(CV_LINK_LABEL)}</a></p>`
+    : "";
   const skillsLink = profile.cv
     ? `\n  <p>Full skill breakdown: <a href="${cvUrl(profile, lang)}#skills">${escapeHtml(cvUrl(profile, lang))}#skills</a></p>`
     : "";
-  // Every part is optional; a missing one leaves no heading behind.
-  const role = profile.seo.role?.[lang];
+  // Every part but the heading is optional; a missing one leaves no heading behind.
   const bio = profile.bio?.[lang];
   const skills = skillsFor(profile, "terminal");
   const socials = socialsFor(profile, "terminal");
   const parts = [
-    role ? `<p>${escapeHtml(role)}</p>` : "",
+    pageHeading(lang),
     metaLine ? `<p>${escapeHtml(metaLine)}</p>` : "",
+    cvLink,
     bio ? `<h2>About</h2>\n  <p>${escapeHtml(bio.replace(/\s+/g, " ").trim())}</p>` : "",
     skills.length
       ? `<h2>Skills</h2>\n  ${rows(skills.map((s) => [escapeHtml(s.key[lang]), escapeHtml(s.value)]))}${skillsLink}`
@@ -137,9 +155,7 @@ function noscriptHtml(lang: Locale): string {
         )}`
       : "",
   ].filter(Boolean);
-  // Nothing to say without JS either: no empty block.
-  if (parts.length === 0) return "";
-  return `<noscript>\n  ${parts.join("\n  ")}\n</noscript>`;
+  return `<section id="staticSummary" class="static-summary" lang="${lang}">\n  ${parts.join("\n  ")}\n</section>`;
 }
 
 function personJsonLd(lang: Locale): string {
@@ -540,7 +556,7 @@ function llmsTxt(): string {
   const locales = cvLocales(profile);
 
   const pages = [
-    `- [Terminal portfolio](${SITE_URL}/): interactive terminal; the same facts are in its noscript fallback.`,
+    `- [Terminal portfolio](${SITE_URL}/): interactive terminal; the same facts are in its static summary.`,
     ...locales.map(
       (l) =>
         `- [CV (${l})](${SITE_URL}${cvUrl(profile, l)}): full résumé as static HTML, no JavaScript required.`,
@@ -677,7 +693,7 @@ function profileHtmlPlugin(): Plugin {
         : translate(lang, "notFound.description");
       const ogImage = profile.seo.ogImage ?? "";
 
-      const { enableSocialCards, enableJsonLd, enableNoscript } = profile.seo;
+      const { enableSocialCards, enableJsonLd, enableStaticSummary } = profile.seo;
       const head = [
         `<title>${escapeHtml(title)}</title>`,
         description ? `<meta name="description" content="${escapeHtml(description)}" />` : "",
@@ -703,9 +719,19 @@ function profileHtmlPlugin(): Plugin {
         .filter(Boolean)
         .join("\n  ");
 
-      return stripDisabledChrome(withBootstrap, isIndex)
-        .replace("</head>", `  ${head}\n</head>`)
-        .replace("<!--NOSCRIPT-->", isIndex && enableNoscript ? noscriptHtml(lang) : "");
+      return (
+        stripDisabledChrome(withBootstrap, isIndex)
+          .replace("</head>", `  ${head}\n</head>`)
+          // With the summary off the page still needs its heading.
+          .replace(
+            "<!--STATIC-->",
+            isIndex
+              ? enableStaticSummary
+                ? staticSummaryHtml(lang)
+                : pageHeading(lang, "sr-only")
+              : "",
+          )
+      );
     },
 
     /**

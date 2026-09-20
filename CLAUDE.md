@@ -170,7 +170,7 @@ through to the terminal — which is exactly what the language chip links to.
   person `name — what — hostname`: `— CV —` and `— terminal —`
   (`ui.pageTitle`, localized). The share card drops the hostname, since
   `og:site_name` carries it. `seo.role` is never in a title — it
-  already carries an em dash — it goes to JSON-LD, noscript and llms.txt;
+  already carries an em dash — it goes to JSON-LD, the static summary and llms.txt;
   the visible line under the CV's `<h1>` is `cv.tagline`. There is no
   `seo.title`.
 - **The portrait is served as uploaded unless `cv.photoStyle` opts in**
@@ -267,12 +267,19 @@ project site at `/repo-name/` would break. This is deliberate: `404.html` is
 served at arbitrary URL depths, so relative asset paths resolve against the
 wrong directory. Changing this means changing `base` and the 404 page together.
 
-`vite.config.ts` injects `<title>`, meta, OG tags, JSON-LD and the `<noscript>`
-fallback from `profile.config.ts`. The noscript block matters: the terminal
-renders nothing without JavaScript. The last three are switches in `seo`
-(`enableSocialCards`, `enableJsonLd`, `enableNoscript`); off means the tags
-are absent, not stubbed, and `tests/discovery.test.ts` asserts every page both
-ways. `seo.ogImage` is inert with social cards off. **The 404 page is a
+`vite.config.ts` injects `<title>`, meta, OG tags, JSON-LD and the **static
+summary** from `profile.config.ts`. The summary (`staticSummaryHtml()`: the
+`<h1>`, meta line, CV link, bio, skills, contact) is a real `<section>` in
+the page, not `<noscript>` — Google drops `<noscript>` and the AI crawlers
+never run scripts, so it's what all of them read, and it's the no-JS page:
+the inline head script sets `html.js`, and without that class the boot
+overlay and terminal chrome are `display: none` while the summary shows
+inside the window. With JS, `main.ts` makes it `sr-only`; the `<h1>` inside
+it (`#pageHeading`) follows the visitor's language, the rest stays in the
+default one. The last three are switches in `seo` (`enableSocialCards`,
+`enableJsonLd`, `enableStaticSummary`); off means the tags are absent, not
+stubbed — the summary off still leaves an `sr-only` `<h1>` — and
+`tests/discovery.test.ts` asserts every page both ways. `seo.ogImage` is inert with social cards off. **The 404 page is a
 switch too** (`seo.enable404`): off drops the `404` rollup input, so neither
 the page nor `src/notfound.ts` is built, and `writeBundle` prunes the 404 cat
 the way it prunes portraits — the host then serves its own error page.

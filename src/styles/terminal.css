@@ -50,6 +50,14 @@ body.panic-amber .crt {
 }
 
 /* ---------- boot screen ---------- */
+/* No JavaScript: no boot overlay, no empty terminal — the static summary
+   in <main> is the page. `html.js` is set by the inline script in <head>. */
+html:not(.js) #boot,
+html:not(.js) .term-head,
+html:not(.js) #termBody,
+html:not(.js) #chips {
+  display: none;
+}
 #boot {
   position: fixed;
   inset: 0;

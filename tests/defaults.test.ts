@@ -44,7 +44,7 @@ describe("defineProfile defaults", () => {
     expect(s.enableSitemap).toBe(true);
     expect(s.enableLlmsTxt).toBe(true);
     expect(s.enableJsonLd).toBe(true);
-    expect(s.enableNoscript).toBe(true);
+    expect(s.enableStaticSummary).toBe(true);
     expect(s.enableSocialCards).toBe(true);
     expect(s.enable404).toBe(true);
     expect(s.contentSignal).toEqual({ search: true, aiTrain: true, aiInput: true });

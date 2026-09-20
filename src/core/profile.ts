@@ -238,11 +238,12 @@ export interface ProfileInput {
     /** The `Person` JSON-LD on the terminal page and every CV page. Default true. */
     enableJsonLd?: boolean;
     /**
-     * The `<noscript>` block on the terminal page — role, about, skills and
-     * contact for crawlers and no-JS clients. The CV is static HTML already
-     * and has none. Default true.
+     * The prerendered summary on the terminal page — name, role, bio, skills,
+     * contact and the CV link — visible without JavaScript and read by
+     * crawlers; screen-reader-only once the terminal runs. The CV is static
+     * HTML already and needs none. Default true.
      */
-    enableNoscript?: boolean;
+    enableStaticSummary?: boolean;
     /** The share-preview tags on every page: `og:*` and `twitter:card`. Default true. */
     enableSocialCards?: boolean;
     /**
@@ -391,7 +392,7 @@ export interface ProfileConfig {
       | "enableSitemap"
       | "enableLlmsTxt"
       | "enableJsonLd"
-      | "enableNoscript"
+      | "enableStaticSummary"
       | "enableSocialCards"
     >
   > &
@@ -543,7 +544,7 @@ export function defineProfile<M extends Record<string, unknown>>(
       enableSitemap: seo.enableSitemap ?? true,
       enableLlmsTxt: seo.enableLlmsTxt ?? true,
       enableJsonLd: seo.enableJsonLd ?? true,
-      enableNoscript: seo.enableNoscript ?? true,
+      enableStaticSummary: seo.enableStaticSummary ?? true,
       enableSocialCards: seo.enableSocialCards ?? true,
       ...(seo.ogImage ? { ogImage: seo.ogImage } : {}),
     },
