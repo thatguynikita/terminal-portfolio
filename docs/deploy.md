@@ -7,7 +7,7 @@ one command each:
 
 ```bash
 npm run deploy       # GitHub Pages
-npm run deploy:cf    # Cloudflare
+npm run deploy:cf    # Cloudflare Pages
 npm run deploy:s3    # AWS S3, DigitalOcean Spaces or Yandex Object Storage
 ```
 
@@ -61,7 +61,7 @@ npm run build && npx gh-pages -d dist --dotfiles -n
 If a later run fails with `a branch named 'gh-pages' already exists`, run
 `npx gh-pages-clean`.
 
-## Cloudflare
+## Cloudflare Pages
 
 ### Connect the repo
 
@@ -145,7 +145,7 @@ Alongside `index.html` and the CV pages:
 | `sitemap.xml` | `seo.enableSitemap` |
 | `robots.txt` — per-crawler rules and a `Content-Signal` line | `seo.enableRobotsTxt` |
 | `llms.txt` | `seo.enableLlmsTxt` |
-| `site.webmanifest`, `CNAME`, `.nojekyll`, `_headers` | always |
+| `site.webmanifest`, `CNAME`, `.nojekyll`, `_headers`, `_redirects` | always |
 
 Three more switches govern the `<head>` of every page: `enableJsonLd`,
 `enableStaticSummary` (the terminal page's crawler/no-JS summary) and `enableSocialCards`. Everything in `public/` is copied

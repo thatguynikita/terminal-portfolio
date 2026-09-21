@@ -270,7 +270,9 @@ export interface ProfileInput {
     /**
      * The live "Playing" row at the foot of the card. Omit and the row isn't
      * rendered and no request is made; an endpoint that's set but unreachable
-     * keeps the row and shows "spotify offline".
+     * keeps the row and shows "spotify offline". The endpoint is an
+     * absolute URL, or a path like `/api/now-playing` when the widget runs
+     * as a Cloudflare Worker routed on the site's own domain.
      */
     nowPlaying?: {
       endpoint: string;

@@ -68,7 +68,7 @@ describe("scripts/deploy-s3.sh", () => {
   (built ? it : it.skip)("covers every file in the current dist/", () => {
     // Read by other hosts, skipped by name here — mirrors PAGES_ONLY in the script.
     const skipped = (/^PAGES_ONLY="([^"]+)"/m.exec(source)?.[1] ?? "").split(" ");
-    expect(skipped).toEqual(["CNAME", ".nojekyll", "_headers"]);
+    expect(skipped).toEqual(["CNAME", ".nojekyll", "_headers", "_redirects"]);
     const pagesOnly = new Set(skipped);
     const files = readdirSync(DIST, { recursive: true, withFileTypes: true })
       .filter((d) => d.isFile())
@@ -84,7 +84,7 @@ describe("scripts/deploy-s3.sh", () => {
 });
 
 /**
- * Cloudflare reads cache rules from public/_headers; the bucket gets them
+ * Cloudflare Pages reads cache rules from public/_headers; the bucket gets them
  * from the script's table. One policy, two spellings — this keeps them equal.
  */
 describe("public/_headers", () => {
@@ -117,5 +117,26 @@ describe("public/_headers", () => {
     for (const b of blocks.slice(1)) {
       expect(b.body, `${b.pattern} detaches Cache-Control`).toMatch(/^[ \t]+! Cache-Control$/m);
     }
+  });
+});
+
+/**
+ * Cloudflare's default HTML handling redirects /cv.html to /cv — a URL no
+ * canonical, sitemap row or other host uses — so it's off, and with it off
+ * only exact paths resolve: the one rewrite in _redirects is what serves /.
+ */
+describe("wrangler.json and public/_redirects", () => {
+  const wrangler = JSON.parse(readFileSync(join(process.cwd(), "wrangler.json"), "utf8"));
+  const redirects = readFileSync(join(process.cwd(), "public/_redirects"), "utf8");
+  const rules = redirects.split("\n").filter((l) => l.trim() && !l.startsWith("#"));
+
+  it("serves exact paths only, with the 404 page for the rest", () => {
+    expect(wrangler.assets.html_handling).toBe("none");
+    expect(wrangler.assets.not_found_handling).toBe("404-page");
+    expect(wrangler.main, "the site Worker carries no code").toBeUndefined();
+  });
+
+  it("rewrites / to index.html and nothing else", () => {
+    expect(rules).toEqual(["/ /index.html 200"]);
   });
 });
