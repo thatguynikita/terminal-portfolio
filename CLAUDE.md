@@ -334,6 +334,18 @@ container and focusing the prompt scrolls the title bar out of the shot.
 `scripts/og-card.sh` opens it in headless Chrome at 750×394 × 1.6 for an
 exact 1200×630.
 
+**JetBrains Mono is self-hosted** (`public/assets/fonts/`, the six subset
+files Google Fonts serves — one variable file per subset, weights 400–700,
+OFL text beside them; `@font-face` blocks at the top of `base.css`). It
+was the last render-blocking request: a stylesheet on `fonts.googleapis.com`
+whose font lives on `fonts.gstatic.com` — two extra origins before first
+paint, ~1 s on the mobile profile. `unicode-range` means a page fetches
+only the subsets its text uses; the shells preload latin, and
+`fontPreload()` in `vite.config.ts` adds the page language's subset
+(cyrillic for ru/uk, latin-ext for the accented-Latin languages). Filenames
+carry the font version because the deploy marks `.woff2` immutable — bump
+the name if the files ever change.
+
 `public/` is copied verbatim into `dist/` — with one exception.
 **`public/assets/img/portraits/` is pruned in `writeBundle`**: it holds every
 persona's portrait (the author's and both examples'), and only the file

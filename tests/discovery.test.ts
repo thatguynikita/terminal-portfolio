@@ -40,6 +40,37 @@ suite("built output", () => {
     expect(index.includes('id="chips"'), "#chips vs terminal.chips").toBe(profile.terminal.chips);
   });
 
+  // The font is self-hosted: no request to Google on any page, latin
+  // preloaded everywhere, and the page language's own subset preloaded too.
+  it("self-hosts JetBrains Mono and preloads what each page needs", () => {
+    const extra: Record<string, string> = { ru: "cyrillic", uk: "cyrillic" };
+    const pagesWithLang: Array<[string, string]> = [
+      ["index.html", profile.terminal.defaultLocale],
+      ...locales.map((l): [string, string] => [cvUrl(profile, l).replace(/^\//, ""), l]),
+    ];
+    for (const [page, l] of pagesWithLang) {
+      const html = read(page);
+      expect(html, `${page} still talks to Google Fonts`).not.toMatch(
+        /fonts\.g(oogleapis|static)\.com/,
+      );
+      expect(html, `${page} latin preload`).toContain(
+        'href="/assets/fonts/jetbrains-mono-v24-latin.woff2"',
+      );
+      const subset = extra[l];
+      if (subset)
+        expect(html, `${page} ${subset} preload`).toContain(`jetbrains-mono-v24-${subset}.woff2`);
+    }
+    for (const name of ["latin", "latin-ext", "cyrillic", "cyrillic-ext", "greek", "vietnamese"]) {
+      expect(existsSync(join(DIST, `assets/fonts/jetbrains-mono-v24-${name}.woff2`)), name).toBe(
+        true,
+      );
+    }
+    expect(
+      existsSync(join(DIST, "assets/fonts/LICENSE.txt")),
+      "the OFL text ships with the files",
+    ).toBe(true);
+  });
+
   // Both GitHub Pages artefacts come from the build, not public/.
   it("emits CNAME from SITE_URL's host, and an empty .nojekyll", () => {
     expect(read("CNAME").trim()).toBe(

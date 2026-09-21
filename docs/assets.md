@@ -88,6 +88,13 @@ public/assets/icons/android-chrome-192x192.png  192×192
 public/assets/icons/android-chrome-512x512.png  512×512
 ```
 
+## The font
+
+JetBrains Mono ships in `public/assets/fonts/` (SIL Open Font License, the
+licence text is beside the files), so nothing is fetched from Google. To
+change the font, replace those files and the `@font-face` blocks at the top
+of `src/styles/base.css`.
+
 ## The 404 cat
 
 Part of the condensed-milk joke that also names the author's launcher.
