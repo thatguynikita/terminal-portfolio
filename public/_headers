@@ -1,4 +1,4 @@
-# Cache rules for Cloudflare (Workers static assets / Pages read this file);
+# Cache rules for Cloudflare Pages (Workers static assets read this file);
 # other hosts ignore it. The same three tiers scripts/deploy-s3.sh applies
 # to a bucket — a test keeps them in step.
 #

@@ -26,7 +26,7 @@ npm run check          # config preflight only
 npm run lint           # biome: lint + format + import order (lint:fix applies)
 npm run og-card        # scripts/og-card.sh → public/assets/img/og-terminal.png (needs Chrome)
 npm run deploy         # gh-pages
-npm run deploy:cf      # wrangler deploy → Cloudflare (wrangler.json, public/_headers)
+npm run deploy:cf      # wrangler deploy → Cloudflare Pages (wrangler.json, public/_headers, _redirects)
 npm run deploy:s3      # scripts/deploy-s3.sh → S3-compatible bucket (see .env.example)
 ```
 
@@ -319,16 +319,24 @@ the three pages can't drift; `theme-color` is the manifest's colour.
 
 **Three deploy paths.** `npm run deploy` is GitHub Pages (`gh-pages`
 branch, needs the `CNAME` the build emits). `npm run deploy:cf` is
-Cloudflare — Workers with static assets, which is what "Pages" is now:
+Cloudflare Pages — today Workers with static assets under that name:
 `wrangler.json` (name + `assets.directory: dist`, `not_found_handling:
 "404-page"`, no worker code) and `public/_headers` with the same three
 cache tiers as the S3 script; `tests/deploy.test.ts` asserts the two
 spellings agree. `_headers` combines every matching rule's headers rather
 than picking the most specific, so narrower rules detach (`! Cache-Control`)
 before setting their own and run general → specific. `wrangler` is not a
-devDependency — `npx` fetches it; the dry run needs no account. `_headers`
-is extensionless, so the S3 script skips it by name (`PAGES_ONLY`) like
-`CNAME` and `.nojekyll`. `npm run deploy:s3` is
+devDependency — `npx` fetches it; the dry run needs no account.
+**`html_handling` is `"none"`**: Cloudflare's default 307s `/cv.html` to
+`/cv`, a URL no canonical, sitemap row or other host uses. With it off
+only exact paths resolve, so `public/_redirects` holds one rewrite,
+`/ /index.html 200`, and nothing else — `_redirects` can't do domain-level
+hops (`www.` → apex is a dashboard Redirect Rule), and `/cv` 404s like on
+S3. A now-playing backend on the same domain is a *separate* Worker on a
+Route (`/api/*` wins over the site Worker's custom domain), deployed from
+its own repo; here it's only `nowPlaying.endpoint` as a relative path.
+`_headers` and `_redirects` are extensionless, so the S3 script skips
+them by name (`PAGES_ONLY`) like `CNAME` and `.nojekyll`. `npm run deploy:s3` is
 `scripts/deploy-s3.sh`, for any S3-compatible endpoint (AWS, DigitalOcean
 Spaces, Yandex Object Storage — documented with their endpoints in
 docs/deploy.md) — not a bare `aws s3 sync`, because sync guesses

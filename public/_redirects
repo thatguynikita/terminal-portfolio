@@ -1,0 +1,5 @@
+# Cloudflare Pages only; other hosts ignore this file. wrangler.json sets
+# html_handling: "none" so /cv.html is served at /cv.html, as on every
+# other host, instead of being redirected to /cv — but then only exact
+# paths resolve, and this rewrite is what makes / load.
+/ /index.html 200
