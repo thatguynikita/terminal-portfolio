@@ -57,8 +57,9 @@ woff2|font/woff2|LONG
 woff|font/woff|LONG
 '
 
-# Files the GitHub Pages path emits; meaningless in a bucket.
-PAGES_ONLY="CNAME .nojekyll"
+# Files other hosts read (GitHub Pages: CNAME, .nojekyll; Cloudflare:
+# _headers); meaningless in a bucket, and extensionless, so skipped by name.
+PAGES_ONLY="CNAME .nojekyll _headers"
 
 known_ext() {
   printf '%s\n' "$TABLE" | grep -q "^$1|"

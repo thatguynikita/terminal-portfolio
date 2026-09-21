@@ -5,7 +5,7 @@
 **Your own terminal-style website — with a CV page, hidden commands and easter eggs — built from one config file.**
 
 [![CI](https://github.com/thatguynikita/terminal-portfolio/actions/workflows/ci.yml/badge.svg)](https://github.com/thatguynikita/terminal-portfolio/actions/workflows/ci.yml)
-[![Tests](https://img.shields.io/badge/Tests-397-brightgreen)](tests/)
+[![Tests](https://img.shields.io/badge/Tests-399-brightgreen)](tests/)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 [![Node](https://img.shields.io/badge/Node-%3E%3D22.12-brightgreen)](package.json)
 [![TypeScript](https://img.shields.io/badge/TypeScript-7-3178c6?logo=typescript&logoColor=white)](tsconfig.json)
@@ -31,7 +31,7 @@
 - 📱 **Works on a phone** — tappable command chips, minimal keyboard interaction
 - 🔍 **Indexable by design** — real HTML for crawlers, plus sitemap, robots.txt, llms.txt and structured data
 - 💍 **One file to rule them all** — name, bio, skills, links, CV, jokes, all from `profile.config.ts`
-- 🚀 **Deploys with a single command** — GitHub Pages or any S3-compatible bucket
+- 🚀 **Deploys with a single command** — GitHub Pages, Cloudflare, or any S3-compatible bucket
 
 ## Screenshots
 
@@ -168,10 +168,11 @@ Then one command:
 
 ```bash
 npm run deploy       # GitHub Pages
+npm run deploy:cf    # Cloudflare
 npm run deploy:s3    # AWS S3, DigitalOcean Spaces, Yandex Object Storage
 ```
 
-Both check, test and build first. → [deployment guide](docs/deploy.md)
+All three check, test and build first. → [deployment guide](docs/deploy.md)
 
 ---
 

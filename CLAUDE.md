@@ -26,6 +26,7 @@ npm run check          # config preflight only
 npm run lint           # biome: lint + format + import order (lint:fix applies)
 npm run og-card        # scripts/og-card.sh → public/assets/img/og-terminal.png (needs Chrome)
 npm run deploy         # gh-pages
+npm run deploy:cf      # wrangler deploy → Cloudflare (wrangler.json, public/_headers)
 npm run deploy:s3      # scripts/deploy-s3.sh → S3-compatible bucket (see .env.example)
 ```
 
@@ -316,8 +317,18 @@ portrait both get the right card.
 the catalogue the 404's. Share-card tags come from one `socialCardTags()` so
 the three pages can't drift; `theme-color` is the manifest's colour.
 
-**Two deploy paths, both kept.** `npm run deploy` is GitHub Pages
-(`gh-pages` branch, needs the `CNAME` the build emits). `npm run deploy:s3` is
+**Three deploy paths.** `npm run deploy` is GitHub Pages (`gh-pages`
+branch, needs the `CNAME` the build emits). `npm run deploy:cf` is
+Cloudflare — Workers with static assets, which is what "Pages" is now:
+`wrangler.json` (name + `assets.directory: dist`, `not_found_handling:
+"404-page"`, no worker code) and `public/_headers` with the same three
+cache tiers as the S3 script; `tests/deploy.test.ts` asserts the two
+spellings agree. `_headers` combines every matching rule's headers rather
+than picking the most specific, so narrower rules detach (`! Cache-Control`)
+before setting their own and run general → specific. `wrangler` is not a
+devDependency — `npx` fetches it; the dry run needs no account. `_headers`
+is extensionless, so the S3 script skips it by name (`PAGES_ONLY`) like
+`CNAME` and `.nojekyll`. `npm run deploy:s3` is
 `scripts/deploy-s3.sh`, for any S3-compatible endpoint (AWS, DigitalOcean
 Spaces, Yandex Object Storage — documented with their endpoints in
 docs/deploy.md) — not a bare `aws s3 sync`, because sync guesses

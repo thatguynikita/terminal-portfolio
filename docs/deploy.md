@@ -7,10 +7,11 @@ one command each:
 
 ```bash
 npm run deploy       # GitHub Pages
+npm run deploy:cf    # Cloudflare
 npm run deploy:s3    # AWS S3, DigitalOcean Spaces or Yandex Object Storage
 ```
 
-Both lint, test and build first, so a half-finished rebrand never goes
+All three lint, test and build first, so a half-finished rebrand never goes
 out. To publish past a failing test: `npm run build && npx gh-pages -d dist --dotfiles`.
 
 ## `SITE_URL`
@@ -60,6 +61,42 @@ npm run build && npx gh-pages -d dist --dotfiles -n
 If a later run fails with `a branch named 'gh-pages' already exists`, run
 `npx gh-pages-clean`.
 
+## Cloudflare
+
+### Connect the repo
+
+No CLI needed. **Workers & Pages → Create application → Connect with
+GitHub**, pick the repository, and on *Set up your application*:
+
+| field | value |
+|---|---|
+| Project name | `terminal-portfolio` — must equal `name` in `wrangler.json` |
+| Build command | `npm run build` |
+| Deploy command | leave `npx wrangler deploy` |
+| Builds for non-production branches | on for a preview URL per branch; off and only `main` builds |
+| API token | leave *Create new token* |
+| Variables | `SITE_URL` = `https://your.domain` |
+
+### Or from your machine
+
+```bash
+npm run deploy:cf:dry-run   # validates wrangler.json and lists the files
+npm run deploy:cf           # lint, test, build, publish
+```
+
+Needs two values in `.env`:
+
+| variable | where it comes from |
+|---|---|
+| `CLOUDFLARE_ACCOUNT_ID` | **Workers & Pages** overview, *Account details* in the right column |
+| `CLOUDFLARE_API_TOKEN` | **My Profile → API Tokens → Create Token** |
+
+A custom token with two permissions is all the deploy uses: *Account →
+Workers Scripts: Edit* and *User → User Details: Read*.
+
+Either way the site is at `<name>.<account>.workers.dev` until you add
+your domain under the Worker's **Domains & Routes** (DNS on Cloudflare).
+
 ## S3-compatible storage (AWS, DigitalOcean, Yandex)
 
 ```bash
@@ -108,7 +145,7 @@ Alongside `index.html` and the CV pages:
 | `sitemap.xml` | `seo.enableSitemap` |
 | `robots.txt` — per-crawler rules and a `Content-Signal` line | `seo.enableRobotsTxt` |
 | `llms.txt` | `seo.enableLlmsTxt` |
-| `site.webmanifest`, `CNAME`, `.nojekyll` | always |
+| `site.webmanifest`, `CNAME`, `.nojekyll`, `_headers` | always |
 
 Three more switches govern the `<head>` of every page: `enableJsonLd`,
 `enableStaticSummary` (the terminal page's crawler/no-JS summary) and `enableSocialCards`. Everything in `public/` is copied

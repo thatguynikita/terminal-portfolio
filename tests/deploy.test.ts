@@ -66,7 +66,10 @@ describe("scripts/deploy-s3.sh", () => {
   // Every file the build emits must have a type — the script would refuse
   // the deploy otherwise, and it's better to learn that here.
   (built ? it : it.skip)("covers every file in the current dist/", () => {
-    const pagesOnly = new Set(["CNAME", ".nojekyll"]);
+    // Read by other hosts, skipped by name here — mirrors PAGES_ONLY in the script.
+    const skipped = (/^PAGES_ONLY="([^"]+)"/m.exec(source)?.[1] ?? "").split(" ");
+    expect(skipped).toEqual(["CNAME", ".nojekyll", "_headers"]);
+    const pagesOnly = new Set(skipped);
     const files = readdirSync(DIST, { recursive: true, withFileTypes: true })
       .filter((d) => d.isFile())
       .map((d) => join(d.parentPath, d.name).slice(DIST.length + 1));
@@ -77,5 +80,42 @@ describe("scripts/deploy-s3.sh", () => {
       return !ext || !table.has(ext);
     });
     expect(unknown, "files the deploy script has no content-type for").toEqual([]);
+  });
+});
+
+/**
+ * Cloudflare reads cache rules from public/_headers; the bucket gets them
+ * from the script's table. One policy, two spellings — this keeps them equal.
+ */
+describe("public/_headers", () => {
+  const headers = readFileSync(join(process.cwd(), "public/_headers"), "utf8");
+  // A rule is a pattern line followed by indented header lines; the last
+  // Cache-Control a rule sets is the one that counts.
+  const blocks = [...headers.matchAll(/^(\/\S*)\n((?:[ \t]+.*(?:\n|$))+)/gm)].map((m) => ({
+    pattern: m[1] as string,
+    body: m[2] as string,
+  }));
+  const rules = new Map(
+    blocks.map((b) => [
+      b.pattern,
+      [...b.body.matchAll(/^[ \t]+Cache-Control: (.+)$/gm)].pop()?.[1] as string,
+    ]),
+  );
+  const tier = (name: string) => new RegExp(`^${name}="([^"]+)"`, "m").exec(source)?.[1];
+
+  it("spells the same three cache tiers as the S3 script", () => {
+    expect(rules.get("/*"), "everything else").toBe(tier("SHORT"));
+    expect(rules.get("/assets/*"), "hashed assets").toBe(tier("LONG"));
+    expect(rules.get("/assets/img/*"), "images").toBe(tier("MEDIUM"));
+  });
+
+  // Cloudflare combines the headers of every matching rule, so a narrower
+  // rule has to detach the wider rule's Cache-Control before setting its
+  // own, and rules must run general → specific.
+  it("orders rules general to specific and detaches the inherited Cache-Control", () => {
+    expect(blocks.map((b) => b.pattern)).toEqual(["/*", "/assets/*", "/assets/img/*"]);
+    for (const b of blocks.slice(1)) {
+      expect(b.body, `${b.pattern} detaches Cache-Control`).toMatch(/^[ \t]+! Cache-Control$/m);
+    }
   });
 });
