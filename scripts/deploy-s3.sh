@@ -1,5 +1,6 @@
 #!/usr/bin/env sh
-# Publish dist/ to an S3-compatible bucket (AWS S3 or Yandex Object Storage).
+# Publish dist/ to an S3-compatible bucket: AWS S3, DigitalOcean Spaces or
+# Yandex Object Storage — the same script, only S3_ENDPOINT differs.
 #
 # Not a bare `aws s3 sync`: sync guesses Content-Type from the extension,
 # never adds a charset, and doesn't know .webmanifest. Every object's type
