@@ -28,12 +28,14 @@ ENDPOINT=""
 DRY=""
 [ "${DRY_RUN:-0}" = "1" ] && DRY="--dryrun"
 
-SHORT="public, max-age=300"                 # pages and unhashed files
-LONG="public, max-age=31536000, immutable"  # what Vite content-hashes
+SHORT="public, max-age=300"                 # pages and generated text files
+MEDIUM="public, max-age=604800"             # images: unhashed, rarely replaced
+LONG="public, max-age=31536000, immutable"  # what Vite content-hashes, and versioned fonts
 
 # ext|content-type|cache-control — the whole list, so nothing is guessed.
-# .css/.js/fonts are immutable because Vite hashes them; images under
-# assets/img/ come from public/ unhashed and stay short-lived.
+# Images come from public/ with fixed names, so a week: long enough that a
+# repeat visit doesn't refetch the portrait, short enough that a swapped
+# one shows up without a rename.
 TABLE='
 html|text/html; charset=utf-8|SHORT
 css|text/css; charset=utf-8|LONG
@@ -43,13 +45,13 @@ xml|application/xml; charset=utf-8|SHORT
 txt|text/plain; charset=utf-8|SHORT
 webmanifest|application/manifest+json; charset=utf-8|SHORT
 json|application/json; charset=utf-8|SHORT
-ico|image/x-icon|SHORT
-png|image/png|SHORT
-jpg|image/jpeg|SHORT
-jpeg|image/jpeg|SHORT
-gif|image/gif|SHORT
-webp|image/webp|SHORT
-svg|image/svg+xml; charset=utf-8|SHORT
+ico|image/x-icon|MEDIUM
+png|image/png|MEDIUM
+jpg|image/jpeg|MEDIUM
+jpeg|image/jpeg|MEDIUM
+gif|image/gif|MEDIUM
+webp|image/webp|MEDIUM
+svg|image/svg+xml; charset=utf-8|MEDIUM
 woff2|font/woff2|LONG
 woff|font/woff|LONG
 '
@@ -89,7 +91,7 @@ echo "deploy-s3: ${DRY:+DRY RUN — }bucket s3://$S3_BUCKET ${S3_ENDPOINT:+via $
 printf '%s\n' "$TABLE" | while IFS='|' read -r ext type cache; do
   [ -n "$ext" ] || continue
   find "$DIST" -type f -name "*.$ext" | grep -q . || continue
-  case "$cache" in LONG) cc="$LONG" ;; *) cc="$SHORT" ;; esac
+  case "$cache" in LONG) cc="$LONG" ;; MEDIUM) cc="$MEDIUM" ;; *) cc="$SHORT" ;; esac
   # shellcheck disable=SC2086
   aws s3 sync "$DIST" "s3://$S3_BUCKET" $ENDPOINT $DRY \
     --exclude "*" --include "*.$ext" $skip $keep \

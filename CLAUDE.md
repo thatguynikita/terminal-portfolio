@@ -274,9 +274,12 @@ the page, not `<noscript>` — Google drops `<noscript>` and the AI crawlers
 never run scripts, so it's what all of them read, and it's the no-JS page:
 the inline head script sets `html.js`, and without that class the boot
 overlay and terminal chrome are `display: none` while the summary shows
-inside the window. With JS, `main.ts` makes it `sr-only`; the `<h1>` inside
-it (`#pageHeading`) follows the visitor's language, the rest stays in the
-default one. The last three are switches in `seo` (`enableSocialCards`,
+inside the window. With JS, **CSS folds it** (`html.js .static-summary`
+shares the `.sr-only` rule) — from the first paint, since the class comes
+from the inline head script. Doing it from `main.ts` instead painted the
+summary above the terminal and then collapsed it: a CLS of 1.0 on
+PageSpeed. The `<h1>` inside it (`#pageHeading`) follows the visitor's
+language, the rest stays in the default one. The last three are switches in `seo` (`enableSocialCards`,
 `enableJsonLd`, `enableStaticSummary`); off means the tags are absent, not
 stubbed — the summary off still leaves an `sr-only` `<h1>` — and
 `tests/discovery.test.ts` asserts every page both ways. `seo.ogImage` is inert with social cards off. **The 404 page is a
@@ -319,7 +322,9 @@ the three pages can't drift; `theme-color` is the manifest's colour.
 content types and never adds a charset (llms.txt in Cyrillic rendered garbled
 on the old site): every object's type comes from the script's table, one sync
 pass per extension, an unknown extension fails the deploy, hashed assets get
-immutable cache headers, a `--delete --size-only` pass removes stale keys, and `S3_KEEP` patterns (search-engine verification files that
+immutable cache headers, unhashed images a week (long enough that a
+repeat visit doesn't refetch the portrait, short enough that a swapped one
+shows without a rename), a `--delete --size-only` pass removes stale keys, and `S3_KEEP` patterns (search-engine verification files that
 live in the bucket, not the repo) are excluded from every pass. Nikita's own
 site is the S3 one; the Pages path exists for forks.
 
@@ -330,6 +335,18 @@ window uses `overflow: clip`, not `hidden` — hidden is still a scroll
 container and focusing the prompt scrolls the title bar out of the shot.
 `scripts/og-card.sh` opens it in headless Chrome at 750×394 × 1.6 for an
 exact 1200×630.
+
+**JetBrains Mono is self-hosted** (`public/assets/fonts/`, the six subset
+files Google Fonts serves — one variable file per subset, weights 400–700,
+OFL text beside them; `@font-face` blocks at the top of `base.css`). It
+was the last render-blocking request: a stylesheet on `fonts.googleapis.com`
+whose font lives on `fonts.gstatic.com` — two extra origins before first
+paint, ~1 s on the mobile profile. `unicode-range` means a page fetches
+only the subsets its text uses; the shells preload latin, and
+`fontPreload()` in `vite.config.ts` adds the page language's subset
+(cyrillic for ru/uk, latin-ext for the accented-Latin languages). Filenames
+carry the font version because the deploy marks `.woff2` immutable — bump
+the name if the files ever change.
 
 `public/` is copied verbatim into `dist/` — with one exception.
 **`public/assets/img/portraits/` is pruned in `writeBundle`**: it holds every

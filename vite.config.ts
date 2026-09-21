@@ -243,6 +243,29 @@ function imageSize(file: string): { width: number; height: number } | null {
   return null;
 }
 
+/**
+ * Preload the font subset a page's language needs beyond latin (which the
+ * shells preload themselves), so the first paint doesn't wait a round trip
+ * for it. Subset names match the @font-face blocks in base.css.
+ */
+function fontPreload(locale: Locale): string {
+  const subset: Record<string, string> = {
+    ru: "cyrillic",
+    uk: "cyrillic",
+    pl: "latin-ext",
+    tr: "latin-ext",
+    pt: "latin-ext",
+    fr: "latin-ext",
+    it: "latin-ext",
+    de: "latin-ext",
+    es: "latin-ext",
+  };
+  const name = subset[locale];
+  return name
+    ? `<link rel="preload" as="font" type="font/woff2" crossorigin href="/assets/fonts/jetbrains-mono-v24-${name}.woff2" />`
+    : "";
+}
+
 /** `<meta name="theme-color">` — the same colour the manifest declares. */
 function themeColorTag(): string {
   return `<meta name="theme-color" content="${defaultThemeBackground()}" />`;
@@ -291,6 +314,7 @@ function cvHead(locale: Locale): string {
     description ? `<meta name="description" content="${escapeHtml(description)}" />` : "",
     profile.seo.noindex ? `<meta name="robots" content="noindex" />` : "",
     themeColorTag(),
+    fontPreload(locale),
     `<link rel="canonical" href="${SITE_URL}${cvUrl(profile, locale)}" />`,
     hreflangCluster(cvLocales(profile)),
     ...(enableSocialCards
@@ -699,6 +723,7 @@ function profileHtmlPlugin(): Plugin {
         description ? `<meta name="description" content="${escapeHtml(description)}" />` : "",
         profile.seo.noindex ? `<meta name="robots" content="noindex" />` : "",
         themeColorTag(),
+        fontPreload(lang),
         isIndex ? `<link rel="canonical" href="${SITE_URL}/" />` : "",
         ...(enableSocialCards
           ? socialCardTags({

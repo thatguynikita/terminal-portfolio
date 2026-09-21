@@ -13,7 +13,7 @@ const SCRIPT = join(process.cwd(), "scripts/deploy-s3.sh");
 const source = readFileSync(SCRIPT, "utf8");
 
 const table = new Map<string, { type: string; cache: string }>();
-for (const m of source.matchAll(/^([a-z0-9]+)\|([^|\n]+)\|(SHORT|LONG)$/gm)) {
+for (const m of source.matchAll(/^([a-z0-9]+)\|([^|\n]+)\|(SHORT|MEDIUM|LONG)$/gm)) {
   table.set(m[1] as string, { type: m[2] as string, cache: m[3] as string });
 }
 
@@ -42,9 +42,10 @@ describe("scripts/deploy-s3.sh", () => {
     }
   });
 
-  it("caches only what Vite content-hashes for a year", () => {
-    for (const ext of ["css", "js"]) expect(table.get(ext)?.cache).toBe("LONG");
-    for (const ext of ["html", "txt", "xml", "webmanifest", "png"])
+  it("caches by how each file changes: hashed for a year, images a week, pages minutes", () => {
+    for (const ext of ["css", "js", "woff2"]) expect(table.get(ext)?.cache).toBe("LONG");
+    for (const ext of ["png", "jpg", "svg", "ico"]) expect(table.get(ext)?.cache).toBe("MEDIUM");
+    for (const ext of ["html", "txt", "xml", "webmanifest"])
       expect(table.get(ext)?.cache).toBe("SHORT");
   });
 
