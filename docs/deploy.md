@@ -7,7 +7,7 @@ one command each:
 
 ```bash
 npm run deploy       # GitHub Pages
-npm run deploy:s3    # AWS S3 or Yandex Object Storage
+npm run deploy:s3    # AWS S3, DigitalOcean Spaces or Yandex Object Storage
 ```
 
 Both lint, test and build first, so a half-finished rebrand never goes
@@ -60,7 +60,7 @@ npm run build && npx gh-pages -d dist --dotfiles -n
 If a later run fails with `a branch named 'gh-pages' already exists`, run
 `npx gh-pages-clean`.
 
-## S3 (AWS or Yandex Object Storage)
+## S3-compatible storage (AWS, DigitalOcean, Yandex)
 
 ```bash
 npm run deploy:s3:dry-run   # the full upload and delete plan, nothing written
@@ -73,12 +73,14 @@ variables) and these in `.env`:
 | variable | |
 |---|---|
 | `S3_BUCKET` | the bucket |
-| `S3_ENDPOINT` | `https://storage.yandexcloud.net` for Yandex; blank for AWS |
-| `S3_REGION` | e.g. `ru-central1` |
+| `S3_ENDPOINT` | AWS: blank · DigitalOcean: `https://<region>.digitaloceanspaces.com` · Yandex: `https://storage.yandexcloud.net` |
+| `S3_REGION` | e.g. `eu-central-1` · `fra1` · `ru-central1` |
 | `S3_KEEP` | optional — see below |
 
 The bucket needs static-website hosting with `index.html` as the index
-document and `404.html` as the error document, and public read.
+document and `404.html` as the error document, and public read. A
+DigitalOcean Space has neither an error-document setting nor its own
+custom-domain HTTPS: put the Spaces CDN or Cloudflare in front.
 
 The script isn't a bare `aws s3 sync`: it sets every file's content type
 and cache headers itself (sync guesses, and gets UTF-8 text and

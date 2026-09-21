@@ -168,7 +168,7 @@ Then one command:
 
 ```bash
 npm run deploy       # GitHub Pages
-npm run deploy:s3    # AWS S3 or Yandex Object Storage
+npm run deploy:s3    # AWS S3, DigitalOcean Spaces, Yandex Object Storage
 ```
 
 Both check, test and build first. → [deployment guide](docs/deploy.md)

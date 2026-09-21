@@ -318,7 +318,9 @@ the three pages can't drift; `theme-color` is the manifest's colour.
 
 **Two deploy paths, both kept.** `npm run deploy` is GitHub Pages
 (`gh-pages` branch, needs the `CNAME` the build emits). `npm run deploy:s3` is
-`scripts/deploy-s3.sh` — not a bare `aws s3 sync`, because sync guesses
+`scripts/deploy-s3.sh`, for any S3-compatible endpoint (AWS, DigitalOcean
+Spaces, Yandex Object Storage — documented with their endpoints in
+docs/deploy.md) — not a bare `aws s3 sync`, because sync guesses
 content types and never adds a charset (llms.txt in Cyrillic rendered garbled
 on the old site): every object's type comes from the script's table, one sync
 pass per extension, an unknown extension fails the deploy, hashed assets get
