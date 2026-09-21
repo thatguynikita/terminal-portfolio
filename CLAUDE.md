@@ -322,7 +322,9 @@ the three pages can't drift; `theme-color` is the manifest's colour.
 content types and never adds a charset (llms.txt in Cyrillic rendered garbled
 on the old site): every object's type comes from the script's table, one sync
 pass per extension, an unknown extension fails the deploy, hashed assets get
-immutable cache headers, a `--delete --size-only` pass removes stale keys, and `S3_KEEP` patterns (search-engine verification files that
+immutable cache headers, unhashed images a week (long enough that a
+repeat visit doesn't refetch the portrait, short enough that a swapped one
+shows without a rename), a `--delete --size-only` pass removes stale keys, and `S3_KEEP` patterns (search-engine verification files that
 live in the bucket, not the repo) are excluded from every pass. Nikita's own
 site is the S3 one; the Pages path exists for forks.
 
