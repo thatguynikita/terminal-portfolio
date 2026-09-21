@@ -28,10 +28,6 @@ if (!body || !canvas) {
   throw new Error("terminal markup is missing #termBody or #matrix");
 }
 
-// The static summary is for crawlers, no-JS visitors and screen readers;
-// with the terminal running it stays in the accessibility tree only.
-document.getElementById("staticSummary")?.classList.add("sr-only");
-
 const terminal = createTerminal({ profile, body, canvas });
 const input = createInput(terminal);
 

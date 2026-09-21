@@ -180,7 +180,8 @@ a:hover {
 }
 
 /* visually hidden but still announced by screen readers */
-.sr-only {
+.sr-only,
+html.js .static-summary {
   position: absolute;
   width: 1px;
   height: 1px;
@@ -226,13 +227,16 @@ footer a:hover {
 }
 
 /* ---------- static summary (terminal page, without JavaScript) ---------- */
-/* Plain readable content when scripts are off; main.ts adds .sr-only. */
+/* Plain readable content when scripts are off. With them, `html.js` (set by
+   the inline head script, before first paint) folds it to the sr-only box
+   above — in CSS, not from main.ts, so it never paints and then collapses:
+   that was a layout shift of the whole terminal. */
 .static-summary {
   padding: 22px 24px;
   line-height: 1.6;
 }
-.static-summary.sr-only {
-  padding: 0; /* .sr-only is declared earlier; keep the hidden box at 1px */
+html.js .static-summary {
+  padding: 0;
 }
 .static-summary h1 {
   font-size: 18px;

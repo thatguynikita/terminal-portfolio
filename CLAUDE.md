@@ -274,9 +274,12 @@ the page, not `<noscript>` — Google drops `<noscript>` and the AI crawlers
 never run scripts, so it's what all of them read, and it's the no-JS page:
 the inline head script sets `html.js`, and without that class the boot
 overlay and terminal chrome are `display: none` while the summary shows
-inside the window. With JS, `main.ts` makes it `sr-only`; the `<h1>` inside
-it (`#pageHeading`) follows the visitor's language, the rest stays in the
-default one. The last three are switches in `seo` (`enableSocialCards`,
+inside the window. With JS, **CSS folds it** (`html.js .static-summary`
+shares the `.sr-only` rule) — from the first paint, since the class comes
+from the inline head script. Doing it from `main.ts` instead painted the
+summary above the terminal and then collapsed it: a CLS of 1.0 on
+PageSpeed. The `<h1>` inside it (`#pageHeading`) follows the visitor's
+language, the rest stays in the default one. The last three are switches in `seo` (`enableSocialCards`,
 `enableJsonLd`, `enableStaticSummary`); off means the tags are absent, not
 stubbed — the summary off still leaves an `sr-only` `<h1>` — and
 `tests/discovery.test.ts` asserts every page both ways. `seo.ogImage` is inert with social cards off. **The 404 page is a
