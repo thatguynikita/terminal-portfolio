@@ -71,8 +71,10 @@ omitted field does is in [configuration](configuration.md).
 | `npm run lint` / `npm run lint:fix` | Biome — lint, formatting and import order |
 | `npm run og-card` | screenshot the link-preview card from the built site (needs Chrome) |
 | `npm run deploy` | lint, test, build, publish to GitHub Pages |
-| `npm run deploy:s3` | lint, test, build, sync to an S3-compatible bucket |
+| `npm run deploy:cf:dry-run` | build, then validate `wrangler.json` and list the files without uploading |
+| `npm run deploy:cf` | lint, test, build, publish to Cloudflare |
 | `npm run deploy:s3:dry-run` | build, then print the upload/delete plan without touching the bucket |
+| `npm run deploy:s3` | lint, test, build, sync to an S3-compatible bucket |
 
 ## Tests
 
