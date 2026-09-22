@@ -23,32 +23,39 @@ PAGE=dist/_social-card.html
 serve_dist "$PORT"
 trap 'kill $PREVIEW_PID 2>/dev/null; rm -f "$PAGE"' EXIT
 
+# The repo's name, dimmed after the first hyphen if it has one.
 NAME=$(node -p "require('./package.json').name")
+case "$NAME" in
+  *-*) TITLE="${NAME%%-*}-<span>${NAME#*-}</span>" ;;
+  *) TITLE="$NAME" ;;
+esac
 COMMANDS=$(ls src/commands/*.ts | wc -l | tr -d ' ')
 THEMES=$(ls src/themes/*.css | wc -l | tr -d ' ')
 LOCALES=$(ls src/i18n/messages/*.ts | wc -l | tr -d ' ')
-# The font file carries its version, so read the name rather than spell it.
-FONT=$(basename "$(ls public/assets/fonts/*-latin.woff2)")
+# The built stylesheet with every theme's tokens (and the @font-face
+# blocks). Hashed, so read the name rather than spell it.
+THEME_CSS=$(basename "$(ls dist/assets/theme-*.css)")
 
 cat > "$PAGE" <<HTML
 <!doctype html>
+<html data-theme="$THEME">
 <meta charset="utf-8">
 <title>social preview</title>
+<!-- Every colour below is a theme token, so THEME reaches the card and
+     not just the frames. The stylesheet carries the font too. -->
+<link rel="stylesheet" href="/assets/$THEME_CSS">
 <style>
-  @font-face {
-    font-family: "JetBrains Mono";
-    src: url("/assets/fonts/$FONT") format("woff2");
-    font-weight: 400 700;
-    font-display: block;
-  }
-  :root { color-scheme: dark; }
   * { margin: 0; padding: 0; box-sizing: border-box; }
   html, body { width: 1280px; height: 640px; overflow: hidden; }
+  /* Overrides the site's own body rule, which this stylesheet brings. */
   body {
+    margin: 0;
+    padding: 0;
+    min-height: 0;
     background:
-      radial-gradient(ellipse 900px 520px at 68% 50%, rgba(61, 255, 138, 0.1), transparent 70%),
-      #050806;
-    color: #3dff8a;
+      radial-gradient(ellipse 900px 520px at 68% 50%, rgba(var(--tint-rgb), 0.1), transparent 70%),
+      var(--bg);
+    color: var(--fg);
     font-family: "JetBrains Mono", ui-monospace, monospace;
     display: grid;
     place-items: center;
@@ -62,15 +69,15 @@ cat > "$PAGE" <<HTML
     align-items: center;
     gap: 36px;
   }
-  .name { font-size: 38px; font-weight: 700; white-space: nowrap; text-shadow: 0 0 14px rgba(61, 255, 138, 0.5); }
-  .name span { color: #2a9c60; }
-  .tag { margin-top: 18px; font-size: 20px; line-height: 1.5; color: #d8ffe9; }
-  .tag b { color: #ffb454; }
-  .meta { margin-top: 22px; font-size: 16px; line-height: 1.9; color: #6fcf9a; }
-  .meta span { color: #1f6b45; }
-  .prompt { margin-top: 26px; font-size: 16px; color: #1f6b45; }
-  .prompt b { color: #3dff8a; font-weight: 400; }
-  .prompt i { display: inline-block; width: 9px; height: 17px; background: #3dff8a; vertical-align: -3px; }
+  .name { font-size: 38px; font-weight: 700; white-space: nowrap; text-shadow: 0 0 14px rgba(var(--tint-rgb), 0.5); }
+  .name span { color: var(--fg-dim); }
+  .tag { margin-top: 18px; font-size: 20px; line-height: 1.5; }
+  .tag b { color: var(--accent); }
+  .meta { margin-top: 22px; font-size: 16px; line-height: 1.9; color: var(--fg-dim); }
+  .meta span { color: var(--fg-dim2); }
+  .prompt { margin-top: 26px; font-size: 16px; color: var(--fg-dim2); }
+  .prompt b { color: var(--fg); font-weight: 400; }
+  .prompt i { display: inline-block; width: 9px; height: 17px; background: var(--fg); vertical-align: -3px; }
   .shots { position: relative; height: 470px; }
   .shot {
     position: absolute;
@@ -78,8 +85,8 @@ cat > "$PAGE" <<HTML
     height: 350px;
     overflow: hidden;
     border-radius: 12px;
-    border: 1px solid rgba(61, 255, 138, 0.28);
-    box-shadow: 0 24px 60px rgba(0, 0, 0, 0.75), 0 0 40px rgba(61, 255, 138, 0.1);
+    border: 1px solid var(--border);
+    box-shadow: 0 24px 60px rgba(0, 0, 0, 0.5), 0 0 40px rgba(var(--tint-rgb), 0.12);
   }
   /* A real 1100×688 viewport, scaled into the frame — a small iframe would
      lay the page out for a phone instead. */
@@ -95,7 +102,7 @@ cat > "$PAGE" <<HTML
 </script>
 <div class="safe">
   <div>
-    <div class="name">terminal-<span>portfolio</span></div>
+    <div class="name">$TITLE</div>
     <div class="tag">Your site as a terminal — <b>one config file</b>, <b>one command</b> to deploy.</div>
     <div class="meta">
       <span>&#9656;</span> portfolio + CV page, prerendered<br>
