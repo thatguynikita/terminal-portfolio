@@ -25,6 +25,7 @@
     "test:watch": "vitest",
     "check": "vitest run tests/config.test.ts",
     "og-card": "sh scripts/og-card.sh",
+    "social-card": "sh scripts/social-card.sh",
     "deploy": "npm run lint && npm test && npm run build && gh-pages -d dist --dotfiles -m 'deploy'",
     "deploy:s3": "npm run lint && npm test && npm run build && dotenv -e .env -- sh scripts/deploy-s3.sh",
     "deploy:s3:dry-run": "npm run build && dotenv -e .env -- env DRY_RUN=1 sh scripts/deploy-s3.sh",

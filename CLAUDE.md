@@ -25,6 +25,7 @@ npm test               # vitest, all suites
 npm run check          # config preflight only
 npm run lint           # biome: lint + format + import order (lint:fix applies)
 npm run og-card        # scripts/og-card.sh → public/assets/img/og-terminal.png (needs Chrome)
+npm run social-card    # scripts/social-card.sh → docs/img/social-preview.png (GitHub's repo card)
 npm run deploy         # gh-pages
 npm run deploy:cf      # wrangler deploy → Cloudflare Pages (wrangler.json, public/_headers, _redirects)
 npm run deploy:s3      # scripts/deploy-s3.sh → S3-compatible bucket (see .env.example)
@@ -356,6 +357,17 @@ window uses `overflow: clip`, not `hidden` — hidden is still a scroll
 container and focusing the prompt scrolls the title bar out of the shot.
 `scripts/og-card.sh` opens it in headless Chrome at 750×394 × 1.6 for an
 exact 1200×630.
+
+**The GitHub social preview is a different image** — `docs/img/social-preview.png`,
+1280×640, from `scripts/social-card.sh`, and nothing in the site
+references it (it is uploaded in the repo's settings). It composites the
+two *live* pages rather than stored screenshots: a page written to
+`dist/_social-card.html` — same origin, so its script can strip each
+iframe down to the window and set the theme the CV reads from storage —
+with the terminal in `?card` mode beside it. Its content sits inside the
+middle 1120×470 of the canvas, because every platform that unfurls a link
+crops the image to its own aspect. `scripts/shot.sh` is the piece both
+screenshot scripts share: find Chrome, serve `dist/`.
 
 **JetBrains Mono is self-hosted** (`public/assets/fonts/`, the six subset
 files Google Fonts serves — one variable file per subset, weights 400–700,
