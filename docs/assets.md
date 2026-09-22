@@ -70,6 +70,21 @@ boot skipped) and writes the file. If Chrome isn't in a usual place, set
 `CHROME=/path/to/chrome`. With `seo.enableSocialCards` off the field does
 nothing.
 
+## The GitHub social preview
+
+The image GitHub shows when the repo itself is shared — not part of the
+site, so nothing references it:
+
+```bash
+npm run social-card             # docs/img/social-preview.png, 1280×640
+THEME=amber npm run social-card
+```
+
+It puts your terminal and CV pages side by side with the pitch, keeping
+everything inside the middle 1120×470 so the crop each platform applies
+takes background only. Upload it under **Settings → General → Social
+preview**.
+
 ## Favicons
 
 Referenced by fixed paths from the page shells, so replace the files in

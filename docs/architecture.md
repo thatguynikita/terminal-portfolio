@@ -70,6 +70,7 @@ omitted field does is in [configuration](configuration.md).
 | `npm run typecheck` | `tsc --noEmit` |
 | `npm run lint` / `npm run lint:fix` | Biome — lint, formatting and import order |
 | `npm run og-card` | screenshot the link-preview card from the built site (needs Chrome) |
+| `npm run social-card` | screenshot the repo's GitHub social preview, same way |
 | `npm run deploy` | lint, test, build, publish to GitHub Pages |
 | `npm run deploy:cf:dry-run` | build, then validate `wrangler.json` and list the files without uploading |
 | `npm run deploy:cf` | lint, test, build, publish to Cloudflare Pages |
