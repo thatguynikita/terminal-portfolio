@@ -15,10 +15,11 @@ find_chrome() {
 }
 CHROME="${CHROME:-$(find_chrome)}"
 
-# Serves dist/ on $1, building first if there's nothing to serve. The
-# caller traps EXIT to kill $PREVIEW_PID.
+# Builds, then serves dist/ on $1. Always builds: both callers shoot the
+# site as configured now, and a screenshot of a stale dist/ is wrong
+# without looking wrong. The caller traps EXIT to kill $PREVIEW_PID.
 serve_dist() {
-  [ -f dist/index.html ] || npx vite build
+  npx vite build
   npx vite preview --port "$1" --strictPort >/dev/null 2>&1 &
   PREVIEW_PID=$!
   sleep 1

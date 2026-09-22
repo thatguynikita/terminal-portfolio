@@ -364,10 +364,15 @@ references it (it is uploaded in the repo's settings). It composites the
 two *live* pages rather than stored screenshots: a page written to
 `dist/_social-card.html` — same origin, so its script can strip each
 iframe down to the window and set the theme the CV reads from storage —
-with the terminal in `?card` mode beside it. Its content sits inside the
+with the terminal in `?card` mode beside it. Every colour on the card is a
+theme token and the page links the built `theme-*.css`, so `THEME=` reaches
+the text and the frames alike; that stylesheet carries the site's own
+`body` rule, which the card's has to override. Its content sits inside the
 middle 1120×470 of the canvas, because every platform that unfurls a link
 crops the image to its own aspect. `scripts/shot.sh` is the piece both
-screenshot scripts share: find Chrome, serve `dist/`.
+screenshot scripts share: find Chrome, build, serve `dist/`. It rebuilds
+every time on purpose — both scripts shoot the config as it is now, and a
+shot of a stale `dist/` is wrong without looking wrong.
 
 **JetBrains Mono is self-hosted** (`public/assets/fonts/`, the six subset
 files Google Fonts serves — one variable file per subset, weights 400–700,
