@@ -5,7 +5,9 @@
 Everything about you is one file, **`profile.config.ts`**: name, bio,
 skills, links, the info card, the CV, the `ssh` personas, languages,
 theme, what search engines are told. The only setting outside it is
-`SITE_URL` in `.env` — where the site lives.
+`SITE_URL` in `.env` — where the site lives. The jokes are not in it:
+they're copy, and [commands.md](commands.md#the-jokes-are-the-authors) says
+where each one lives.
 
 ## Start from an example
 

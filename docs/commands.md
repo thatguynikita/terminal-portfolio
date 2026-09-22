@@ -68,6 +68,38 @@ owner (`commands.system.owner`). `uptime`, `uname -a` and `ls -l` all use
 `commands.system.since` as the moment the machine came up — leave it out
 and it's the last build.
 
+## The jokes are the author's
+
+The config holds your data; the humour is copy, so it lives in the message
+catalogues and a few commands — and nothing warns you, the way nothing
+warns you about [the images](assets.md). Bare keys below are in
+`src/i18n/messages/<locale>.ts`, and a change there has to be made in every
+language you ship.
+
+| What you hear | Where it is |
+|---|---|
+| the boot sequence, and `dmesg` | `boot.lines` |
+| the welcome and its whisper | `ui.welcome`, `ui.welcomeWhisper` |
+| `fortune` | `fortunes` |
+| `whoami`'s time-of-day quips | `timeQuips` |
+| `top` and `ps` process lists | `src/commands/top.ts`, `src/commands/ps.ts` — the same names in both |
+| `df` mounts, `free`'s swap note | `src/commands/df.ts`, `free.swapNote` |
+| `env`'s invented variables | `src/commands/env.ts` |
+| `kubectl get pods` | the names in `src/commands/kubectl.ts`, their status and events in `kubectl.pods` |
+| `terraform` | `RESOURCES` in `src/commands/terraform.ts`, the prose in `terraform.*` |
+| what `claude` answers | `claude.*` — its commit log, the light-theme egg, the confession |
+| the `ssh` handshake and its failures | `ssh.*` — the personas themselves are config |
+| `sudo rm -rf /` | `sudo.*` |
+| the 404 | `notFound.quip`, `notFound.catAlt`, and `public/assets/img/404-cat.png` |
+| `uname -a`'s kernel | `src/commands/uname.ts` |
+
+One running gag — a cat and a tin of condensed milk — threads through the
+boot sequence, two of the pods, `df`, the process lists, a terraform
+resource, the 404 and two of `claude`'s replies; `grep -ril condensed src/`
+finds every instance. The dates are flavour too: the 2019 login in `who`
+and `w`, and the pod ages, are written in, not counted from
+`commands.system.since`.
+
 ## Animations
 
 Use `ctx.sleep` for pauses, not a bare timer: it's skipped when the tab is
