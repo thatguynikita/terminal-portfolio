@@ -416,6 +416,9 @@ and gate their file *reads* too, since `describe.skip` still evaluates the body.
 - The language toggle is load-bearing: any new visible text needs every
   enabled locale. Command *logic* lives in `src/commands/`; command *copy*
   lives in `src/i18n/messages/`; personal *data* lives in `profile.config.ts`.
+  The jokes count as copy, so a fork inherits the author's — which nothing
+  warns it about, so the table in docs/commands.md maps every one of them
+  to its key or file. Keep that table true when a joke moves.
 - **The footer is one function, `renderFooter()` in `src/core/profile.ts`**,
   called by the terminal, the 404 and the CV build with each page's own
   localised tail. Its knobs are `terminal.footer` (`copyright`, `hint`,

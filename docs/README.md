@@ -13,7 +13,7 @@ everything past that.
 | [Languages](i18n.md) | Choosing which languages build, adding one |
 | [The CV](cv.md) | The CV page: its sections, one page per language, printing |
 | [Theming](theming.md) | Adding a theme, checking contrast, the secret theme |
-| [Adding a command](commands.md) | What a command looks like, how it prints, taking over the input |
+| [Adding a command](commands.md) | What a command looks like, how it prints, taking over the input, where the jokes live |
 | [The fake filesystem](filesystem.md) | Files that show up in `ls` and `cat`, including ones that run |
 | [Architecture](architecture.md) | How the pieces fit — for changing the engine, not the content |
 
