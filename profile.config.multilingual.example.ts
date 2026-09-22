@@ -228,7 +228,7 @@ export default defineProfile(MESSAGES, {
      * "spotify offline" instead.
      */
     nowPlaying: {
-      /** Returns JSON { is_playing, track, artist, url } — see src/core/nowplaying.ts. A path like `/api/now-playing` when the widget runs as a Cloudflare Worker on your domain. */
+      /** Returns JSON { is_playing, track, artist, url } — the backend and where to run it: docs/configuration.md#now-playing. */
       endpoint: "https://api.beatriz.example/now-playing",
       /** How often to ask it, in milliseconds. */
       pollMs: 20000,

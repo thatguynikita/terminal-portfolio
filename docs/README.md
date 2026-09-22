@@ -7,7 +7,7 @@ everything past that.
 
 | Page | What's in it |
 |---|---|
-| [Configuration](configuration.md) | The one file that is your site, the two examples, what's required and what's optional, the check |
+| [Configuration](configuration.md) | The one file that is your site, the two examples, what's required and what's optional, the now-playing row, the check |
 | [Deployment](deploy.md) | GitHub Pages or an S3 bucket, DNS, what the build produces |
 | [Images to replace](assets.md) | The CV photo, the link-preview card, the icons — sizes and how to make them |
 | [Languages](i18n.md) | Choosing which languages build, adding one |

@@ -64,6 +64,23 @@ unset.
 One rule: a skill or link marked for the CV only (`contexts: ["cv"]`)
 while there is no `cv` fails the check — it could never be shown.
 
+## Now playing
+
+`neofetch.nowPlaying` adds a live "Playing" row to the info card: your
+current Spotify track, polled from an endpoint that answers
+`{ is_playing, track, artist, url }`.
+[spotify-now-playing](https://github.com/thatguynikita/spotify-now-playing)
+is that endpoint — one script, deployed the way you prefer:
+
+| Deployed as | `endpoint` |
+|---|---|
+| AWS Lambda / Yandex Cloud Function | the function's URL |
+| Cloudflare Worker | its `workers.dev` URL, or `/api/now-playing` once the Worker is routed under your own Cloudflare-proxied domain |
+
+The row shows "spotify offline" while the endpoint is unreachable;
+`pollMs` is how often it asks. Leave `nowPlaying` out and there is no row
+and no request.
+
 ## The check
 
 ```bash
