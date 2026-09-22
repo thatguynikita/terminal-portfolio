@@ -2,7 +2,7 @@
 
 [← docs index](README.md)
 
-The build is a folder of static files, `dist/` — any host works. Two are
+The build is a folder of static files, `dist/` — any host works. Three are
 one command each:
 
 ```bash

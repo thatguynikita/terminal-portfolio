@@ -2,15 +2,17 @@
 
 [← docs index](README.md)
 
-Two of the shipped images are the author's, and nothing warns you if you
-keep them: every link you share would preview someone else's terminal.
+The images that ship are the author's, and nothing warns you if you keep
+them. Only the portrait has to be made: both cards are one command each,
+and the icons and the 404 cat are optional.
 
 | File | Used for | Size |
 |---|---|---|
 | `public/assets/img/portraits/` | the CV portrait — only the one `cv.photo` names ships | 480×480 |
-| `public/assets/img/og-terminal.png` | the preview card in shared links | 1200×630 |
+| `public/assets/img/og-terminal.png` | the preview card in shared links — `npm run og-card` | 1200×630 |
 | `public/favicon.ico` + `public/assets/icons/` | the tab and home-screen icon — optional | see below |
 | `public/assets/img/404-cat.png` | the 404 page — a joke, keep it or swap it | 821×357 |
+| `docs/img/social-preview.png` | the repo's card on GitHub, not the site's — `npm run social-card` | 1280×640 |
 
 `npm run check` fails if `cv.photo`, `cv.ogImage` or `seo.ogImage` point at a missing
 file. It can't tell whether the images are *yours*.
