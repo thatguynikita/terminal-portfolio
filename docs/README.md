@@ -8,8 +8,8 @@ everything past that.
 | Page | What's in it |
 |---|---|
 | [Configuration](configuration.md) | The one file that is your site, the two examples, what's required and what's optional, the now-playing row, the check |
-| [Deployment](deploy.md) | GitHub Pages or an S3 bucket, DNS, what the build produces |
-| [Images to replace](assets.md) | The CV photo, the link-preview card, the icons — sizes and how to make them |
+| [Deployment](deploy.md) | GitHub Pages, Cloudflare Pages or an S3 bucket, DNS, what the build produces |
+| [Images to replace](assets.md) | The CV photo, the icons, and the two cards a command generates for you |
 | [Languages](i18n.md) | Choosing which languages build, adding one |
 | [The CV](cv.md) | The CV page: its sections, one page per language, printing |
 | [Theming](theming.md) | Adding a theme, checking contrast, the secret theme |

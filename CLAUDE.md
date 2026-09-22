@@ -398,7 +398,7 @@ and gate their file *reads* too, since `describe.skip` still evaluates the body.
 
 - **Biome is the linter and formatter** (`biome.json`: 2 spaces, double
   quotes, 100 columns, recommended rules, imports organised). `npm run lint`
-  gates CI and both deploys; `npm run lint:fix` applies. Three rules are
+  gates CI and all three deploys; `npm run lint:fix` applies. Three rules are
   off on purpose — `useLiteralKeys` (index-signature access stays
   bracketed), `noImportantStyles` and `noDescendingSpecificity` (the print
   CSS relies on both) — and tests may use `!` and `any`. A deliberate

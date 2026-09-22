@@ -18,7 +18,9 @@ src/fs/                 the fake filesystem
 src/i18n/               the locale set and one catalogue per language
 src/themes/             one CSS file per theme
 src/styles/             shared chrome and per-page layout
-public/                 copied into dist/ as is
+public/                 copied into dist/ as is, plus _headers and _redirects
+scripts/                the deploy and screenshot shell scripts
+tests/                  the suites, including the config preflight
 ```
 
 ## How the pieces fit
