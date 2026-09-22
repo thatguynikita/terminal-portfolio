@@ -11,6 +11,7 @@
 [![TypeScript](https://img.shields.io/badge/TypeScript-7-3178c6?logo=typescript&logoColor=white)](tsconfig.json)
 [![Vite](https://img.shields.io/badge/Vite-8-646cff?logo=vite&logoColor=white)](vite.config.ts)
 [![Live Demo](https://img.shields.io/badge/Live%20Demo-nikita.sh-0a7)](https://nikita.sh)
+[![Lighthouse](https://img.shields.io/badge/Lighthouse-100-brightgreen?logo=lighthouse&logoColor=white)](https://pagespeed.web.dev/analysis?url=https%3A%2F%2Fnikita.sh&form_factor=desktop)
 
 <img src="docs/img/demo.gif" width="800" alt="A recorded session: the boot sequence and neofetch card, then help, about, skills, ls -lh revealing milk-quest.sh, cat contact.txt, switching to the ubuntu theme and back to green, asking claude to add tests, whoami, and logging out">
 
@@ -29,7 +30,7 @@
 - 🎮 **Hidden game** — poke around the filesystem to find it; the demo hides [condensed-milk-quest](https://github.com/thatguynikita/condensed-milk-quest), yours can hide anything
 - 🎵 **Live "now playing"** — your current Spotify track in the info card, via [spotify-now-playing](https://github.com/thatguynikita/spotify-now-playing)
 - 📱 **Works on a phone** — tappable command chips, minimal keyboard interaction
-- 🔍 **Indexable by design** — real HTML for crawlers, plus sitemap, robots.txt, llms.txt and structured data
+- 🔍 **Readable by crawlers and AI assistants** — the CV is real HTML, plus sitemap, robots.txt, llms.txt and structured data
 - 💍 **One file to rule them all** — name, bio, skills, links, CV, jokes, all from `profile.config.ts`
 - 🚀 **Deploys with a single command** — GitHub Pages, Cloudflare Pages, or any S3-compatible bucket
 
@@ -73,21 +74,16 @@ import es from "./src/i18n/messages/es.ts";
 export const MESSAGES = { en, es };   // this line is the whole language setup
 ```
 
-Thirteen are ready to import; the rest never reach the site. Every field
-below then asks for each language you listed. → [languages](docs/i18n.md)
+Thirteen are ready to import, and only the ones you list ship. Every field
+below then asks for each of them. → [languages](docs/i18n.md)
 
 **3. The rest of the file: you.** Name, bio, skills, links, the info card,
-the CV, the `ssh` personas. Only your name is required — leave anything
+the CV, what the commands say. Only your name is required — leave anything
 else out and it simply isn't there. → [configuration guide](docs/configuration.md)
 
-**4. Two images.** They're the author's, and nothing warns you:
-
-| File | What it is |
-|---|---|
-| `public/assets/img/portraits/` | your CV photo — point `cv.photo` at it |
-| `public/assets/img/og-terminal.png` | the preview card in shared links |
-
-Swapping the icons (`public/favicon.ico`, `public/assets/icons/`) is optional.
+**4. Your photo.** Drop it into `public/assets/img/portraits/` and point
+`cv.photo` at it. The preview card for shared links is generated from your
+terminal by `npm run og-card`; swapping the icons is optional.
 → [sizes and how to make them](docs/assets.md)
 
 **5. `npm run check`.** It catches a half-finished rebrand — a missing
@@ -95,7 +91,8 @@ translation, an image that isn't there, a link that isn't a link.
 
 ## Add your own
 
-Each of these is one file, and nothing needs registering.
+Optional — the config alone makes a complete site. But if you want to
+build on top of it, each of these is one file, and nothing needs registering.
 
 <details>
 <summary><b>Command</b></summary>
