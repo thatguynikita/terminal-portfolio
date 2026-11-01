@@ -33,9 +33,9 @@
     "deploy:cf:dry-run": "npm run build && npx wrangler deploy --dry-run"
   },
   "devDependencies": {
-    "@biomejs/biome": "^2.5.14",
-    "@types/node": "^26.6.3",
-    "dotenv-cli": "^11.0.0",
+    "@biomejs/biome": "^2.6.4",
+    "@types/node": "^26.6.6",
+    "dotenv-cli": "^11.1.0",
     "gh-pages": "^6.3.0",
     "happy-dom": "^21.0.4",
     "typescript": "^7.0.2",
